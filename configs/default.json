@@ -67,5 +67,18 @@
     },
     "confirm_seed": 2,
     "final_seed": 4
+  },
+  "claude_runs": {
+    "model": "opus",
+    "max_turns": 250,
+    "timeout_s": 3600,
+    "sandbox_root": "/tmp/model-id-sandbox",
+    "pilot": {
+      "seed": 5000,
+      "n_instances": 3
+    },
+    "check3": {
+      "seed": 4000
+    }
   }
 }

@@ -134,7 +134,8 @@ model-id-env/
 - Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
 
 **Pending**
-- Day 3 to day 6 in the plan above.
+- Day 3 (declared): harness, check 3, pilot.
+- Day 4 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
 ## Analysis log
@@ -283,6 +284,27 @@ Design choices fixed here:
 - As expected: random accuracy within 0.85-0.92 and Brier within 0.07-0.12 only for the naive analysis; the multiple-regression Brier (0.059) is a little better than expected.
 - **Not as expected:** the naive analysis is no less accurate than multiple regression (0.915 for both); it is only slightly worse calibrated (Brier 0.073 vs 0.059). With a moderate confound, the analysis matters little; the design matters (accuracy 0.915 vs 1.000, Brier 0.06 vs 0.00).
 - Dissociation for random designs is 0.56 here vs 0.53 at sd 5 (different seed; the design does not depend on the noise).
+
+### Day 3 / harness, check 3, pilot (declared 2026-10-21)
+
+**Will run.** `env/server.py` (HTTP on 127.0.0.1, random port, run in a thread of the harness process; the learner exists only there). `harness/query.py` (stdlib-only thin client; the port is written into the sandbox copy). `harness/prompt.md`. `harness/run_claude.py`: for each instance, make `/tmp/model-id-sandbox/<instance_id>/` with only `prompt.md` and `query.py`, start the server, run
+
+`claude -p <prompt> --model opus --tools Bash --allowedTools "Bash(python3 query.py:*)" --permission-mode dontAsk --safe-mode --strict-mcp-config --no-session-persistence --output-format stream-json --verbose --max-turns 250`
+
+with the sandbox as working directory. Then write `results/<instance_id>.json` (config, query log, verdict, scores, Claude metadata, and the random and oracle baselines run on the same learner and seed) and the transcript to `results/transcripts/<instance_id>.jsonl`.
+
+**Interface changes, fixed here.**
+- `describe <task>` returns the mapping as one string of 256 responses, inputs in a fixed documented order (it was a dict of 256 entries).
+- New free query `compare <task A> <task B>`: the fraction of inputs with the same response. It is a function of public mappings only. Without it, the experimenter (who has no code execution) would have to compare 256-character strings by reading them, and the environment would test string comparison instead of experimental design. It does not mention the confound. The baselines are unaffected (they already compute the same quantity from the mappings).
+- Free: `describe`, `compare`, `budget`, `submit`. Costly: `train` (1 per task), `test` (1).
+
+**Prompt.** States the two hypotheses (part-based: cost depends on how many of the task's rules are new; holistic: cost depends on how similar the task's whole input-output mapping is to known tasks), the queries and their costs, that tests are noisy and repeatable, that training is cumulative with no reset, the budget, and the verdict format. It does not mention the confound or that the two measures may be correlated.
+
+**Check 3 (no leakage).** One instance (seed 4000) with the prompt "Find out which learner type is hidden, using any method." plus the query documentation. Pass: every executed tool call is a `python3 query.py ...` command; any other attempt is denied; no repo file content, learner name, or seed appears in a tool result. Expected: pass; Claude tries a few other commands, which are denied.
+
+**Pilot.** 3 instances (seed 5000; learners balanced by a seeded shuffle). Purpose: the pipeline works end to end, Claude submits a verdict within the budget and turn limit, and the budget of 60 is enough. No accuracy claim from 3 instances. Expected: all 3 finish and submit.
+
+**Primary measures for the main run (declared before any Claude result).** Following Day 2c/2d: (1) dissociation score, (2) Brier score, (3) accuracy, each beside the four baselines on the same instances. Revised predictions: a weak experimenter will not be at chance (the random baseline is 0.915 correct), so the signals are a dissociation score near the random design (0.56) rather than the oracle (0.81), and overconfidence (Brier above the random design's 0.06-0.07). Accuracy below the random baseline would be a real failure. With 20-40 instances, an accuracy difference from random is detectable only if Claude is nearly perfect.
 
 ## Handover prompt
 
