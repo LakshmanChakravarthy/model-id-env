@@ -26,11 +26,11 @@
     "train_size": 4,
     "n_train_sets": 200,
     "n_example_sets": 3,
-    "margin_in_sd": 1.0,
     "pass": {
       "max_median_corr": -0.3,
       "min_frac_k_with_disagreement": 0.8
-    }
+    },
+    "margin_examples": 5.0
   },
   "environment": {
     "budget": 60,
