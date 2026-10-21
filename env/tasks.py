@@ -16,11 +16,13 @@ LOGIC_TABLES = np.array([
     [1, 1, 1, 0],  # not-both (NAND)
 ])
 # Motor rule m maps the Boolean to a response: row m = [response if False, response if True].
+# 2 x 2 design: button for False in {0, 3} x button for True in {1, 2}. No two rules are swaps
+# of each other, and only m0 and m3 share no button.
 MOTOR_TABLES = np.array([
-    [1, 0],
     [0, 1],
+    [0, 2],
+    [3, 1],
     [3, 2],
-    [2, 3],
 ])
 N_DIMS = 3
 

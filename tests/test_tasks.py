@@ -11,25 +11,23 @@ def test_task_id_roundtrip():
 def test_response_matrix_shape_and_distinct_mappings():
     r = tasks.response_matrix()
     assert r.shape == (64, 256)
-    # (logic, f, motor) and (complement logic, f, flipped motor) give the same mapping, so 32 distinct mappings.
-    assert len({tuple(row) for row in r}) == 32
+    # No motor rule is the swap of another, so every task has its own mapping.
+    assert len({tuple(row) for row in r}) == 64
 
 
-def test_complement_equivalence():
+def test_complements_disagree_everywhere():
     sim = tasks.similarity_matrix(tasks.response_matrix())
-    both_m0 = tasks.task_id(0, 2, 0)
-    notboth_m1 = tasks.task_id(3, 2, 1)
-    assert sim[both_m0, notboth_m1] == 1.0
-    assert tasks.new_parts(notboth_m1, [both_m0]) == 2
+    assert sim[tasks.task_id(0, 2, 1), tasks.task_id(3, 2, 1)] == 0.0
 
 
 def test_similarity_values():
     sim = tasks.similarity_matrix(tasks.response_matrix())
     assert np.allclose(np.diag(sim), 1.0)
     assert np.allclose(sim, sim.T)
-    assert set(np.round(np.unique(sim), 4)) == {0.0, 0.375, 0.5, 0.625, 1.0}
-    # Different "hands" share no responses.
-    assert sim[tasks.task_id(0, 0, 0), tasks.task_id(0, 0, 2)] == 0.0
+    assert len(np.unique(np.round(sim, 4))) == 10
+    # Motor rules m0 and m3 share no button; m0 and m1 share the False button.
+    assert sim[tasks.task_id(0, 0, 0), tasks.task_id(0, 0, 3)] == 0.0
+    assert sim[tasks.task_id(0, 0, 0), tasks.task_id(0, 0, 1)] == 0.75
     # AND vs OR on the same feature agree on 2 of 4 bit patterns.
     assert sim[tasks.task_id(0, 0, 0), tasks.task_id(1, 0, 0)] == 0.5
     # AND on feature 0 vs AND on feature 1: P(equal) = 1/16 + 9/16.

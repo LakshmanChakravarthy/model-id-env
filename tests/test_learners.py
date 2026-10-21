@@ -9,13 +9,13 @@ SIM = tasks.similarity_matrix(tasks.response_matrix())
 
 def test_part_based_depends_only_on_parts():
     known = [tasks.task_id(0, 0, 0)]
-    same_mapping = tasks.task_id(3, 0, 1)     # similarity 1, 2 new parts
-    far = tasks.task_id(0, 0, 2)              # similarity 0, 1 new part
+    close = tasks.task_id(1, 1, 1)            # 3 new parts, similarity > 0
+    far = tasks.task_id(0, 0, 3)              # 1 new part, similarity 0
     pb = lambda t: learners.mean_cost("part_based", t, known, CFG, SIM)
     ho = lambda t: learners.mean_cost("holistic", t, known, CFG, SIM)
-    assert pb(same_mapping) > pb(far)
-    assert ho(same_mapping) < ho(far)
-    assert ho(same_mapping) == CFG["holistic"]["base"]
+    assert SIM[close, known[0]] > 0
+    assert pb(close) > pb(far)
+    assert ho(close) < ho(far)
 
 
 def test_selection_uncertainty():

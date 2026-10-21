@@ -93,13 +93,20 @@ def main(config_name="default"):
             "corr_newparts_sim_per_k_median": float(np.nanmedian(corrs)),
             "corr_newparts_sim_per_k_range": [float(np.nanmin(corrs)), float(np.nanmax(corrs))],
             "n_k_with_undefined_corr": int(np.isnan(corrs).sum()),
+            "frac_k_corr_le_-0.5": float(np.nanmean(corrs <= -0.5)),
+            "frac_pairs_disagreeing_median": float(np.median(pairs) / (64 - c1["train_size"]) / (63 - c1["train_size"])),
             "corr_learner_costs_per_k_median": float(np.nanmedian([e[f"corr_costs_{m}"] for e in per_k])),
             "disagreeing_pairs_per_k_min": int(pairs.min()),
             "disagreeing_pairs_per_k_median": float(np.median(pairs)),
             "n_k_with_disagreement": int((pairs > 0).sum()),
             "n_k": len(per_k),
-            "pass": bool((pairs > 0).all()),
         }
+    # Pass criterion (declared in Day 1b), under the selected measure.
+    sel = summary[cfg["similarity"]["measure"]]
+    crit = cfg["check1"]["pass"]
+    summary["pass_confound"] = sel["corr_newparts_sim_per_k_median"] <= crit["max_median_corr"]
+    summary["pass_dissociation"] = sel["n_k_with_disagreement"] / sel["n_k"] >= crit["min_frac_k_with_disagreement"]
+    summary["pass"] = summary["pass_confound"] and summary["pass_dissociation"]
     summary["per_k"] = per_k
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -108,6 +115,7 @@ def main(config_name="default"):
     plot(all_rows, per_k, cfg, OUT_DIR / "check1.png")
     for m in MEASURES:
         print(m, json.dumps(summary[m]))
+    print("pass", summary["pass"], "confound", summary["pass_confound"], "dissociation", summary["pass_dissociation"])
     print("mean cost part-based", round(mean_pb, 2),
           {m: round(summary[f"mean_cost_holistic_{m}"], 2) for m in MEASURES},
           "matched c0", {m: round(summary[f"matched_c0_{m}"], 2) for m in MEASURES})
