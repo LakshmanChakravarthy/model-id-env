@@ -61,7 +61,7 @@ def main(config_name="default"):
     c1 = cfg["check1"]
     rng = np.random.default_rng(c1["seed"])
     sim = tasks.similarity_matrix(tasks.response_matrix(cfg["tasks"]["n_features"]))
-    margin = c1["margin_in_sd"] * cfg["noise"]["sd"]
+    margin = c1["margin_examples"]
 
     all_rows, per_k = [], []
     for _ in range(c1["n_train_sets"]):
