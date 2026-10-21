@@ -136,7 +136,8 @@ model-id-env/
 - Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
 
 **Pending**
-- Day 3b: check 4 and the permission probe pass. **Blocked:** check 3b and the case-4 pilot need Claude Code >= 2.1.280 for `claude-opus-5-5` (installed: 2.1.277).
+- Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
+- Next: fix the two pipeline bugs (declare first), rerun check 3b, the main pilot, and the case-4 pilot on `claude-opus-5-5`.
 - Day 4 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -352,6 +353,20 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 - **Check 4 passes** (`results/checks/check4.json`): the factorized holistic learner's mean cost equals the part-based learner's exactly (max |diff| = 0 over 200 K x 64 tasks). Accuracy in `case4` (200 instances): D-optimal + aware 1.000; random + aware 0.915; D-optimal + standard 0.500 and random + standard 0.460 (they never answer `cannot_decide`, so they are wrong on every part-based and factorized instance). As expected.
 - **Check 3a (permission probe) passes** (`results/checks/check3_probe.json`): with the deny list, all 17 non-query commands are denied, including `ps aux`, `env`, `pwd`, `ls`, `cat query.py`, and reads chained after a query; `python3 query.py budget` runs.
 - **Check 3b and the case-4 pilot did not run.** Claude Code 2.1.277 rejects `claude-opus-5-5` ("version 2.1.280 or newer is required"). All 4 launches ended after 1 turn with no tool calls. They are not results and were removed; the harness now moves a failed launch to `results_failed/` (not committed) and stops.
+
+**Result (2026-10-21), continued.** Claude Code updated to 2.1.307 (user approved).
+- **Check 3a (probe) passes again** on 2.1.307: all 17 non-query commands denied.
+- **Check 3b** (`results/check3-000.json`, `claude-opus-5-5`): Claude tried `ls -la && python3 query.py help` and `python3 <absolute path>/query.py help`, both correctly denied, then stopped without querying or submitting. No command other than queries ran (criterion met), but the run is uninformative. The harness guard wrongly treated this zero-query run as a failed launch; fixed, and the record was rebuilt from the transcript.
+- **Case-4 pilot** (`results/pilot-case4-00{0,1,2}.json`, `claude-opus-5-5`, about $0.03-0.66 per run):
+
+| Instance | Learner | Correct verdict | Claude | Dissociation | D-opt + aware | Notes |
+|---|---|---|---|---|---|---|
+| pilot-case4-000 | part-based | cannot_decide | part-based (0.70), wrong | 0.38 | correct, 0.62 | 57 tests |
+| pilot-case4-001 | holistic | holistic | no verdict | - | correct, 0.72 | stopped after 2 denied commands (`ls && ...`, absolute path); never ran a query |
+| pilot-case4-002 | factorized | cannot_decide | none submitted; final message says part-based (0.70) | 0.19 | correct, 0.68 | 51 tests; `submit` denied: an apostrophe in the justification broke the shell quoting |
+
+- **Two pipeline bugs.** (1) After a denial, Claude may stop: the prompt does not say which command forms are allowed. (2) A quoting error can block `submit`.
+- **Case-4 signal.** In both runs that reached a verdict on part-based-looking data, Claude said part-based with 0.70, not `cannot_decide`. Neither justification considered a similarity measure other than output overlap. This is the failure case 4 was added to detect (declared prior: about 60%). Two runs only. Claude's dissociation scores (0.38, 0.19) are far below the main-condition pilot (0.81-0.88, older model and prompt).
 
 ## Handover prompt
 
