@@ -130,9 +130,10 @@ model-id-env/
 - Day 1b: motor table changed to the 2x2 design. Check 1 rerun and **passed** (median corr -0.40; dissociations in 98.5% of K). Similarity measure selected: `max`.
 - Day 2 code: `env/environment.py`, `env/scoring.py`, `harness/baselines.py`, `analysis/check2_baselines.py`, tests (20 pass).
 - Check 2 ran with the declared tuning grid and confirmation. It **failed**: the random baseline stays at 0.80-0.85 or higher; the best gap was +0.165 in tuning and +0.140 in confirmation (needed 0.15).
+- Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
 
 **Pending**
-- Day 2b (declared): revised check 2 with naive-analysis baselines.
+- **Decide before Day 3:** keep noise sd 5 (accuracy at ceiling for every baseline; only the dissociation score separates experimenters) or raise it (Day 2b result).
 - Day 3 to day 6 in the plan above.
 - Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
 
@@ -226,6 +227,19 @@ Design choices fixed here:
 **Expected result.** Oracle accuracy about 1.0; random (multiple) about 1.0; dissociation 0.82 vs 0.52, so the check passes. Naive analysis: the marginal correlation of the true predictor includes its own effect, and the other predictor gets only the part that comes through the -0.4 correlation, so naive accuracy is also high at noise sd 5 (about 0.9-1.0), with the random-naive pair the lowest of the four. Brier is worst for random-naive.
 
 **Consequence for the main claim.** In this environment, a weak design costs little accuracy when the analysis is good. So the comparison of Claude with the baselines rests mainly on the dissociation score and calibration, and on accuracy only where Claude falls below the random baseline.
+
+**Result (2026-10-21). Check 2 PASSES under the Day 2b criterion** (`results/checks/check2_final.json`, seed 3, 200 instances per baseline):
+
+| Baseline | Accuracy | Dissociation | Brier |
+|---|---|---|---|
+| Random design, multiple regression | 1.000 | 0.53 | 0.000 |
+| Oracle design, multiple regression | 1.000 | 0.83 | 0.000 |
+| Random design, naive | 1.000 | 0.53 | 0.001 |
+| Oracle design, naive | 1.000 | 0.83 | 0.000 |
+
+- Dissociation gap 0.30 (needed 0.20); oracle accuracy 1.00 (needed 0.90).
+- **Not as expected:** the naive analysis is also 100% correct with a random design. I expected about 0.9-1.0 and the lowest of the four; it is at ceiling. At noise sd 5 with 56 tests, every baseline gets every verdict right with near-certain confidence.
+- **Consequence.** At these settings, verdict accuracy and Brier cannot separate experimenters; only the dissociation score does. The hypothesis in CLAUDE.md ("a weak experimenter's verdicts are close to chance or overconfident") cannot show up in accuracy here. A noise level where random designs fall below ceiling (sd 10-15 gave random 0.85-0.95 in the Day 2 grid) would make accuracy and calibration informative again. That needs a decision and a declare commit before any Claude run.
 
 ## Handover prompt
 
