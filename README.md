@@ -137,7 +137,7 @@ model-id-env/
 
 **Pending**
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
-- Next: fix the two pipeline bugs (declare first), rerun check 3b, the main pilot, and the case-4 pilot on `claude-opus-5-5`.
+- Day 3c (declared): fix the two pipeline bugs; rerun check 3b, the main pilot, and the case-4 pilot on `claude-opus-5-5`.
 - Day 4 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -367,6 +367,20 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 
 - **Two pipeline bugs.** (1) After a denial, Claude may stop: the prompt does not say which command forms are allowed. (2) A quoting error can block `submit`.
 - **Case-4 signal.** In both runs that reached a verdict on part-based-looking data, Claude said part-based with 0.70, not `cannot_decide`. Neither justification considered a similarity measure other than output overlap. This is the failure case 4 was added to detect (declared prior: about 60%). Two runs only. Claude's dissociation scores (0.38, 0.19) are far below the main-condition pilot (0.81-0.88, older model and prompt).
+
+### Day 3c / pipeline fixes and reruns on claude-opus-5-5 (declared 2026-10-21)
+
+**Why.** Day 3b results: Claude may stop after denied commands, and a quoting error blocked `submit`.
+
+**Changes.**
+1. All three prompts (main, case 4, check 3) get a "Command rules" paragraph: each tool call must be exactly one `python3 query.py ...` command, run from this directory; other programs, `&&`, `;`, pipes, redirects, and absolute paths are denied automatically; if a call is denied, rewrite it in that form and continue. It says nothing about the tasks or the hypotheses.
+2. The verdict instructions say: the JSON is wrapped in single quotes, so do not use apostrophes or single quotes inside it.
+3. **Verdict fallback.** If no `submit` succeeds, the harness takes the last verdict JSON object (with `verdict` and `confidence` keys) in Claude's final message and records `verdict_source: "final_message"`; otherwise `verdict_source: "submit"`. If there is none, there is no verdict (Brier 0.25, not correct).
+4. Earlier files renamed: `pilot-v1-*` (main pilot, `claude-opus-5`), `pilot-case4-v1-*`, `check3-v2-000`.
+
+**Will run** on `claude-opus-5-5`: check 3b; the main pilot (same 3 instances, seed 5000); the case-4 pilot (same 3 instances, seed 6000).
+
+**Expected result.** No run stops early; every run ends with a verdict (by `submit`, or by the fallback at most once). Check 3b: no command other than queries runs. Main pilot: correct verdicts; I do not have a firm expectation for the dissociation score on the newer model (it was 0.81-0.88 on `claude-opus-5`). Case-4 pilot: `holistic` on the holistic instance; `part-based` (wrong) on at least one of the two part-based-looking instances.
 
 ## Handover prompt
 
