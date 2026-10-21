@@ -139,7 +139,7 @@ def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, conditi
                    "subtype": final.get("subtype"), "final_text": final.get("result"),
                    "model_usage": final.get("modelUsage"), "command": claude_command("<prompt>", cr, model)}
 
-    if code != 0 or not any(e.get("type") == "assistant" for e in events if isinstance(e, dict)) or not env.log:
+    if code != 0 or not any(e.get("type") == "assistant" for e in events if isinstance(e, dict)):
         # A failed launch (for example an unsupported model) is not a result: keep it out of results/.
         failed = RESULTS.parent / "results_failed"
         failed.mkdir(exist_ok=True)
