@@ -52,6 +52,7 @@ Stylized learners. Each mechanism is true by construction. (Trained RNN learners
 ### Baselines (`harness/baselines.py`)
 - **Random experimenter**: random train set, random tests, then regresses cost on new parts and on similarity, and selects the predictor with the larger effect.
 - **Oracle design**: selects the tasks that dissociate parts from similarity, then applies the same regression. This is an upper bound on what the budget allows.
+- Each design is analysed in two ways (Day 2b): **multiple regression** (cost on both predictors together) and **naive** (each predictor's correlation with cost on its own). This gives four baselines and shows how much of the difficulty is in the design and how much in the analysis.
 
 ### Running Claude (`harness/run_claude.py`)
 Claude runs as the experimenter through **Claude Code headless** (`claude -p`).

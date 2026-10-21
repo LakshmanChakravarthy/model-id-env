@@ -1,5 +1,6 @@
-"""Random and oracle experimenters. Both use only the public interface (labels, describe, train, test)
-and the same analysis: OLS of cost on [1, new_parts, similarity]."""
+"""Random and oracle experimenters. Both use only the public interface (labels, describe, train, test).
+Analysis is either "multiple" (OLS of cost on [1, new_parts, similarity]) or "naive" (each predictor's
+correlation with cost on its own)."""
 import itertools
 
 import numpy as np
@@ -61,6 +62,22 @@ def analyze(records):
             "justification": f"OLS t(new_parts) = {t_parts:.2f}, -t(similarity) = {t_sim:.2f}"}
 
 
+def analyze_naive(records):
+    """records: list of (new_parts, similarity, cost). Compares the two marginal correlations."""
+    x = np.array([[r[0], -r[1]] for r in records], dtype=float)
+    y = np.array([r[2] for r in records], dtype=float)
+    r = [float(np.corrcoef(x[:, j], y)[0, 1]) if x[:, j].std() > 0 and y.std() > 0 else 0.0 for j in range(2)]
+    r = np.clip(r, -0.999999, 0.999999)
+    z = (np.arctanh(r[0]) - np.arctanh(r[1])) * np.sqrt(max(len(y) - 3, 1) / 2)
+    p = norm.cdf(z)
+    verdict = "part-based" if r[0] > r[1] else "holistic"
+    return {"verdict": verdict, "confidence": float(max(p, 1 - p)),
+            "justification": f"r(cost, new_parts) = {r[0]:.2f}, r(cost, -similarity) = {r[1]:.2f}"}
+
+
+ANALYSES = {"multiple": analyze, "naive": analyze_naive}
+
+
 def run_tests(env, names, sim, known, test_names):
     records = []
     for n in test_names:
@@ -71,14 +88,14 @@ def run_tests(env, names, sim, known, test_names):
     return records
 
 
-def random_experimenter(env, seed):
+def random_experimenter(env, seed, analysis="multiple"):
     rng = np.random.default_rng(seed)
     names, sim = public_view(env)
     k = env.cfg["baselines"]["train_size"]
     known = [names[i] for i in rng.choice(len(names), size=k, replace=False)]
     env.train(known)
     test_names = [names[i] for i in rng.integers(len(names), size=env.budget)]
-    verdict = analyze(run_tests(env, names, sim, known, test_names))
+    verdict = ANALYSES[analysis](run_tests(env, names, sim, known, test_names))
     env.submit(verdict)
     return verdict
 
@@ -101,7 +118,7 @@ def d_optimal_allocation(x, n_tests):
     return chosen, float(np.linalg.det(final))
 
 
-def oracle_experimenter(env, seed):
+def oracle_experimenter(env, seed, analysis="multiple"):
     rng = np.random.default_rng(seed)
     names, sim = public_view(env)
     k = env.cfg["baselines"]["train_size"]
@@ -115,6 +132,6 @@ def oracle_experimenter(env, seed):
         if best is None or det > best[0]:
             best = (det, known, [cands[j] for j in chosen])
     env.train(best[1])
-    verdict = analyze(run_tests(env, names, sim, best[1], best[2]))
+    verdict = ANALYSES[analysis](run_tests(env, names, sim, best[1], best[2]))
     env.submit(verdict)
     return verdict

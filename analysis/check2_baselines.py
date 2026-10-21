@@ -4,9 +4,11 @@ Usage:
   python analysis/check2_baselines.py main      # current config, seed check2.seed
   python analysis/check2_baselines.py grid      # declared tuning grid, seed check2.seed
   python analysis/check2_baselines.py confirm NOISE_SD BUDGET C_SEL   # selected setting, check2.confirm_seed
+  python analysis/check2_baselines.py final     # current config, check2.final_seed (Day 2b criterion)
 Writes results/checks/check2_<mode>.json.
 """
 import copy
+import functools
 import itertools
 import json
 import sys
@@ -24,7 +26,9 @@ from harness import baselines
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "results" / "checks"
 LEARNERS = ["part_based", "holistic"]
-EXPERIMENTERS = {"random": baselines.random_experimenter, "oracle": baselines.oracle_experimenter}
+EXPERIMENTERS = {"random": baselines.random_experimenter, "oracle": baselines.oracle_experimenter,
+                 "random_naive": functools.partial(baselines.random_experimenter, analysis="naive"),
+                 "oracle_naive": functools.partial(baselines.oracle_experimenter, analysis="naive")}
 
 
 def matched_c0(cfg):
@@ -71,14 +75,21 @@ def run_setting(cfg, seed, n, pool):
     crit = cfg["check2"]["pass"]
     acc_o, acc_r = summary["oracle"]["accuracy"], summary["random"]["accuracy"]
     summary["gap"] = acc_o - acc_r
-    summary["pass"] = bool(acc_o >= crit["min_oracle_accuracy"] and summary["gap"] >= crit["min_gap"])
+    summary["dissociation_gap"] = summary["oracle"]["dissociation_mean"] - summary["random"]["dissociation_mean"]
+    if "min_dissociation_gap" in crit:   # Day 2b criterion
+        summary["pass"] = bool(acc_o >= crit["min_oracle_accuracy"]
+                               and summary["dissociation_gap"] >= crit["min_dissociation_gap"])
+    else:                                # Day 2 criterion
+        summary["pass"] = bool(acc_o >= crit["min_oracle_accuracy"] and summary["gap"] >= crit["min_gap"])
     return summary, rows
 
 
 def line(setting, s):
-    return (f"{setting}  oracle {s['oracle']['accuracy']:.3f}  random {s['random']['accuracy']:.3f}  "
-            f"gap {s['gap']:+.3f}  diss o/r {s['oracle']['dissociation_mean']:.2f}/{s['random']['dissociation_mean']:.2f}  "
-            f"brier o/r {s['oracle']['brier_mean']:.3f}/{s['random']['brier_mean']:.3f}  pass {s['pass']}")
+    out = [f"{setting}  pass {s['pass']}"]
+    for e in EXPERIMENTERS:
+        out.append(f"  {e:<13} accuracy {s[e]['accuracy']:.3f}  dissociation {s[e]['dissociation_mean']:.2f}  "
+                   f"brier {s[e]['brier_mean']:.3f}  by learner {s[e]['accuracy_by_learner']}")
+    return "\n".join(out)
 
 
 def main(mode="main", *setting):
@@ -90,6 +101,10 @@ def main(mode="main", *setting):
             s, rows = run_setting(cfg, c2["seed"], c2["n_instances"], pool)
             out = {"mode": mode, "config": cfg, "summary": s, "rows": rows}
             print(line("current config", s))
+        elif mode == "final":
+            s, rows = run_setting(cfg, c2["final_seed"], c2["n_instances"], pool)
+            out = {"mode": mode, "config": cfg, "summary": s, "rows": rows}
+            print(line("current config, final seed", s))
         elif mode == "grid":
             g = c2["tuning_grid"]
             out = {"mode": mode, "seed": c2["seed"], "settings": []}
