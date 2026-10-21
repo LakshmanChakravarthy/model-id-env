@@ -123,10 +123,13 @@ model-id-env/
 
 **Completed**
 - Scope and design (this README).
+- Day 1 code: `env/tasks.py`, `env/learners.py`, `env/config.py`, `configs/default.json`, tests in `tests/` (run with `python -m pytest tests`).
+- Check 1 ran (see Analysis log). It **failed**: for random training sets there is almost no confound between new parts and similarity.
 
 **Pending**
-- Day 1 to day 6 in the plan above.
-- Decide the similarity measure (maximum or kernel-weighted mean) after check 1.
+- **Blocked:** decide how to change the design so that hard case 1 exists (see Analysis log, day 1). Then a new declare commit and a rerun of check 1.
+- Day 2 to day 6 in the plan above.
+- Decide the similarity measure (maximum or kernel-weighted mean): by the declared rule this is `max`, but confirm it after the design change.
 - Tune the learner parameters and the budget after check 2.
 
 ## Analysis log
@@ -146,6 +149,14 @@ Definitions fixed here:
 **Expected result.** (a) Similarity takes few values ({0, .375, .5, .625, 1}) and is driven mostly by the motor "hand", so corr(new_parts, similarity) over test tasks is negative, magnitude roughly 0.3-0.8 (the confound). (b) Disagreeing pairs exist for every K (pass criterion: >0 for all 200 K). Clear examples: T = (NAND, f, T->1/F->0) has the same mapping as a known (AND, f, T->0/F->1) (similarity 1) but has 2 new parts. (c) Under the same measure, max and kernel similarity give similar conclusions.
 
 **Decision rule for the similarity measure.** Use `max` (nearest known task), unless check 1 fails under `max` and passes under `kernel`.
+
+**Result (2026-10-21). Check 1 FAILS as declared, and the main expectation was wrong.** Files: `results/checks/check1.json`, `results/checks/check1.png`. Matched `c0` = 35.4 (max) / 34.2 (kernel); `c0` = 35.4 is now in the config, and the numbers below are from the rerun (mean cost 25.9 for both learners).
+- (a) Similarity values are as expected ({0, .375, .5, .625, 1}, driven by the motor "hand"). But **there is almost no confound for random K**: the median within-K corr(new_parts, similarity) is -0.03 (range -0.73 to +0.34; pooled -0.09). The confound is strong only when all of K uses one motor hand (12 of 200 random K, median corr -0.65). For the other 188 K, the median corr is -0.02. The reason is that similarity depends on the hand and on logic complements (AND ≡ NAND with the flipped motor map), and neither of these is a count of shared rule values.
+- (b) Disagreeing pairs exist for 194 of 200 K (max) and 196 of 200 (kernel), not all 200. Median 195 pairs per K (of 3540). The failures are 4 one-hand K and 2 K in which new parts can only be 0 or 1.
+- (c) Max and kernel give the same conclusions.
+- The median within-K corr between the two learners' costs is 0.02, so for a random design the two learners already predict nearly unrelated cost profiles.
+
+**Implication.** The premise of hard case 1 ("shared parts and similarity are confounded in most of the task space") does not hold for this task space with random training sets. The confound is a property of some training sets (one-hand K), not of the space. A random experimenter will probably succeed, so check 2 will probably fail ("environment too easy"). Work stops here until the design is changed (a new declare commit).
 
 ## Handover prompt
 
