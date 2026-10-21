@@ -187,5 +187,10 @@
   "summary": {
     "seed": 0,
     "n_bootstrap": 10000
+  },
+  "comprehension_control": {
+    "n_per_wording": 5,
+    "model": "claude-opus-5-5",
+    "max_turns": 3
   }
 }

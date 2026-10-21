@@ -138,7 +138,8 @@ model-id-env/
 **Pending**
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
 - Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
-- Day 4 (declared): main run, 20 main + 20 case-4 instances.
+- Day 4 (declared, running): main run, 20 main + 20 case-4 instances.
+- Day 4b (declared): case-4 comprehension control, after the main run.
 - Day 5 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -417,6 +418,18 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 - Main condition: Claude accuracy >= 0.9; mean Brier <= 0.05; a decisive pair in >= 80% of runs; mean dissociation between 0.5 and 0.8 (pilot 0.38-0.98). Random baseline about 0.9 correct; D-optimal about 1.0.
 - Case 4: Claude correct on most holistic instances (>= 8 of 10); on the 10 part-based-looking instances (part-based and factorized), `part-based` in >= 7 of 10, so accuracy on them <= 0.3 and mean Brier on them >= 0.4. D-optimal + aware about 1.0; D-optimal standard about 0.5.
 - Cost about $15 and 1.5 hours.
+
+### Day 4b / case-4 comprehension control (declared 2026-10-21, during the main run, before any main-run result was read)
+
+**Why.** In the pilot, Claude answered part-based (not `cannot_decide`) on all 4 part-based-looking case-4 runs. Two explanations are open: (a) a conceptual failure (Claude does not see that a holistic learner with an unobserved similarity measure can mimic the part-based pattern); (b) neglect while experimenting (Claude can reason about this but ignores the one changed sentence, helped by the `compare` tool, which offers only output overlap as a similarity).
+
+**Will run** (`harness/comprehension_control.py`, after the main run finishes): no experiment and no tools. Claude gets the task description, the two hypotheses, and a fixed summary of part-based-looking data: the 2x2 result from pilot-case4-000 (trained L1-S1-M1 and L2-S2-M2; mean examples to criterion, 12 tests each: 0 new rules with output overlap 0.75 -> 10.4; 0 new, overlap 0.06 -> 17.8; 3 new, overlap 0.56 -> 37.3; 3 new, overlap 0.06 -> 41.5). It is asked which verdict the evidence justifies (`part-based`, `holistic`, `cannot_decide`), with confidence and justification, as JSON. Two wordings, 5 runs each, on `claude-opus-5-5`:
+- **main wording:** the holistic hypothesis as in the main condition (similarity of the input-output mapping). Correct: `part-based`.
+- **case-4 wording:** as in the case-4 condition (the learner's own, unobserved similarity measure). Correct: `cannot_decide`.
+
+**Interpretation rule (fixed now).** Case-4 wording: >= 4 of 5 `cannot_decide` -> explanation (b), neglect while experimenting; <= 1 of 5 -> explanation (a), conceptual; 2-3 -> mixed. The main wording must give `part-based` in >= 4 of 5, or the control is not interpretable.
+
+**Expected result.** Main wording: 5 of 5 `part-based`. Case-4 wording: low confidence; I lean to 3 or more of 5 `cannot_decide` (without the experiment to run, the changed sentence is more salient).
 
 ## Handover prompt
 
