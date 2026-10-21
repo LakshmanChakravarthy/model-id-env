@@ -85,14 +85,21 @@ class Environment:
                                for d in range(tasks.N_DIMS)},
                 "task_name_format": "L?-S?-M?",
                 "n_tasks": n_values ** tasks.N_DIMS,
-                "inputs": "a pair of stimuli, each with n binary features; written as two bit strings 'stim1 stim2'",
+                "inputs": (f"{len(self.inputs)} inputs; each is a pair of stimuli with "
+                           f"{self.cfg['tasks']['n_features']} binary features each. Input i, written as "
+                           f"{2 * self.cfg['tasks']['n_features']} bits (most significant first), gives the "
+                           f"features of stimulus 1 then stimulus 2."),
                 "n_features": self.cfg["tasks"]["n_features"],
                 "responses": sorted(int(r) for r in np.unique(self.responses)),
             }
             return self._record("describe", [], result)
         t = self.task_of(name)
-        mapping = {self.input_string(i): int(self.responses[t, i]) for i in range(len(self.inputs))}
-        return self._record("describe", [name], {"task": name, "mapping": mapping})
+        responses = "".join(str(int(r)) for r in self.responses[t])
+        return self._record("describe", [name], {"task": name, "responses": responses})
+
+    def compare(self, name_a, name_b):
+        a, b = self.task_of(name_a), self.task_of(name_b)
+        return self._record("compare", [name_a, name_b], {"fraction_same_response": float(self.sim[a, b])})
 
     def get_budget(self):
         return self._record("budget", [], {"budget": self.budget})
@@ -107,10 +114,6 @@ class Environment:
         self.verdict = {"verdict": verdict["verdict"], "confidence": conf,
                         "justification": str(verdict.get("justification", ""))}
         return self._record("submit", [], self.verdict)
-
-    def input_string(self, i):
-        x = self.inputs[i]
-        return " ".join("".join(str(int(b)) for b in stim) for stim in x)
 
     # --- for scoring only (uses hidden state) ---
     def test_events(self):

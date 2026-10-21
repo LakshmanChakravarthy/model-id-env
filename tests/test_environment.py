@@ -37,8 +37,19 @@ def test_budget_accounting():
 def test_describe_mapping_matches_hidden_task():
     env = Environment("part_based", 1, CFG)
     t = 37
-    mapping = env.describe(env.name(t))["mapping"]
-    assert list(mapping.values()) == tasks.response_matrix()[t].tolist()
+    responses = env.describe(env.name(t))["responses"]
+    assert [int(c) for c in responses] == tasks.response_matrix()[t].tolist()
+    # Input i in binary = stimulus 1 features, then stimulus 2 features.
+    i = 0b10100110
+    assert tasks.all_inputs()[i].ravel().tolist() == [1, 0, 1, 0, 0, 1, 1, 0]
+
+
+def test_compare_is_free_and_matches_similarity():
+    env = Environment("holistic", 2, CFG)
+    b = env.budget
+    r = env.compare(env.name(3), env.name(7))
+    assert r["fraction_same_response"] == tasks.similarity_matrix(tasks.response_matrix())[3, 7]
+    assert env.budget == b
 
 
 def test_same_seed_same_samples():

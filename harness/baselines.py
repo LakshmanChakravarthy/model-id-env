@@ -11,7 +11,7 @@ def public_view(env):
     """Task names, and the similarity matrix computed from describe mappings."""
     dims = env.describe()["dimensions"]
     names = ["-".join(c) for c in itertools.product(*dims.values())]
-    resp = np.array([list(env.describe(n)["mapping"].values()) for n in names])
+    resp = np.array([[int(c) for c in env.describe(n)["responses"]] for n in names])
     sim = (resp[:, None, :] == resp[None, :, :]).mean(axis=2)
     return names, sim
 
