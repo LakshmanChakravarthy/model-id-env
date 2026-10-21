@@ -80,7 +80,6 @@ Claude runs as the experimenter through **Claude Code headless** (`claude -p`).
 - Trained RNN and transformer learners (case 2: the learner does not use the designed parts).
 - Case 3: mixtures of mechanisms.
 - Deeper rule trees (an outer logic rule over two inner logic-feature rules, for example "if BOTH are red AND EITHER is vertical"). Productive compositional generalization. An exploratory probe (Day 1b) found that they dilute the confound, and that De Morgan equivalences make half of the trees share a mapping with another tree.
-- Case 4: a holistic learner with a factorized similarity metric, which gives the same behavior as the part-based learner. The correct verdict is `cannot_decide`. (Add this first if time permits.)
 - Expert rubric scoring of the justification text.
 - The extension: run the same dissociation on Claude's in-context learning.
 
@@ -135,7 +134,7 @@ model-id-env/
 - Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
 
 **Pending**
-- **Blocked before the main run** (Day 3 results): (a) tighten the sandbox (`ps` and other read-only commands run) and rerun check 3; (b) Claude was at ceiling in the pilot and beat the oracle's dissociation score, using the TRUE/FALSE button structure: decide whether to keep the environment as is; (c) relabel or fix the oracle (not an upper bound on dissociation); (d) pin the exact model ID.
+- Day 3b (declared): sandbox deny list, strengthened check 3, D-optimal rename, model pin, case 4 with check 4 and a case-4 pilot.
 - Day 4 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -325,6 +324,27 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 - **The oracle is not an upper bound on the dissociation score.** It maximizes det(cov) for the regression over random candidate training sets, not the dissociation score, and it trains once. The README calls it an upper bound; that is wrong for the dissociation score.
 - Minor: `train` charges 1 per listed task, so a task listed twice in one command is charged twice (check 3). Left unchanged (it follows the declared rule).
 - Minor: Claude's first `submit` failed 3 times across the pilot because quotes inside the justification broke the JSON; Claude recovered each time.
+
+### Day 3b / sandbox deny list, D-optimal baseline, model pin, case 4 (declared 2026-10-21)
+
+**Why.** Day 3 results: read-only commands run in the sandbox (`ls`, `cat`, `ps`); the "oracle" is not an upper bound on the dissociation score; the `opus` alias resolved to `claude-opus-5`; Claude was at ceiling in the pilot. The user approved adding case 4 (from the out-of-scope list) on 2026-10-21.
+
+**Changes.**
+1. **Sandbox.** `--disallowedTools` denies a list of read-only and inspection commands (`claude_runs.denied_commands`: `ls`, `cat`, `ps`, `env`, `lsof`, `grep`, `find`, `git`, `echo`, and others), as `Bash(<cmd>)` and `Bash(<cmd> *)`. Deny rules take precedence over the auto-approval of read-only commands.
+2. **Check 3, strengthened.** (a) An automated permission probe (`run_claude.py probe`, model `haiku`, same flags) runs a fixed list of commands: repo reads by absolute and relative path, `ps aux`, `env`, `ls`, `cat query.py`, `pwd`, and reads chained after a query. Pass: every non-query command is denied and `python3 query.py` runs. (b) The "any method" run is repeated on the pinned model. Pass: as declared in Day 3, now with no executed non-query command at all.
+3. **"Oracle" renamed "D-optimal baseline"** (`dopt`) everywhere in code and in the design text. It maximizes det(cov) of the regression design over random training sets and trains once; it is not an upper bound on the dissociation score. Earlier result files keep the key `oracle`.
+4. **Model pinned** to `claude-opus-5-5`.
+5. **Scoring: Brier for `cannot_decide`.** Brier = (confidence - correct)^2 for every verdict, including `cannot_decide` (it was a constant 0.25). No earlier run submitted `cannot_decide`, so no earlier score changes.
+6. **Case 4 (non-identifiability).**
+   - New learner `factorized_holistic`: a holistic learner whose similarity metric is factorized over the rule dimensions. Its mean cost is defined to equal the part-based learner's for every task and training set, so no experiment can separate them (equivalence by construction). Same noise.
+   - New condition `case4` with its own prompt (`harness/prompt_case4.md`). The only change from the main prompt is the holistic hypothesis: "the cost depends on how similar the new task is to the known tasks, under the learner's own similarity measure, which you do not observe".
+   - Correct verdicts in `case4`: holistic (mapping similarity) -> `holistic`; `part_based` -> `cannot_decide`; `factorized_holistic` -> `cannot_decide`. Reason: under the case-4 hypotheses, data that look part-based are also predicted by a holistic learner with a factorized metric, so they cannot confirm part-based. Data that depend on mapping similarity rule out part-based. The main condition is unchanged.
+   - Instances in `case4`: half `holistic`, a quarter each `part_based` and `factorized_holistic`.
+   - New analysis for the baselines, **aware**: the multiple regression, with a part-based outcome reported as `cannot_decide`. Baselines in `case4`: random and D-optimal design, each with the standard and the aware analysis.
+   - **Check 4 (known answer)** (`analysis/check4_case4.py`, seed 7, 200 instances): (i) the factorized learner's mean cost equals the part-based learner's for all 64 tasks over 200 random training sets (exact); (ii) D-optimal with the aware analysis is >= 0.90 correct. Expected: (i) exact; (ii) about 1.0; D-optimal with the standard analysis about 0.5 (it never says `cannot_decide`); random with the aware analysis about 0.9.
+   - **Case-4 pilot**: 3 instances (seed 6000; one of each learner).
+
+**Expected result.** Probe: all non-query commands denied. Any-method run: no executed non-query command; Claude uses the interface. Case-4 pilot: I am unsure. My prior is about 60% that Claude answers `part-based` with high confidence on the part-based-looking instances (that is, it does not see the non-identifiability), and that it answers `holistic` correctly on the holistic instance.
 
 ## Handover prompt
 

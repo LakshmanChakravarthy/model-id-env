@@ -39,7 +39,7 @@
   },
   "baselines": {
     "train_size": 4,
-    "oracle_n_candidate_k": 200
+    "dopt_n_candidate_k": 200
   },
   "check2": {
     "seed": 1,
@@ -69,7 +69,7 @@
     "final_seed": 4
   },
   "claude_runs": {
-    "model": "opus",
+    "model": "claude-opus-5-5",
     "max_turns": 250,
     "timeout_s": 3600,
     "sandbox_root": "/tmp/model-id-sandbox",
@@ -79,6 +79,87 @@
     },
     "check3": {
       "seed": 4000
+    },
+    "probe_model": "haiku",
+    "denied_commands": [
+      "ls",
+      "cat",
+      "head",
+      "tail",
+      "less",
+      "more",
+      "grep",
+      "egrep",
+      "rg",
+      "find",
+      "ps",
+      "pgrep",
+      "top",
+      "env",
+      "printenv",
+      "set",
+      "lsof",
+      "netstat",
+      "ss",
+      "pwd",
+      "whoami",
+      "id",
+      "uname",
+      "hostname",
+      "date",
+      "file",
+      "stat",
+      "wc",
+      "du",
+      "df",
+      "which",
+      "whereis",
+      "type",
+      "tree",
+      "sort",
+      "uniq",
+      "cut",
+      "diff",
+      "history",
+      "sysctl",
+      "sw_vers",
+      "git",
+      "strings",
+      "od",
+      "xxd",
+      "hexdump",
+      "awk",
+      "sed",
+      "echo",
+      "printf",
+      "realpath",
+      "readlink",
+      "basename",
+      "dirname",
+      "nl",
+      "tr",
+      "jq",
+      "man",
+      "test",
+      "open",
+      "curl",
+      "wget",
+      "nc"
+    ],
+    "case4_pilot": {
+      "seed": 6000,
+      "learners": [
+        "holistic",
+        "part_based",
+        "factorized_holistic"
+      ]
+    }
+  },
+  "check4": {
+    "seed": 7,
+    "n_instances": 200,
+    "pass": {
+      "min_dopt_aware_accuracy": 0.9
     }
   }
 }
