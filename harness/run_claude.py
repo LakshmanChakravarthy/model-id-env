@@ -70,6 +70,20 @@ def query_only(cmd):
     return all(ALLOWED.match(part.strip()) for part in re.split(r"&&|\|\||;", cmd) if part.strip())
 
 
+def last_verdict_json(text):
+    """The last JSON object in text with "verdict" and "confidence" keys, or None."""
+    decoder, found = json.JSONDecoder(), None
+    for i, ch in enumerate(text):
+        if ch == "{":
+            try:
+                obj, _ = decoder.raw_decode(text, i)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(obj, dict) and "verdict" in obj and "confidence" in obj:
+                found = obj
+    return found
+
+
 def claude_command(prompt, cr, model=None):
     denied = [f"Bash({c})" for c in cr["denied_commands"]] + [f"Bash({c} *)" for c in cr["denied_commands"]]
     return ["claude", "-p", prompt, "--model", model or cr["model"],
@@ -147,6 +161,17 @@ def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, conditi
         with open(failed / f"{instance_id}.json", "w") as f:
             json.dump({"instance_id": instance_id, "claude": claude_meta}, f, indent=1, default=str)
         raise RuntimeError(f"{instance_id}: launch failed (returncode {code}): {claude_meta['final_text']}")
+
+    verdict_source = "submit" if env.verdict is not None else None
+    if env.verdict is None:
+        fallback = last_verdict_json(claude_meta["final_text"] or "")
+        if fallback is not None:
+            try:
+                env.submit(fallback)
+                verdict_source = "final_message"
+            except (ValueError, RuntimeError):
+                pass
+    claude_meta["verdict_source"] = verdict_source
 
     scores = scoring.score(env)
     base = {}

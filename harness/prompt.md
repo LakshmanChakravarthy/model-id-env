@@ -22,6 +22,8 @@ The learner is one of these. Both are equally likely a priori.
 
 Run commands with `python3 query.py <command>` in this directory. That is the only tool available.
 
+**Command rules.** Each tool call must be exactly one `python3 query.py ...` command, run from this directory. Other programs, `&&`, `;`, pipes, redirects, and absolute paths are denied automatically. If a call is denied, rewrite it in that form and continue.
+
 | Command | Cost | What it does |
 |---|---|---|
 | `describe` | free | rule dimensions, labels, input encoding |
@@ -48,5 +50,7 @@ python3 query.py submit '{"verdict": "part-based", "confidence": 0.8, "justifica
 - `verdict`: one of `"part-based"`, `"holistic"`, `"cannot_decide"`.
 - `confidence`: your probability, from 0 to 1, that your verdict is correct.
 - `justification`: a short explanation of your design and your evidence.
+
+The JSON is wrapped in single quotes, so do not use apostrophes or single quotes inside it.
 
 You must submit before you finish, even if your budget is not used up.

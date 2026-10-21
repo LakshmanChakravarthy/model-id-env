@@ -60,3 +60,13 @@ def test_query_only_and_deny_flags():
     assert not run_claude.query_only("python3 query.py budget | cat")
     cmd = run_claude.claude_command("p", CFG["claude_runs"])
     assert "Bash(ps *)" in cmd and "Bash(cat)" in cmd and CFG["claude_runs"]["model"] in cmd
+
+
+def test_last_verdict_json():
+    text = """I could not submit. Run:
+    python3 query.py submit '{"verdict": "part-based", "confidence": 0.7, "justification": "a {b} c"}'
+    """
+    assert run_claude.last_verdict_json(text) == {"verdict": "part-based", "confidence": 0.7, "justification": "a {b} c"}
+    assert run_claude.last_verdict_json("no json here {not json}") is None
+    two = '{"verdict": "holistic", "confidence": 0.6} then {"verdict": "cannot_decide", "confidence": 0.5}'
+    assert run_claude.last_verdict_json(two)["verdict"] == "cannot_decide"
