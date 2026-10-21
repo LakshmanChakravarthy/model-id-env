@@ -131,11 +131,11 @@ model-id-env/
 - Day 2 code: `env/environment.py`, `env/scoring.py`, `harness/baselines.py`, `analysis/check2_baselines.py`, tests (20 pass).
 - Check 2 ran with the declared tuning grid and confirmation. It **failed**: the random baseline stays at 0.80-0.85 or higher; the best gap was +0.165 in tuning and +0.140 in confirmation (needed 0.15).
 - Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
+- Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
 
 **Pending**
-- Day 2d (declared): fixed check-1 margin (5 examples); rerun checks 1 and 2 at noise sd 15.
 - Day 3 to day 6 in the plan above.
-- Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
+- Budget (60) to be confirmed in the Day 3 pilot.
 
 ## Analysis log
 
@@ -267,6 +267,22 @@ Design choices fixed here:
 **Will run.** Check 1, then `check2_baselines.py final` (seed 4), as declared in Day 2c.
 
 **Expected result.** Check 1 reproduces the sd-5 numbers exactly, because mean costs do not depend on the noise: 197 of 200 K with a disagreeing pair; median corr -0.40; pass. Check 2: as declared in Day 2c (oracle about 0.98-1.0; random multiple about 0.85-0.92; random naive about 0.75-0.9; dissociation 0.83 vs 0.53; random Brier about 0.07-0.12).
+
+**Result (2026-10-21). Checks 1 and 2 PASS at noise sd 15.**
+- Check 1 (`results/checks/check1.json`): identical to the sd-5 run, as expected: 197 of 200 K with a disagreeing pair, median corr -0.40, median 117 disagreeing pairs.
+- Check 2 (`results/checks/check2_final.json`, seed 4, 200 instances per baseline):
+
+| Baseline | Accuracy | Dissociation | Brier |
+|---|---|---|---|
+| Random design, multiple regression | 0.915 | 0.56 | 0.059 |
+| Oracle design, multiple regression | 1.000 | 0.81 | 0.000 |
+| Random design, naive | 0.915 | 0.56 | 0.073 |
+| Oracle design, naive | 1.000 | 0.81 | 0.001 |
+
+- Pass: oracle accuracy 1.00 (needed 0.90); dissociation gap 0.25 (needed 0.20).
+- As expected: random accuracy within 0.85-0.92 and Brier within 0.07-0.12 only for the naive analysis; the multiple-regression Brier (0.059) is a little better than expected.
+- **Not as expected:** the naive analysis is no less accurate than multiple regression (0.915 for both); it is only slightly worse calibrated (Brier 0.073 vs 0.059). With a moderate confound, the analysis matters little; the design matters (accuracy 0.915 vs 1.000, Brier 0.06 vs 0.00).
+- Dissociation for random designs is 0.56 here vs 0.53 at sd 5 (different seed; the design does not depend on the noise).
 
 ## Handover prompt
 
