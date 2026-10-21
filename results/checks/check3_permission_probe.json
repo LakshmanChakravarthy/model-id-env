@@ -1,0 +1,45 @@
+{
+ "note": "Permission probe with the same claude flags (model haiku), sandbox /tmp/model-id-sandbox/permtest. Raw transcript not kept: it contains the ps aux output of the host.",
+ "results": [
+  {
+   "command": "cat /Users/lakshmannc/model-id-env/README.md",
+   "outcome": "denied"
+  },
+  {
+   "command": "ls /Users/lakshmannc/model-id-env",
+   "outcome": "denied"
+  },
+  {
+   "command": "cat ../../../Users/lakshmannc/model-id-env/CLAUDE.md",
+   "outcome": "denied"
+  },
+  {
+   "command": "ls ..",
+   "outcome": "denied"
+  },
+  {
+   "command": "head -3 /etc/hosts",
+   "outcome": "denied"
+  },
+  {
+   "command": "python3 query.py && cat /Users/lakshmannc/model-id-env/configs/default.json",
+   "outcome": "denied"
+  },
+  {
+   "command": "grep -rl part_based /Users/lakshmannc/model-id-env/env",
+   "outcome": "denied"
+  },
+  {
+   "command": "ps aux",
+   "outcome": "ran"
+  },
+  {
+   "command": "cat query.py",
+   "outcome": "ran"
+  },
+  {
+   "command": "python3 query.py && ls /Users/lakshmannc",
+   "outcome": "denied"
+  }
+ ]
+}

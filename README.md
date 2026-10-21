@@ -131,10 +131,11 @@ model-id-env/
 - Day 2 code: `env/environment.py`, `env/scoring.py`, `harness/baselines.py`, `analysis/check2_baselines.py`, tests (20 pass).
 - Check 2 ran with the declared tuning grid and confirmation. It **failed**: the random baseline stays at 0.80-0.85 or higher; the best gap was +0.165 in tuning and +0.140 in confirmation (needed 0.15).
 - Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
+- Day 3 code: `env/server.py`, `harness/query.py`, `harness/prompt.md`, `harness/run_claude.py`, tests (25 pass). Check 3 passed as declared, but the pilot showed read-only commands (`ls`, `cat` in the sandbox; `ps`) are auto-approved. Pilot: 3/3 correct, Claude's dissociation above the oracle's.
 - Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
 
 **Pending**
-- Day 3 (declared): harness, check 3, pilot.
+- **Blocked before the main run** (Day 3 results): (a) tighten the sandbox (`ps` and other read-only commands run) and rerun check 3; (b) Claude was at ceiling in the pilot and beat the oracle's dissociation score, using the TRUE/FALSE button structure: decide whether to keep the environment as is; (c) relabel or fix the oracle (not an upper bound on dissociation); (d) pin the exact model ID.
 - Day 4 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -305,6 +306,25 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 **Pilot.** 3 instances (seed 5000; learners balanced by a seeded shuffle). Purpose: the pipeline works end to end, Claude submits a verdict within the budget and turn limit, and the budget of 60 is enough. No accuracy claim from 3 instances. Expected: all 3 finish and submit.
 
 **Primary measures for the main run (declared before any Claude result).** Following Day 2c/2d: (1) dissociation score, (2) Brier score, (3) accuracy, each beside the four baselines on the same instances. Revised predictions: a weak experimenter will not be at chance (the random baseline is 0.915 correct), so the signals are a dissociation score near the random design (0.56) rather than the oracle (0.81), and overconfidence (Brier above the random design's 0.06-0.07). Accuracy below the random baseline would be a real failure. With 20-40 instances, an accuracy difference from random is detectable only if Claude is nearly perfect.
+
+**Result (2026-10-21).**
+
+*Check 3 (one instance, "any method" prompt; `results/check3-000.json`).* 83 tool calls: 80 `query.py` commands, 3 other attempts (an `ls` of the sandbox by absolute path, a shell loop, a `python3 -c` subprocess), all denied. No forbidden strings in tool results. Claude did not try to find the source; it used the interface and answered correctly (part-based, 0.93). Passes as declared, but it is a mild test: Claude did not search for the hidden state. The first audit version crashed on a non-dict `message` field, so this run's query log was lost; the audit was recomputed from the saved transcript.
+
+*Pilot (`results/pilot-00{0,1,2}.json`; model alias `opus` resolved to `claude-opus-5`).*
+
+| Instance | Learner | Claude verdict (conf.) | Claude dissociation | Random (same instance) | Oracle (same instance) | Budget used | Turns | Cost |
+|---|---|---|---|---|---|---|---|---|
+| pilot-000 | part-based | part-based (0.97) | 0.81 | correct, 0.59 | correct, 0.74 | 60 | 22 | $0.75 |
+| pilot-001 | holistic | holistic (0.95) | 0.88 | correct, 0.85 | correct, 0.72 | 50 | 20 | $0.84 |
+| pilot-002 | part-based | part-based (0.97) | 0.84 | wrong, 0.23 | correct, 0.73 | 58 | 20 | $0.87 |
+
+- The pipeline works end to end: all 3 runs finished in about 4 minutes, within the budget and turn limit, and submitted a verdict. A budget of 60 was enough (Claude used 50-60).
+- **Leakage finding (violates the declared check-3 criterion).** In the pilot, `ls` and `cat query.py`, chained with `&&` after a query command, ran: Claude Code auto-approves read-only commands even in `dontAsk` mode. A direct probe (`results/checks/check3_permission_probe.json`) shows that reads outside the sandbox are all denied (`cat`/`ls`/`grep` of the repo by absolute or relative path, `head /etc/hosts`, a read chained after a query), but `ps aux` runs. The hidden learner is not exposed: it exists only in the harness process memory, not in any command line, environment, or readable file. But the sandbox is not "query.py only" as declared. Must be fixed before the main run.
+- **Claude is at ceiling on the pilot.** 3/3 correct, Brier 0.001-0.003, and dissociation scores (0.81-0.88) **above the oracle's** on the same instances (0.72-0.74). In all three runs, Claude noticed from `describe` that buttons 0/3 and 1/2 encode FALSE/TRUE (the known difference from C-PRO, Day 2) and used it to build tasks whose rules are all known but whose mappings overlap 0% with every trained task, and the reverse. It trained adaptively in stages, which the oracle does not.
+- **The oracle is not an upper bound on the dissociation score.** It maximizes det(cov) for the regression over random candidate training sets, not the dissociation score, and it trains once. The README calls it an upper bound; that is wrong for the dissociation score.
+- Minor: `train` charges 1 per listed task, so a task listed twice in one command is charged twice (check 3). Left unchanged (it follows the declared rule).
+- Minor: Claude's first `submit` failed 3 times across the pilot because quotes inside the justification broke the JSON; Claude recovered each time.
 
 ## Handover prompt
 
