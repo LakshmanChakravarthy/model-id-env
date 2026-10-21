@@ -1,7 +1,9 @@
 """Scores for a finished instance: verdict correct, dissociation, Brier."""
 import numpy as np
 
-from env import tasks
+from collections import Counter
+
+from env import learners, tasks
 from env.environment import CORRECT_VERDICT
 
 
@@ -21,12 +23,28 @@ def dissociation(events, sim, cfg):
     return float(1.0 - abs(np.corrcoef(newp, s)[0, 1]))
 
 
+def decisive_pairs(events, sim, cfg):
+    """Pairs of tested conditions (A, B) where part-based predicts A cheaper and holistic (mapping similarity)
+    predicts B cheaper, each by more than the margin, and both tested at least min_tests times."""
+    sc = cfg["scoring"]
+    counts = Counter((t, known) for t, known, _ in events)
+    conds = [c for c, n in counts.items() if n >= sc["decisive_pair_min_tests"]]
+    pb = [learners.mean_cost("part_based", t, list(k), cfg, sim) for t, k in conds]
+    ho = [learners.mean_cost("holistic", t, list(k), cfg, sim) for t, k in conds]
+    m = sc["decisive_pair_margin"]
+    return sum(1 for a in range(len(conds)) for b in range(len(conds))
+               if pb[b] - pb[a] > m and ho[a] - ho[b] > m)
+
+
 def score(env):
     v = env.verdict
     correct = int(v is not None and v["verdict"] == CORRECT_VERDICT[(env.condition, env.learner)])
     brier = 0.25 if v is None else (v["confidence"] - correct) ** 2
+    n_dec = decisive_pairs(env.test_events(), env.sim, env.cfg)
     return {"correct": correct,
             "dissociation": dissociation(env.test_events(), env.sim, env.cfg),
+            "n_decisive_pairs": n_dec,
+            "has_decisive_pair": int(n_dec > 0),
             "brier": float(brier),
             "n_tests": len(env.test_events())}
 

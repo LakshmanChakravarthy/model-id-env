@@ -43,3 +43,14 @@ def test_case4_correct_verdicts():
         env.submit({"verdict": verdict, "confidence": 0.8})
         assert scoring.score(env)["correct"] == correct
     assert scoring.score(Environment("holistic", 0, CFG))["brier"] == 0.25   # no verdict
+
+
+def test_decisive_pairs():
+    known = (tasks.task_id(0, 0, 0),)
+    a = tasks.task_id(1, 1, 3)   # 3 new parts, similarity > 0
+    b = tasks.task_id(0, 0, 3)   # 1 new part, similarity 0
+    assert SIM[a, known[0]] > 0 and SIM[b, known[0]] == 0
+    # part-based: b cheaper; holistic: a cheaper -> one decisive pair (b, a) once each is tested 3 times
+    events = [(a, known, 1)] * 3 + [(b, known, 1)] * 3
+    assert scoring.decisive_pairs(events, SIM, CFG) == 1
+    assert scoring.decisive_pairs(events[:-1], SIM, CFG) == 0

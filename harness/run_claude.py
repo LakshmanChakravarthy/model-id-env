@@ -5,6 +5,8 @@ Usage:
   python harness/run_claude.py check3        # check 3b: "any method" leakage run, 1 instance
   python harness/run_claude.py pilot         # main-condition pilot instances
   python harness/run_claude.py pilot_case4   # case-4 pilot instances
+  python harness/run_claude.py main          # main run, main condition (resumable)
+  python harness/run_claude.py main_case4    # main run, case-4 condition (resumable)
 For each instance: sandbox outside the repo with only prompt.md and query.py; environment server in
 this process; results/<instance_id>.json and results/transcripts/<instance_id>.jsonl.
 """
@@ -255,6 +257,24 @@ def main(mode):
         for i, learner in enumerate(learners):
             r = run_instance(f"pilot-{i:03d}", str(learner), p["seed"] + i, cfg, template, "pilot")
             print(summary_line(r), flush=True)
+    elif mode in ("main", "main_case4"):
+        condition = "case4" if mode == "main_case4" else "main"
+        template = (REPO / "harness" / ("prompt_case4.md" if condition == "case4" else "prompt.md")).read_text()
+        p = cr[mode]
+        n = p["n_instances"]
+        pool = (p["learners"] * n)[:n]
+        learners = np.random.default_rng(p["seed"]).permutation(pool)
+        prefix = "case4" if condition == "case4" else "main"
+        for i, learner in enumerate(learners):
+            instance_id = f"{prefix}-{i:03d}"
+            if (RESULTS / f"{instance_id}.json").exists():
+                print(f"{instance_id}: exists, skipped", flush=True)
+                continue
+            try:
+                r = run_instance(instance_id, str(learner), p["seed"] + i, cfg, template, mode, condition=condition)
+                print(summary_line(r), flush=True)
+            except RuntimeError as e:
+                print(f"{instance_id}: {e}", flush=True)
     elif mode == "pilot_case4":
         template = (REPO / "harness" / "prompt_case4.md").read_text()
         p = cr["case4_pilot"]
