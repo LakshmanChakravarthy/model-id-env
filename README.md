@@ -16,7 +16,7 @@ In most task spaces, the number of shared parts and overall similarity are corre
 ## Design
 
 ### Task space (`env/tasks.py`)
-- Three rule dimensions, with 4 values each: logic (for example: both, either, neither, not-both), sensory (which feature of each stimulus to check), motor (how the Boolean result maps to a response). This gives 64 tasks, as in C-PRO.
+- Three rule dimensions, with 4 values each: logic (for example: both, either, neither, not-both), sensory (which feature of each stimulus to check), motor (how the Boolean result maps to a response: one of 2 buttons for TRUE x one of 2 other buttons for FALSE, see "Day 1b" in the Analysis log). This gives 64 tasks, as in C-PRO.
 - Inputs: a small discrete set of stimulus pairs (for example, 2 stimuli × 4 binary features). Each task is a full mapping from inputs to responses. It is computed by the composition: sensory rule → two bits → logic rule → one Boolean → motor rule → response.
 - **Shared parts** between task T and a set of known tasks K: the number of rule values of T that occur in K. Also record **new parts** = 3 − shared parts.
 - **Overall similarity** between two tasks: the fraction of inputs with the same response. Similarity of T to K = the maximum over K (also compute the kernel-weighted mean, and select one before the main run).
@@ -78,6 +78,7 @@ Claude runs as the experimenter through **Claude Code headless** (`claude -p`).
 **Out of scope (next steps, list in the final README):**
 - Trained RNN and transformer learners (case 2: the learner does not use the designed parts).
 - Case 3: mixtures of mechanisms.
+- Deeper rule trees (an outer logic rule over two inner logic-feature rules, for example "if BOTH are red AND EITHER is vertical"). Productive compositional generalization. An exploratory probe (Day 1b) found that they dilute the confound, and that De Morgan equivalences make half of the trees share a mapping with another tree.
 - Case 4: a holistic learner with a factorized similarity metric, which gives the same behavior as the part-based learner. The correct verdict is `cannot_decide`. (Add this first if time permits.)
 - Expert rubric scoring of the justification text.
 - The extension: run the same dissociation on Claude's in-context learning.
@@ -127,7 +128,7 @@ model-id-env/
 - Check 1 ran (see Analysis log). It **failed**: for random training sets there is almost no confound between new parts and similarity.
 
 **Pending**
-- **Blocked:** decide how to change the design so that hard case 1 exists (see Analysis log, day 1). Then a new declare commit and a rerun of check 1.
+- Day 1b (declared): 2x2 motor table, rerun check 1 with the revised pass criterion. Then record results.
 - Day 2 to day 6 in the plan above.
 - Decide the similarity measure (maximum or kernel-weighted mean): by the declared rule this is `max`, but confirm it after the design change.
 - Tune the learner parameters and the budget after check 2.
@@ -157,6 +158,24 @@ Definitions fixed here:
 - The median within-K corr between the two learners' costs is 0.02, so for a random design the two learners already predict nearly unrelated cost profiles.
 
 **Implication.** The premise of hard case 1 ("shared parts and similarity are confounded in most of the task space") does not hold for this task space with random training sets. The confound is a property of some training sets (one-hand K), not of the space. A random experimenter will probably succeed, so check 2 will probably fail ("environment too easy"). Work stops here until the design is changed (a new declare commit).
+
+### Day 1b / redesign of the motor rules and rerun of check 1 (declared 2026-10-21)
+
+**Why.** Check 1 found almost no confound. The cause is the motor table: two disjoint "hands" ({0,1} and {2,3}) make the similarity 0 for 4 of 6 motor pairs, and the flipped maps make (AND, f, m) identical to (NAND, f, flipped m). An exploratory probe (not committed; 200 random K, seed 0, no selection-uncertainty term) compared candidate spaces:
+
+| Space | |K| | Median corr(new parts, sim) | K with corr <= -0.5 | K with a disagreeing pair | Disagreeing pairs (median) | Distinct mappings |
+|---|---|---|---|---|---|---|
+| Current (hand motor) | 4 | -0.03 | 6% | 97% | 5.5% | 32 / 64 |
+| Current + 2x2 motor | 4 | -0.41 | 26% | 87% | 1.0% | 64 / 64 |
+| Deeper trees + 2x2, role-bound parts | 4 | -0.22 | 2% | 100% | 8.2% | 768 / 1536 |
+| Deeper trees + 2x2, role-bound parts | 8 | -0.07 | 1% | 91% | 0.8% | |
+| Deeper trees + hand motor | 4 | -0.06 | 3% | 100% | 9.6% | 384 / 1536 |
+
+**Change.** Only the motor table in `env/tasks.py`. A motor rule = (button for FALSE in {0, 3}) x (button for TRUE in {1, 2}): m0 = F->0/T->1, m1 = F->0/T->2, m2 = F->3/T->1, m3 = F->3/T->2. Learners, similarity, the check-1 procedure, and the other parameters do not change, except that `c0` is matched again as declared in Day 1.
+
+**Revised pass criterion for check 1.** The Day 1 criterion (a disagreeing pair for every K) can fail by construction when the part-based learner predicts flat costs. New criterion: (i) the confound exists: median within-K corr(new_parts, similarity) <= -0.3 under the selected measure; and (ii) dissociations exist: >= 80% of K have at least one disagreeing pair. Note: the threshold in (ii) is set after the probe and is close to the probe value (87%).
+
+**Expected result.** Median corr about -0.4; about 25% of K with corr <= -0.5; about 85% of K with a disagreeing pair, and about 1% of task pairs disagreeing. All 64 mappings distinct; 10 distinct similarity values. Max and kernel give the same conclusions. Matched `c0` changes from 35.4.
 
 ## Handover prompt
 
