@@ -133,7 +133,7 @@ model-id-env/
 - Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
 
 **Pending**
-- Day 2c (declared): noise sd 15; rerun checks 1 and 2.
+- **Blocked:** check 1 fails at noise sd 15 on criterion (ii) (Day 2c). Decide: change the check-1 margin (it is tied to the noise sd), or change the noise. Then a declare commit.
 - Day 3 to day 6 in the plan above.
 - Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
 
@@ -253,6 +253,10 @@ Design choices fixed here:
 - Check 1: the confound statistics do not change (median corr -0.40). Disagreeing pairs need a gap of 15 in both learners' costs, so they become rarer. I am not confident that >= 80% of K still have one; check 1 may fail on criterion (ii). If it fails, work stops for a decision; the margin is not changed after the fact.
 - Check 2: oracle multiple about 0.98-1.0; random multiple about 0.85-0.92; naive analysis lower than multiple regression for the random design (about 0.75-0.9); dissociation 0.83 vs 0.53 (pass); Brier clearly worse for the random designs (about 0.07-0.12).
 - With a base cost of 10, about 27% of samples for the cheapest tasks are floored at 1. This compresses differences at the low end for both learners.
+
+**Result (2026-10-21). Check 1 FAILS at noise sd 15** (`results/checks/check1.json`, `check1.png`). Confound unchanged: median corr -0.40, 25.5% of K <= -0.5 (criterion (i) passes). But only 15 of 200 K (7.5%) have a disagreeing pair at a margin of 15 (criterion (ii) needs 80%). The learners' mean costs span about 10-45, so a gap of more than 15 in opposite directions for both learners is rare. As declared, check 2 was not run and work stops for a decision.
+
+**Note for the decision.** Criterion (ii) asks whether a dissociation can be seen in a single sample. Tests can be repeated, so the gap needed with r repeats per task is about sd / sqrt(r). Whether the budget can detect the dissociations is what check 2's oracle measures. In the Day 2 grid, the oracle was 1.000 correct at sd 15 and budget 60.
 
 ## Handover prompt
 
