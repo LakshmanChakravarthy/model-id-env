@@ -47,7 +47,7 @@ def test_case4_correct_verdicts():
 
 def test_decisive_pairs():
     known = (tasks.task_id(0, 0, 0),)
-    a = tasks.task_id(1, 1, 3)   # 3 new parts, similarity > 0
+    a = tasks.task_id(1, 1, 1)   # 3 new parts, similarity > 0
     b = tasks.task_id(0, 0, 3)   # 1 new part, similarity 0
     assert SIM[a, known[0]] > 0 and SIM[b, known[0]] == 0
     # part-based: b cheaper; holistic: a cheaper -> one decisive pair (b, a) once each is tested 3 times
