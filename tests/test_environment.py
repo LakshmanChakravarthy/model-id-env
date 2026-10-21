@@ -68,3 +68,9 @@ def test_submit_validation_and_closing():
     env.submit({"verdict": "holistic", "confidence": 0.8, "justification": "x"})
     with pytest.raises(RuntimeError):
         env.test(env.name(0))
+
+
+def test_case4_learner_only_in_case4():
+    Environment("factorized_holistic", 0, CFG, "case4")
+    with pytest.raises(ValueError):
+        Environment("factorized_holistic", 0, CFG)

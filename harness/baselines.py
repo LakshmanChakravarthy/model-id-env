@@ -1,6 +1,6 @@
-"""Random and oracle experimenters. Both use only the public interface (labels, describe, train, test).
-Analysis is either "multiple" (OLS of cost on [1, new_parts, similarity]) or "naive" (each predictor's
-correlation with cost on its own)."""
+"""Random and D-optimal experimenters. Both use only the public interface (labels, describe, train, test).
+Analysis is "multiple" (OLS of cost on [1, new_parts, similarity]), "naive" (each predictor's correlation
+with cost on its own), or "aware" (multiple, with a part-based outcome reported as cannot_decide; case 4)."""
 import itertools
 
 import numpy as np
@@ -75,7 +75,16 @@ def analyze_naive(records):
             "justification": f"r(cost, new_parts) = {r[0]:.2f}, r(cost, -similarity) = {r[1]:.2f}"}
 
 
-ANALYSES = {"multiple": analyze, "naive": analyze_naive}
+def analyze_aware(records):
+    """Case 4: part-based-looking data are also predicted by a holistic learner with a factorized metric."""
+    v = analyze(records)
+    if v["verdict"] == "part-based":
+        v = {**v, "verdict": "cannot_decide",
+             "justification": v["justification"] + "; part-based pattern is not identifiable"}
+    return v
+
+
+ANALYSES = {"multiple": analyze, "naive": analyze_naive, "aware": analyze_aware}
 
 
 def run_tests(env, names, sim, known, test_names):
@@ -118,13 +127,13 @@ def d_optimal_allocation(x, n_tests):
     return chosen, float(np.linalg.det(final))
 
 
-def oracle_experimenter(env, seed, analysis="multiple"):
+def dopt_experimenter(env, seed, analysis="multiple"):
     rng = np.random.default_rng(seed)
     names, sim = public_view(env)
     k = env.cfg["baselines"]["train_size"]
     n_tests = env.budget - k * env.cfg["environment"]["train_cost_per_task"]
     best = None
-    for _ in range(env.cfg["baselines"]["oracle_n_candidate_k"]):
+    for _ in range(env.cfg["baselines"]["dopt_n_candidate_k"]):
         known = [names[i] for i in rng.choice(len(names), size=k, replace=False)]
         cands = [n for n in names if n not in known]
         x = np.array([predictors(n, known, names, sim, env.cfg) for n in cands], dtype=float)

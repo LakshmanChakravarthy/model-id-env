@@ -61,8 +61,18 @@ def test_d_optimal_prefers_dissociating_points():
 
 
 def test_baselines_spend_the_budget_and_submit():
-    for f in (baselines.random_experimenter, baselines.oracle_experimenter):
+    for f in (baselines.random_experimenter, baselines.dopt_experimenter):
         for analysis in baselines.ANALYSES:
             env = Environment("part_based", 2, CFG)
             v = f(env, 0, analysis)
             assert env.budget == 0 and env.verdict == v
+
+
+def test_aware_analysis_turns_part_based_into_cannot_decide():
+    rng = np.random.default_rng(3)
+    x = rng.integers(0, 4, 200)
+    s = rng.random(200)
+    parts = [(a, b, 10 + 10 * a + rng.normal(0, 1)) for a, b in zip(x, s)]
+    holo = [(a, b, 10 + 30 * (1 - b) + rng.normal(0, 1)) for a, b in zip(x, s)]
+    assert baselines.analyze_aware(parts)["verdict"] == "cannot_decide"
+    assert baselines.analyze_aware(holo)["verdict"] == "holistic"

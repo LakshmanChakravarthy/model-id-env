@@ -9,13 +9,22 @@ from env import learners, tasks
 DIM_PREFIXES = ["L", "S", "M"]
 DIM_NAMES = ["logic", "sensory", "motor"]
 VERDICTS = ["part-based", "holistic", "cannot_decide"]
+CORRECT_VERDICT = {
+    ("main", "part_based"): "part-based",
+    ("main", "holistic"): "holistic",
+    # Case 4: part-based-looking data are also predicted by a holistic learner with a factorized metric.
+    ("case4", "holistic"): "holistic",
+    ("case4", "part_based"): "cannot_decide",
+    ("case4", "factorized_holistic"): "cannot_decide",
+}
 
 
 class Environment:
-    def __init__(self, learner, seed, cfg):
-        if learner not in ("part_based", "holistic"):
-            raise ValueError(f"unknown learner: {learner}")
+    def __init__(self, learner, seed, cfg, condition="main"):
+        if (condition, learner) not in CORRECT_VERDICT:
+            raise ValueError(f"unknown learner {learner!r} for condition {condition!r}")
         self.learner = learner
+        self.condition = condition
         self.seed = seed
         self.cfg = cfg
         self.rng = np.random.default_rng(seed)

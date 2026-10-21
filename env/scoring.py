@@ -2,8 +2,7 @@
 import numpy as np
 
 from env import tasks
-
-TRUE_VERDICT = {"part_based": "part-based", "holistic": "holistic"}
+from env.environment import CORRECT_VERDICT
 
 
 def dissociation(events, sim, cfg):
@@ -24,11 +23,8 @@ def dissociation(events, sim, cfg):
 
 def score(env):
     v = env.verdict
-    correct = int(v is not None and v["verdict"] == TRUE_VERDICT[env.learner])
-    if v is None or v["verdict"] == "cannot_decide":
-        brier = 0.25
-    else:
-        brier = (v["confidence"] - correct) ** 2
+    correct = int(v is not None and v["verdict"] == CORRECT_VERDICT[(env.condition, env.learner)])
+    brier = 0.25 if v is None else (v["confidence"] - correct) ** 2
     return {"correct": correct,
             "dissociation": dissociation(env.test_events(), env.sim, env.cfg),
             "brier": float(brier),
@@ -37,6 +33,7 @@ def score(env):
 
 def instance_record(env, scores, extra=None):
     """Everything about one instance, for results/<instance>.json."""
-    return {"learner": env.learner, "seed": env.seed, "config": env.cfg,
+    return {"learner": env.learner, "condition": env.condition, "seed": env.seed, "config": env.cfg,
+            "correct_verdict": CORRECT_VERDICT[(env.condition, env.learner)],
             "label_of": [lab.tolist() for lab in env.label_of],
             "log": env.log, "verdict": env.verdict, "scores": scores, **(extra or {})}

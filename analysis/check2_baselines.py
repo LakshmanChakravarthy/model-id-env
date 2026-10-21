@@ -1,4 +1,4 @@
-"""Check 2: the oracle is near 100% correct and the random baseline is clearly lower.
+"""Check 2: the D-optimal baseline is near 100% correct and its designs dissociate better than random ones.
 
 Usage:
   python analysis/check2_baselines.py main      # current config, seed check2.seed
@@ -26,9 +26,9 @@ from harness import baselines
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "results" / "checks"
 LEARNERS = ["part_based", "holistic"]
-EXPERIMENTERS = {"random": baselines.random_experimenter, "oracle": baselines.oracle_experimenter,
+EXPERIMENTERS = {"random": baselines.random_experimenter, "dopt": baselines.dopt_experimenter,
                  "random_naive": functools.partial(baselines.random_experimenter, analysis="naive"),
-                 "oracle_naive": functools.partial(baselines.oracle_experimenter, analysis="naive")}
+                 "dopt_naive": functools.partial(baselines.dopt_experimenter, analysis="naive")}
 
 
 def matched_c0(cfg):
@@ -73,14 +73,14 @@ def run_setting(cfg, seed, n, pool):
                       "brier_mean": float(np.mean([x["brier"] for x in r])),
                       "n": len(r)}
     crit = cfg["check2"]["pass"]
-    acc_o, acc_r = summary["oracle"]["accuracy"], summary["random"]["accuracy"]
+    acc_o, acc_r = summary["dopt"]["accuracy"], summary["random"]["accuracy"]
     summary["gap"] = acc_o - acc_r
-    summary["dissociation_gap"] = summary["oracle"]["dissociation_mean"] - summary["random"]["dissociation_mean"]
+    summary["dissociation_gap"] = summary["dopt"]["dissociation_mean"] - summary["random"]["dissociation_mean"]
     if "min_dissociation_gap" in crit:   # Day 2b criterion
-        summary["pass"] = bool(acc_o >= crit["min_oracle_accuracy"]
+        summary["pass"] = bool(acc_o >= crit["min_dopt_accuracy"]
                                and summary["dissociation_gap"] >= crit["min_dissociation_gap"])
     else:                                # Day 2 criterion
-        summary["pass"] = bool(acc_o >= crit["min_oracle_accuracy"] and summary["gap"] >= crit["min_gap"])
+        summary["pass"] = bool(acc_o >= crit["min_dopt_accuracy"] and summary["gap"] >= crit["min_gap"])
     return summary, rows
 
 
@@ -114,7 +114,7 @@ def main(mode="main", *setting):
                 out["settings"].append({"noise_sd": sd, "budget": budget, "c_sel": c_sel,
                                         "c0": c["holistic"]["c0"], "summary": s})
                 print(line(f"sd={sd:>2} budget={budget} c_sel={c_sel} c0={c['holistic']['c0']}", s), flush=True)
-            ok = [x for x in out["settings"] if x["summary"]["oracle"]["accuracy"] >= c2["pass"]["min_oracle_accuracy"]]
+            ok = [x for x in out["settings"] if x["summary"]["dopt"]["accuracy"] >= c2["pass"]["min_dopt_accuracy"]]
             best = max(ok, key=lambda x: (round(x["summary"]["gap"], 6), x["budget"])) if ok else None
             out["selected"] = {k: best[k] for k in ("noise_sd", "budget", "c_sel", "c0")} if best else None
             print("selected", out["selected"])

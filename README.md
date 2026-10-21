@@ -25,6 +25,7 @@ In most task spaces, the number of shared parts and overall similarity are corre
 Stylized learners. Each mechanism is true by construction. (Trained RNN learners are a next step, not part of this prototype.)
 - **PartBasedLearner.** Cost of a new task = `c_new × new_parts + c_sel × selection_uncertainty + noise`. Selection uncertainty is small when all parts are known.
 - **HolisticLearner.** Cost of a new task = `c0 × (1 − similarity_to_known)^alpha + noise`. It ignores parts.
+- **FactorizedHolisticLearner** (case 4, Day 3b). A holistic learner whose similarity metric is factorized over the rule dimensions. Its cost equals the part-based learner's by construction, so the two cannot be separated by any experiment.
 - Both return **examples to criterion** for a test task, given the tasks that they were trained on. Noise is Gaussian or Poisson, so the experimenter needs repeated measures and statistics.
 - Free parameters (`c_new`, `c0`, `alpha`, noise level) are set so that the two learners give **similar mean costs over a random set of tasks**. Otherwise a trivial strategy solves the environment.
 
@@ -47,11 +48,12 @@ Stylized learners. Each mechanism is true by construction. (Trained RNN learners
 ### Scoring (`env/scoring.py`)
 1. **Verdict correct**: 1 or 0.
 2. **Dissociation score**: computed from the logged test tasks. `1 − |corr(new_parts, similarity)|` over the tasks that the experimenter tested. High = the design separated the two measures.
-3. **Calibration**: Brier score of the confidence.
+3. **Calibration**: Brier score, (confidence - correct)^2, where confidence is the probability that the stated verdict is correct (also for `cannot_decide`, from Day 3b).
+- **Correct verdicts.** Main condition: the hidden learner's type. Case-4 condition (holistic hypothesis stated with an unobserved similarity measure): `holistic` for the mapping-similarity holistic learner, `cannot_decide` for the part-based and the factorized holistic learners.
 
 ### Baselines (`harness/baselines.py`)
 - **Random experimenter**: random train set, random tests, then regresses cost on new parts and on similarity, and selects the predictor with the larger effect.
-- **Oracle design**: selects the tasks that dissociate parts from similarity, then applies the same regression. This is an upper bound on what the budget allows.
+- **D-optimal design** (called "oracle" before Day 3b): over 200 random candidate training sets, allocates the tests to maximize det(cov(new_parts, similarity)), trains once, then applies the same regression. It knows the task structure but not the learner. It is not an upper bound on the dissociation score: an experimenter who trains in stages can do better (Day 3 pilot).
 - Each design is analysed in two ways (Day 2b): **multiple regression** (cost on both predictors together) and **naive** (each predictor's correlation with cost on its own). This gives four baselines and shows how much of the difficulty is in the design and how much in the analysis.
 
 ### Running Claude (`harness/run_claude.py`)
@@ -63,7 +65,7 @@ Claude runs as the experimenter through **Claude Code headless** (`claude -p`).
 - The prompt states the two hypotheses, the tools, the budget, and the verdict format. It does **not** mention the confound. Finding it is the test.
 
 ### Analysis (`analysis/figures.py`)
-- One main figure: verdict accuracy and dissociation score for Claude, the random baseline, and the oracle, for each learner type.
+- One main figure: verdict accuracy, dissociation score, and Brier score for Claude, the random baseline, and the D-optimal baseline, for each learner type and condition.
 - One example transcript of a good design and one of a failure, for the README.
 
 ## Checks (known-answer checks before any Claude run)

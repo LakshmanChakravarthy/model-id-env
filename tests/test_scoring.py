@@ -33,4 +33,13 @@ def test_score_correct_and_brier():
     assert sc["correct"] == 1 and np.isclose(sc["brier"], 0.01) and sc["n_tests"] == 1
     env2 = Environment("part_based", 0, CFG)
     env2.submit({"verdict": "cannot_decide", "confidence": 0.9})
-    assert scoring.score(env2)["correct"] == 0 and scoring.score(env2)["brier"] == 0.25
+    assert scoring.score(env2)["correct"] == 0 and np.isclose(scoring.score(env2)["brier"], 0.81)
+
+
+def test_case4_correct_verdicts():
+    for learner, verdict, correct in [("holistic", "holistic", 1), ("part_based", "cannot_decide", 1),
+                                      ("factorized_holistic", "cannot_decide", 1), ("part_based", "part-based", 0)]:
+        env = Environment(learner, 0, CFG, "case4")
+        env.submit({"verdict": verdict, "confidence": 0.8})
+        assert scoring.score(env)["correct"] == correct
+    assert scoring.score(Environment("holistic", 0, CFG))["brier"] == 0.25   # no verdict

@@ -49,3 +49,14 @@ def test_audit_flags_non_query_commands():
     assert a["n_tool_calls"] == 3 and a["n_other_attempts"] == 2
     assert [l["command"] for l in a["leaks"]] == ["python3 query.py budget; ls"]
     assert not a["pass"]
+
+
+def test_query_only_and_deny_flags():
+    assert run_claude.query_only("python3 query.py budget")
+    assert run_claude.query_only("python3 query.py test L1-S1-M1; python3 query.py test L1-S1-M1")
+    assert run_claude.query_only("python3 query.py submit '{\"justification\": \"a; b && c\"}'")
+    assert not run_claude.query_only("python3 query.py budget && ls")
+    assert not run_claude.query_only("python3 query.py describe $(cat x)")
+    assert not run_claude.query_only("python3 query.py budget | cat")
+    cmd = run_claude.claude_command("p", CFG["claude_runs"])
+    assert "Bash(ps *)" in cmd and "Bash(cat)" in cmd and CFG["claude_runs"]["model"] in cmd

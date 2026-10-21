@@ -29,7 +29,9 @@ def mean_cost_holistic(t, known, p, sim, measure="max", tau=0.1):
 
 
 def mean_cost(learner, t, known, cfg, sim):
-    if learner == "part_based":
+    # factorized_holistic (case 4): a holistic learner whose similarity metric is factorized over the
+    # rule dimensions. Its cost is defined to equal the part-based learner's (equivalence by construction).
+    if learner in ("part_based", "factorized_holistic"):
         return mean_cost_part_based(t, known, cfg["part_based"])
     if learner == "holistic":
         return mean_cost_holistic(t, known, cfg["holistic"], sim,

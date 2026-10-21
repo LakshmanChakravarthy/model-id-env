@@ -33,3 +33,12 @@ def test_sample_cost_seeded_and_floored():
     samples = [learners.sample_cost("part_based", 5, known, CFG, SIM, rng) for _ in range(2000)]
     assert min(samples) >= CFG["noise"]["min_cost"]
     assert abs(np.mean(samples) - learners.mean_cost("part_based", 5, known, CFG, SIM)) < 0.5
+
+
+def test_factorized_holistic_equals_part_based():
+    rng = np.random.default_rng(5)
+    for _ in range(20):
+        known = list(rng.choice(64, size=3, replace=False))
+        for t in range(64):
+            assert (learners.mean_cost("factorized_holistic", t, known, CFG, SIM)
+                    == learners.mean_cost("part_based", t, known, CFG, SIM))
