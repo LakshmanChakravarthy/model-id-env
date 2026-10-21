@@ -68,7 +68,7 @@ Claude runs as the experimenter through **Claude Code headless** (`claude -p`).
 ## Checks (known-answer checks before any Claude run)
 
 1. **The dissociation exists.** Over all 64 tasks, plot cost against new parts and against similarity, for both learners. Confirm that some tasks make the two learners disagree. If no such tasks exist, nothing can solve the environment.
-2. **The baselines behave as expected.** The oracle is close to 100% correct. The random baseline is clearly lower. If the random baseline is already near 100%, the environment is too easy: tune the parameters.
+2. **The baselines behave as expected.** The oracle is close to 100% correct, and its designs dissociate the two measures clearly better than random designs (criterion revised in Day 2b: accuracy alone does not separate the baselines, because a moderate confound costs a random design little information).
 3. **No leakage.** In the pilot, run one instance with the prompt: "Find out which learner type is hidden, using any method." Claude must not be able to read the source or the server state. If it can, fix the sandbox before the main run.
 
 ## Scope
@@ -131,7 +131,7 @@ model-id-env/
 - Check 2 ran with the declared tuning grid and confirmation. It **failed**: the random baseline stays at 0.80-0.85 or higher; the best gap was +0.165 in tuning and +0.140 in confirmation (needed 0.15).
 
 **Pending**
-- **Blocked:** decide how to respond to the check-2 failure (see Analysis log, day 2). Then a new declare commit.
+- Day 2b (declared): revised check 2 with naive-analysis baselines.
 - Day 3 to day 6 in the plan above.
 - Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
 
@@ -210,6 +210,21 @@ Design choices fixed here:
 - Dissociation score is stable across all settings: oracle 0.82-0.83, random 0.52-0.53.
 
 **Diagnosis.** The random baseline is strong because the confound is moderate. With a median within-K corr of -0.4 between the two predictors, a random design keeps about 1 - 0.4^2 = 84% of the information that an uncorrelated design has about each slope. The multiple regression controls for the confound, so a random design is only somewhat less efficient than the oracle. Noise lowers both accuracies. It does not make the confound matter more. For random designs to fail clearly, the predictors must be strongly correlated in random designs (|corr| of about 0.9 or more). This task space does not have that. The config is unchanged (noise sd 5). Work stops here until the design or the criterion is changed with a new declare commit.
+
+### Day 2b / revised success criterion and naive-analysis baselines (declared 2026-10-21)
+
+**Why.** Check 2 failed (Day 2): with a moderate confound (corr about -0.4), a random design analysed with multiple regression keeps about 84% of the information, so the random baseline is 85-100% correct. Only very high noise (sd 20) brings the accuracy gap near 0.15, and those costs are very erratic. Design quality separates the baselines clearly in every setting (0.82-0.83 vs 0.52-0.53). This is a change of criterion after seeing results; the reason is the diagnosis above.
+
+**Changes.**
+- Settings stay as they are: noise sd 5, budget 60, `c_sel` 2, `c0` 31.8. The tuning-grid selection (sd 20) is not used.
+- Main measures for every experimenter, Claude included: verdict accuracy, dissociation score (design quality), and Brier score, each reported beside the baselines. Accuracy alone is not the headline.
+- New analysis for the baselines, **naive**: Pearson r(cost, new_parts) and r(cost, -similarity), each on its own (a constant predictor gets r = 0). Verdict = the larger r. Confidence = Phi((atanh r_parts - atanh r_sim) * sqrt((n - 3) / 2)), taken for the stated verdict. Four baselines: {random, oracle} design x {multiple regression, naive} analysis. Same instance seeds, so the paired design runs see the same noise.
+- New check 2 pass criterion: oracle (multiple regression) accuracy >= 0.90, and mean dissociation oracle - random >= 0.20. Note: this criterion is set after the Day 2 runs showed 1.00 and 0.82 vs 0.52, so it is a sanity check on a fresh seed, not an independent test.
+- `analysis/check2_baselines.py final` runs it on a fresh seed (`final_seed` = 3).
+
+**Expected result.** Oracle accuracy about 1.0; random (multiple) about 1.0; dissociation 0.82 vs 0.52, so the check passes. Naive analysis: the marginal correlation of the true predictor includes its own effect, and the other predictor gets only the part that comes through the -0.4 correlation, so naive accuracy is also high at noise sd 5 (about 0.9-1.0), with the random-naive pair the lowest of the four. Brier is worst for random-naive.
+
+**Consequence for the main claim.** In this environment, a weak design costs little accuracy when the analysis is good. So the comparison of Claude with the baselines rests mainly on the dissociation score and calibration, and on accuracy only where Claude falls below the random baseline.
 
 ## Handover prompt
 
