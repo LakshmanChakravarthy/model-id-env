@@ -18,7 +18,7 @@
     "alpha": 1.0
   },
   "noise": {
-    "sd": 5.0,
+    "sd": 15.0,
     "min_cost": 1
   },
   "check1": {
@@ -66,6 +66,6 @@
       ]
     },
     "confirm_seed": 2,
-    "final_seed": 3
+    "final_seed": 4
   }
 }

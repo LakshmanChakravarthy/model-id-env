@@ -133,7 +133,7 @@ model-id-env/
 - Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
 
 **Pending**
-- **Decide before Day 3:** keep noise sd 5 (accuracy at ceiling for every baseline; only the dissociation score separates experimenters) or raise it (Day 2b result).
+- Day 2c (declared): noise sd 15; rerun checks 1 and 2.
 - Day 3 to day 6 in the plan above.
 - Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
 
@@ -181,7 +181,7 @@ Definitions fixed here:
 
 **Expected result.** Median corr about -0.4; about 25% of K with corr <= -0.5; about 85% of K with a disagreeing pair, and about 1% of task pairs disagreeing. All 64 mappings distinct; 10 distinct similarity values. Max and kernel give the same conclusions. Matched `c0` changes from 35.4.
 
-**Result (2026-10-21). Check 1 PASSES.** Files: `results/checks/check1.json`, `results/checks/check1.png`. Matched `c0` = 31.8 (max) / 30.2 (kernel); `c0` = 31.8 is now in the config and the numbers are from the rerun (mean cost 25.9 for both learners).
+**Result (2026-10-21). Check 1 PASSES.** Files: `results/checks/check1_sd5.json`, `results/checks/check1_sd5.png` (renamed in Day 2c). Matched `c0` = 31.8 (max) / 30.2 (kernel); `c0` = 31.8 is now in the config and the numbers are from the rerun (mean cost 25.9 for both learners).
 - Confound: median within-K corr(new_parts, similarity) = -0.40 (max) / -0.39 (kernel); range -0.84 to +0.25; 25.5% of K with corr <= -0.5. As expected. The median within-K corr between the two learners' costs is now 0.40 (it was 0.02).
 - Dissociations: 197 of 200 K have a disagreeing pair (98.5%), median 117 pairs per K = 3.3% of pairs. **More than expected** (about 85% and 1%). A diagnostic run shows the cause: the probe had no selection-uncertainty term. With `c_sel` = 0 (and `c0` matched again), the check gives 86.5% and 1.0%, the probe values. With `c_sel` = 2, the part-based costs vary more within K, so disagreements are about 3 times as common. `c_sel` is a lever for check 2 if the random baseline is too strong.
 - All 64 mappings are distinct; 10 distinct similarity values. Max and kernel give the same conclusions, so by the declared rule the similarity measure is `max`.
@@ -228,7 +228,7 @@ Design choices fixed here:
 
 **Consequence for the main claim.** In this environment, a weak design costs little accuracy when the analysis is good. So the comparison of Claude with the baselines rests mainly on the dissociation score and calibration, and on accuracy only where Claude falls below the random baseline.
 
-**Result (2026-10-21). Check 2 PASSES under the Day 2b criterion** (`results/checks/check2_final.json`, seed 3, 200 instances per baseline):
+**Result (2026-10-21). Check 2 PASSES under the Day 2b criterion** (`results/checks/check2_final_sd5.json`, seed 3, 200 instances per baseline):
 
 | Baseline | Accuracy | Dissociation | Brier |
 |---|---|---|---|
@@ -240,6 +240,19 @@ Design choices fixed here:
 - Dissociation gap 0.30 (needed 0.20); oracle accuracy 1.00 (needed 0.90).
 - **Not as expected:** the naive analysis is also 100% correct with a random design. I expected about 0.9-1.0 and the lowest of the four; it is at ceiling. At noise sd 5 with 56 tests, every baseline gets every verdict right with near-certain confidence.
 - **Consequence.** At these settings, verdict accuracy and Brier cannot separate experimenters; only the dissociation score does. The hypothesis in CLAUDE.md ("a weak experimenter's verdicts are close to chance or overconfident") cannot show up in accuracy here. A noise level where random designs fall below ceiling (sd 10-15 gave random 0.85-0.95 in the Day 2 grid) would make accuracy and calibration informative again. That needs a decision and a declare commit before any Claude run.
+
+### Day 2c / noise sd 15 (declared 2026-10-21)
+
+**Why.** At noise sd 5, all four baselines are 100% correct with near-certain confidence (Day 2b), so accuracy and calibration cannot separate experimenters. In the Day 2 grid, sd 15 with budget 60 gave random 0.895 and oracle 1.000.
+
+**Change.** `noise.sd` 5 -> 15. Nothing else. `c0` stays 31.8 (it is matched on mean costs, which do not depend on the noise). The sd-5 result files are renamed `check1_sd5.*` and `check2_final_sd5.json`.
+
+**Will run.** Check 1 again (its margin is 1 noise sd, so it becomes 15), and `check2_baselines.py final` on a fresh seed (`final_seed` = 4). Same pass criteria as Day 1b and Day 2b.
+
+**Expected result.**
+- Check 1: the confound statistics do not change (median corr -0.40). Disagreeing pairs need a gap of 15 in both learners' costs, so they become rarer. I am not confident that >= 80% of K still have one; check 1 may fail on criterion (ii). If it fails, work stops for a decision; the margin is not changed after the fact.
+- Check 2: oracle multiple about 0.98-1.0; random multiple about 0.85-0.92; naive analysis lower than multiple regression for the random design (about 0.75-0.9); dissociation 0.83 vs 0.53 (pass); Brier clearly worse for the random designs (about 0.07-0.12).
+- With a base cost of 10, about 27% of samples for the cheapest tasks are floored at 1. This compresses differences at the low end for both learners.
 
 ## Handover prompt
 
