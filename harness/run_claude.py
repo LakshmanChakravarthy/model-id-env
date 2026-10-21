@@ -139,6 +139,15 @@ def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, conditi
                    "subtype": final.get("subtype"), "final_text": final.get("result"),
                    "model_usage": final.get("modelUsage"), "command": claude_command("<prompt>", cr, model)}
 
+    if code != 0 or not any(e.get("type") == "assistant" for e in events if isinstance(e, dict)) or not env.log:
+        # A failed launch (for example an unsupported model) is not a result: keep it out of results/.
+        failed = RESULTS.parent / "results_failed"
+        failed.mkdir(exist_ok=True)
+        (RESULTS / "transcripts" / f"{instance_id}.jsonl").rename(failed / f"{instance_id}.jsonl")
+        with open(failed / f"{instance_id}.json", "w") as f:
+            json.dump({"instance_id": instance_id, "claude": claude_meta}, f, indent=1, default=str)
+        raise RuntimeError(f"{instance_id}: launch failed (returncode {code}): {claude_meta['final_text']}")
+
     scores = scoring.score(env)
     base = {}
     analyses = ["multiple", "aware"] if condition == "case4" else ["multiple"]
