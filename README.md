@@ -126,12 +126,11 @@ model-id-env/
 - Scope and design (this README).
 - Day 1 code: `env/tasks.py`, `env/learners.py`, `env/config.py`, `configs/default.json`, tests in `tests/` (run with `python -m pytest tests`).
 - Check 1 ran (see Analysis log). It **failed**: for random training sets there is almost no confound between new parts and similarity.
+- Day 1b: motor table changed to the 2x2 design. Check 1 rerun and **passed** (median corr -0.40; dissociations in 98.5% of K). Similarity measure selected: `max`.
 
 **Pending**
-- Day 1b (declared): 2x2 motor table, rerun check 1 with the revised pass criterion. Then record results.
 - Day 2 to day 6 in the plan above.
-- Decide the similarity measure (maximum or kernel-weighted mean): by the declared rule this is `max`, but confirm it after the design change.
-- Tune the learner parameters and the budget after check 2.
+- Tune the learner parameters and the budget after check 2 (`c_sel` strongly affects how common dissociations are; see Day 1b).
 
 ## Analysis log
 
@@ -176,6 +175,11 @@ Definitions fixed here:
 **Revised pass criterion for check 1.** The Day 1 criterion (a disagreeing pair for every K) can fail by construction when the part-based learner predicts flat costs. New criterion: (i) the confound exists: median within-K corr(new_parts, similarity) <= -0.3 under the selected measure; and (ii) dissociations exist: >= 80% of K have at least one disagreeing pair. Note: the threshold in (ii) is set after the probe and is close to the probe value (87%).
 
 **Expected result.** Median corr about -0.4; about 25% of K with corr <= -0.5; about 85% of K with a disagreeing pair, and about 1% of task pairs disagreeing. All 64 mappings distinct; 10 distinct similarity values. Max and kernel give the same conclusions. Matched `c0` changes from 35.4.
+
+**Result (2026-10-21). Check 1 PASSES.** Files: `results/checks/check1.json`, `results/checks/check1.png`. Matched `c0` = 31.8 (max) / 30.2 (kernel); `c0` = 31.8 is now in the config and the numbers are from the rerun (mean cost 25.9 for both learners).
+- Confound: median within-K corr(new_parts, similarity) = -0.40 (max) / -0.39 (kernel); range -0.84 to +0.25; 25.5% of K with corr <= -0.5. As expected. The median within-K corr between the two learners' costs is now 0.40 (it was 0.02).
+- Dissociations: 197 of 200 K have a disagreeing pair (98.5%), median 117 pairs per K = 3.3% of pairs. **More than expected** (about 85% and 1%). A diagnostic run shows the cause: the probe had no selection-uncertainty term. With `c_sel` = 0 (and `c0` matched again), the check gives 86.5% and 1.0%, the probe values. With `c_sel` = 2, the part-based costs vary more within K, so disagreements are about 3 times as common. `c_sel` is a lever for check 2 if the random baseline is too strong.
+- All 64 mappings are distinct; 10 distinct similarity values. Max and kernel give the same conclusions, so by the declared rule the similarity measure is `max`.
 
 ## Handover prompt
 

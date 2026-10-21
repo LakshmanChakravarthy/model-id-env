@@ -14,7 +14,7 @@
   },
   "holistic": {
     "base": 10.0,
-    "c0": 35.4,
+    "c0": 31.8,
     "alpha": 1.0
   },
   "noise": {
@@ -26,6 +26,10 @@
     "train_size": 4,
     "n_train_sets": 200,
     "n_example_sets": 3,
-    "margin_in_sd": 1.0
+    "margin_in_sd": 1.0,
+    "pass": {
+      "max_median_corr": -0.3,
+      "min_frac_k_with_disagreement": 0.8
+    }
   }
 }
