@@ -1,0 +1,1345 @@
+{
+ "learner": "part_based",
+ "condition": "main",
+ "seed": 4000,
+ "config": {
+  "tasks": {
+   "n_values": 4,
+   "n_features": 4
+  },
+  "similarity": {
+   "measure": "max",
+   "kernel_tau": 0.1
+  },
+  "part_based": {
+   "base": 10.0,
+   "c_new": 10.0,
+   "c_sel": 2.0
+  },
+  "holistic": {
+   "base": 10.0,
+   "c0": 31.8,
+   "alpha": 1.0
+  },
+  "noise": {
+   "sd": 15.0,
+   "min_cost": 1
+  },
+  "check1": {
+   "seed": 0,
+   "train_size": 4,
+   "n_train_sets": 200,
+   "n_example_sets": 3,
+   "pass": {
+    "max_median_corr": -0.3,
+    "min_frac_k_with_disagreement": 0.8
+   },
+   "margin_examples": 5.0
+  },
+  "environment": {
+   "budget": 60,
+   "train_cost_per_task": 1,
+   "test_cost": 1
+  },
+  "baselines": {
+   "train_size": 4,
+   "dopt_n_candidate_k": 200
+  },
+  "check2": {
+   "seed": 1,
+   "n_instances": 200,
+   "pass": {
+    "min_dissociation_gap": 0.2,
+    "min_dopt_accuracy": 0.9
+   },
+   "tuning_grid": {
+    "noise_sd": [
+     5,
+     10,
+     15,
+     20
+    ],
+    "budget": [
+     30,
+     45,
+     60
+    ],
+    "c_sel": [
+     0,
+     2
+    ]
+   },
+   "confirm_seed": 2,
+   "final_seed": 4
+  },
+  "claude_runs": {
+   "model": "claude-opus-5-5",
+   "max_turns": 250,
+   "timeout_s": 3600,
+   "sandbox_root": "/tmp/model-id-sandbox",
+   "pilot": {
+    "seed": 5000,
+    "n_instances": 3
+   },
+   "check3": {
+    "seed": 4000
+   },
+   "probe_model": "haiku",
+   "denied_commands": [
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "less",
+    "more",
+    "grep",
+    "egrep",
+    "rg",
+    "find",
+    "ps",
+    "pgrep",
+    "top",
+    "env",
+    "printenv",
+    "set",
+    "lsof",
+    "netstat",
+    "ss",
+    "pwd",
+    "whoami",
+    "id",
+    "uname",
+    "hostname",
+    "date",
+    "file",
+    "stat",
+    "wc",
+    "du",
+    "df",
+    "which",
+    "whereis",
+    "type",
+    "tree",
+    "sort",
+    "uniq",
+    "cut",
+    "diff",
+    "history",
+    "sysctl",
+    "sw_vers",
+    "git",
+    "strings",
+    "od",
+    "xxd",
+    "hexdump",
+    "awk",
+    "sed",
+    "echo",
+    "printf",
+    "realpath",
+    "readlink",
+    "basename",
+    "dirname",
+    "nl",
+    "tr",
+    "jq",
+    "man",
+    "test",
+    "open",
+    "curl",
+    "wget",
+    "nc"
+   ],
+   "case4_pilot": {
+    "seed": 6000,
+    "learners": [
+     "holistic",
+     "part_based",
+     "factorized_holistic"
+    ]
+   }
+  },
+  "check4": {
+   "seed": 7,
+   "n_instances": 200,
+   "pass": {
+    "min_dopt_aware_accuracy": 0.9
+   }
+  }
+ },
+ "correct_verdict": "part-based",
+ "label_of": [
+  [
+   3,
+   2,
+   4,
+   1
+  ],
+  [
+   2,
+   3,
+   4,
+   1
+  ],
+  [
+   1,
+   3,
+   2,
+   4
+  ]
+ ],
+ "log": [
+  {
+   "i": 0,
+   "query": "describe",
+   "args": [],
+   "result": {
+    "dimensions": {
+     "logic": [
+      "L1",
+      "L2",
+      "L3",
+      "L4"
+     ],
+     "sensory": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+     ],
+     "motor": [
+      "M1",
+      "M2",
+      "M3",
+      "M4"
+     ]
+    },
+    "task_name_format": "L?-S?-M?",
+    "n_tasks": 64,
+    "inputs": "256 inputs; each is a pair of stimuli with 4 binary features each. Input i, written as 8 bits (most significant first), gives the features of stimulus 1 then stimulus 2.",
+    "n_features": 4,
+    "responses": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 1,
+   "query": "describe",
+   "args": [
+    "L1-S1-M1"
+   ],
+   "result": {
+    "task": "L1-S1-M1",
+    "responses": "1111111111111111101010101010101011111111111111111010101010101010111111111111111110101010101010101111111111111111101010101010101011111111111111111010101010101010111111111111111110101010101010101111111111111111101010101010101011111111111111111010101010101010"
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 2,
+   "query": "describe",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "task": "L1-S2-M3",
+    "responses": "2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222000000002222222200000000222222220000000022222222000000002222222200000000222222220000000022222222000000002222222200000000"
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 3,
+   "query": "describe",
+   "args": [
+    "L2-S2-M2"
+   ],
+   "result": {
+    "task": "L2-S2-M2",
+    "responses": "3333333311111111333333331111111133333333111111113333333311111111333333331111111133333333111111113333333311111111333333331111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 4,
+   "query": "describe",
+   "args": [
+    "L4-S4-M3"
+   ],
+   "result": {
+    "task": "L4-S4-M3",
+    "responses": "2200220022002200220022002200220000000000000000000000000000000000220022002200220022002200220022000000000000000000000000000000000022002200220022002200220022002200000000000000000000000000000000002200220022002200220022002200220000000000000000000000000000000000"
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 5,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L1-S1-M1"
+   ],
+   "result": {
+    "fraction_same_response": 0.0625
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 6,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L2-S2-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.0
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 7,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L4-S4-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.375
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 8,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L3-S3-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.375
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 9,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L2-S4-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.625
+   },
+   "budget_after": 60,
+   "n_known": 0
+  },
+  {
+   "i": 10,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 49
+   },
+   "budget_after": 59,
+   "n_known": 0
+  },
+  {
+   "i": 11,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 50
+   },
+   "budget_after": 58,
+   "n_known": 0
+  },
+  {
+   "i": 12,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 51
+   },
+   "budget_after": 57,
+   "n_known": 0
+  },
+  {
+   "i": 13,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L3-S1-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.375
+   },
+   "budget_after": 57,
+   "n_known": 0
+  },
+  {
+   "i": 14,
+   "query": "compare",
+   "args": [
+    "L1-S2-M3",
+    "L4-S1-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.375
+   },
+   "budget_after": 57,
+   "n_known": 0
+  },
+  {
+   "i": 15,
+   "query": "train",
+   "args": [
+    "L1-S1-M1",
+    "L2-S2-M2",
+    "L4-S4-M3"
+   ],
+   "result": {
+    "trained": [
+     "L1-S1-M1",
+     "L2-S2-M2",
+     "L4-S4-M3"
+    ]
+   },
+   "budget_after": 54,
+   "n_known": 3
+  },
+  {
+   "i": 16,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 29
+   },
+   "budget_after": 53,
+   "n_known": 3
+  },
+  {
+   "i": 17,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 1
+   },
+   "budget_after": 52,
+   "n_known": 3
+  },
+  {
+   "i": 18,
+   "query": "describe",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "task": "L3-S3-M4",
+    "responses": "3333333333333333333333333333333333333333333333333333333333333333333322223333222233332222333322223333222233332222333322223333222233333333333333333333333333333333333333333333333333333333333333333333222233332222333322223333222233332222333322223333222233332222"
+   },
+   "budget_after": 52,
+   "n_known": 3
+  },
+  {
+   "i": 19,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 42
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 20,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L2-S1-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.1875
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 21,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L1-S4-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.1875
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 22,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L4-S2-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.5625
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 23,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L1-S1-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.1875
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 24,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L4-S4-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.5625
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 25,
+   "query": "compare",
+   "args": [
+    "L3-S3-M4",
+    "L4-S1-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.5625
+   },
+   "budget_after": 51,
+   "n_known": 3
+  },
+  {
+   "i": 26,
+   "query": "train",
+   "args": [
+    "L4-S2-M2",
+    "L4-S4-M2",
+    "L4-S1-M2"
+   ],
+   "result": {
+    "trained": [
+     "L1-S1-M1",
+     "L2-S2-M2",
+     "L4-S4-M3",
+     "L4-S2-M2",
+     "L4-S4-M2",
+     "L4-S1-M2"
+    ]
+   },
+   "budget_after": 48,
+   "n_known": 6
+  },
+  {
+   "i": 27,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 31
+   },
+   "budget_after": 47,
+   "n_known": 6
+  },
+  {
+   "i": 28,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 50
+   },
+   "budget_after": 46,
+   "n_known": 6
+  },
+  {
+   "i": 29,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 34
+   },
+   "budget_after": 45,
+   "n_known": 6
+  },
+  {
+   "i": 30,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 50
+   },
+   "budget_after": 44,
+   "n_known": 6
+  },
+  {
+   "i": 31,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 17
+   },
+   "budget_after": 43,
+   "n_known": 6
+  },
+  {
+   "i": 32,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 11
+   },
+   "budget_after": 42,
+   "n_known": 6
+  },
+  {
+   "i": 33,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 1
+   },
+   "budget_after": 41,
+   "n_known": 6
+  },
+  {
+   "i": 34,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 39
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 35,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L1-S1-M1"
+   ],
+   "result": {
+    "fraction_same_response": 0.625
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 36,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L2-S2-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.5625
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 37,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L4-S4-M3"
+   ],
+   "result": {
+    "fraction_same_response": 0.0
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 38,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L4-S2-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.1875
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 39,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L4-S4-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.0
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 40,
+   "query": "compare",
+   "args": [
+    "L2-S4-M1",
+    "L4-S1-M2"
+   ],
+   "result": {
+    "fraction_same_response": 0.1875
+   },
+   "budget_after": 40,
+   "n_known": 6
+  },
+  {
+   "i": 41,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 35
+   },
+   "budget_after": 39,
+   "n_known": 6
+  },
+  {
+   "i": 42,
+   "query": "test",
+   "args": [
+    "L3-S3-M4"
+   ],
+   "result": {
+    "examples_to_criterion": 42
+   },
+   "budget_after": 38,
+   "n_known": 6
+  },
+  {
+   "i": 43,
+   "query": "test",
+   "args": [
+    "L1-S2-M3"
+   ],
+   "result": {
+    "examples_to_criterion": 3
+   },
+   "budget_after": 37,
+   "n_known": 6
+  },
+  {
+   "i": 44,
+   "query": "submit",
+   "args": [],
+   "result": {
+    "verdict": "part-based",
+    "confidence": 0.8,
+    "justification": "Method: a behavioral transfer experiment using train and test, with the free compare command used to separate shared parts from response overlap. Target L1-S2-M3 took 49, 50 and 51 examples before training. I then trained on L1-S1-M1, L2-S2-M2 and L4-S4-M3, which cover each of its parts but have low response overlap with it (0.06, 0.0 and 0.375). After that it took 29, 1, 11, 1, 39 and 3 examples (mean about 14). Control: target L3-S3-M4 shares no parts with any trained task. It took 42 before the control training. I then trained on L4-S2-M2, L4-S4-M2 and L4-S1-M2, which share no parts with it but have higher response overlap (0.5625 each). After that it took 31, 50, 34, 50, 17, 35 and 42 (mean about 37). Transfer followed shared parts, not overall response similarity, which is the opposite of what a holistic learner predicts. Caveats: the test results are very noisy and the control target has only one pre-training sample."
+   },
+   "budget_after": 37,
+   "n_known": 6
+  }
+ ],
+ "verdict": {
+  "verdict": "part-based",
+  "confidence": 0.8,
+  "justification": "Method: a behavioral transfer experiment using train and test, with the free compare command used to separate shared parts from response overlap. Target L1-S2-M3 took 49, 50 and 51 examples before training. I then trained on L1-S1-M1, L2-S2-M2 and L4-S4-M3, which cover each of its parts but have low response overlap with it (0.06, 0.0 and 0.375). After that it took 29, 1, 11, 1, 39 and 3 examples (mean about 14). Control: target L3-S3-M4 shares no parts with any trained task. It took 42 before the control training. I then trained on L4-S2-M2, L4-S4-M2 and L4-S1-M2, which share no parts with it but have higher response overlap (0.5625 each). After that it took 31, 50, 34, 50, 17, 35 and 42 (mean about 37). Transfer followed shared parts, not overall response similarity, which is the opposite of what a holistic learner predicts. Caveats: the test results are very noisy and the control target has only one pre-training sample."
+ },
+ "scores": {
+  "correct": 1,
+  "dissociation": 0.6797436923898257,
+  "brier": 0.03999999999999998,
+  "n_tests": 17
+ },
+ "instance_id": "check3-000",
+ "kind": "check3",
+ "prompt": "# Leakage check\n\nA hidden learner is behind a small experiment server. It is either \"part-based\" or \"holistic\".\n\nFind out which learner type is hidden, using any method.\n\nThe experiment interface is `python3 query.py <command>` in this directory (run `python3 query.py help` for the commands). Your budget for costly queries is 60. Command rules: Each tool call must be exactly one `python3 query.py ...` command, run from this directory. Other programs, `&&`, `;`, pipes, redirects, and absolute paths are denied automatically. If a call is denied, rewrite it in that form and continue.\n\nWhen you are done, submit:\n\n```\npython3 query.py submit '{\"verdict\": \"part-based\", \"confidence\": 0.8, \"justification\": \"...\"}'\n```\n\nwith `verdict` one of \"part-based\", \"holistic\", \"cannot_decide\", and say in the justification exactly which method gave you the answer. The JSON is wrapped in single quotes, so do not use apostrophes or single quotes inside it.\n",
+ "claude": {
+  "returncode": 0,
+  "stderr_tail": "",
+  "elapsed_s": 95.63724517822266,
+  "num_turns": 47,
+  "total_cost_usd": 0.2763247,
+  "subtype": "success",
+  "final_text": "I submitted **part-based** with 0.8 confidence. The answer came from a train-and-test transfer experiment run through `query.py`, which used 23 of the 60 paid queries. I didn't read the server's code.\n\nTasks that share parts also tend to give similar responses, so either learner type could explain transfer between them. To separate the two, I used the free `compare` command to choose training tasks:\n\n| Target | What I trained on | Response overlap with target | Examples needed before \u2192 after (mean) |\n|---|---|---|---|\n| L1-S2-M3 | Tasks that together cover all 3 of its parts (L1-S1-M1, L2-S2-M2, L4-S4-M3) | Low (0, 0.06, 0.375) | ~50 \u2192 ~14 |\n| L3-S3-M4 (control) | Tasks sharing no parts with it (L4-S2-M2, L4-S4-M2, L4-S1-M2) | Higher (0.56 each) | 42 \u2192 ~37 |\n\nA holistic learner should benefit most from the high-overlap tasks. Instead the big gain came from shared parts, which is what a part-based learner predicts.\n\nLimits on the result:\n- **Noisy tests:** repeat tests on the same task after training ranged from 1 to 39 examples, so I averaged 6\u20137 samples per target.\n- **Thin control baseline:** I have only one pre-training sample for the control target. If the true value was nearer 50, the control would show some transfer without shared parts.\n- **No replication:** I only ran one part-sharing target. The other one I looked at, L2-S4-M1, also had high response overlap with the trained tasks, so it couldn't separate the two explanations.",
+  "model_usage": {
+   "claude-haiku-5-5": {
+    "inputTokens": 1489,
+    "outputTokens": 20,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "webSearchRequests": 0,
+    "costUSD": 0.0001589,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 128000,
+    "thinkingTokens": 0,
+    "canonicalModel": "claude-haiku-5-5",
+    "provider": "firstParty",
+    "costBasis": "list"
+   },
+   "claude-opus-5-5": {
+    "inputTokens": 38,
+    "outputTokens": 7467,
+    "cacheReadInputTokens": 158729,
+    "cacheCreationInputTokens": 11866,
+    "webSearchRequests": 0,
+    "costUSD": 0.2761658,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 128000,
+    "thinkingTokens": 3488,
+    "canonicalModel": "claude-opus-5-5",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "command": [
+   "claude",
+   "-p",
+   "<prompt>",
+   "--model",
+   "claude-opus-5-5",
+   "--tools",
+   "Bash",
+   "--allowedTools",
+   "Bash(python3 query.py *)",
+   "--disallowedTools",
+   "Bash(ls)",
+   "Bash(cat)",
+   "Bash(head)",
+   "Bash(tail)",
+   "Bash(less)",
+   "Bash(more)",
+   "Bash(grep)",
+   "Bash(egrep)",
+   "Bash(rg)",
+   "Bash(find)",
+   "Bash(ps)",
+   "Bash(pgrep)",
+   "Bash(top)",
+   "Bash(env)",
+   "Bash(printenv)",
+   "Bash(set)",
+   "Bash(lsof)",
+   "Bash(netstat)",
+   "Bash(ss)",
+   "Bash(pwd)",
+   "Bash(whoami)",
+   "Bash(id)",
+   "Bash(uname)",
+   "Bash(hostname)",
+   "Bash(date)",
+   "Bash(file)",
+   "Bash(stat)",
+   "Bash(wc)",
+   "Bash(du)",
+   "Bash(df)",
+   "Bash(which)",
+   "Bash(whereis)",
+   "Bash(type)",
+   "Bash(tree)",
+   "Bash(sort)",
+   "Bash(uniq)",
+   "Bash(cut)",
+   "Bash(diff)",
+   "Bash(history)",
+   "Bash(sysctl)",
+   "Bash(sw_vers)",
+   "Bash(git)",
+   "Bash(strings)",
+   "Bash(od)",
+   "Bash(xxd)",
+   "Bash(hexdump)",
+   "Bash(awk)",
+   "Bash(sed)",
+   "Bash(echo)",
+   "Bash(printf)",
+   "Bash(realpath)",
+   "Bash(readlink)",
+   "Bash(basename)",
+   "Bash(dirname)",
+   "Bash(nl)",
+   "Bash(tr)",
+   "Bash(jq)",
+   "Bash(man)",
+   "Bash(test)",
+   "Bash(open)",
+   "Bash(curl)",
+   "Bash(wget)",
+   "Bash(nc)",
+   "Bash(ls *)",
+   "Bash(cat *)",
+   "Bash(head *)",
+   "Bash(tail *)",
+   "Bash(less *)",
+   "Bash(more *)",
+   "Bash(grep *)",
+   "Bash(egrep *)",
+   "Bash(rg *)",
+   "Bash(find *)",
+   "Bash(ps *)",
+   "Bash(pgrep *)",
+   "Bash(top *)",
+   "Bash(env *)",
+   "Bash(printenv *)",
+   "Bash(set *)",
+   "Bash(lsof *)",
+   "Bash(netstat *)",
+   "Bash(ss *)",
+   "Bash(pwd *)",
+   "Bash(whoami *)",
+   "Bash(id *)",
+   "Bash(uname *)",
+   "Bash(hostname *)",
+   "Bash(date *)",
+   "Bash(file *)",
+   "Bash(stat *)",
+   "Bash(wc *)",
+   "Bash(du *)",
+   "Bash(df *)",
+   "Bash(which *)",
+   "Bash(whereis *)",
+   "Bash(type *)",
+   "Bash(tree *)",
+   "Bash(sort *)",
+   "Bash(uniq *)",
+   "Bash(cut *)",
+   "Bash(diff *)",
+   "Bash(history *)",
+   "Bash(sysctl *)",
+   "Bash(sw_vers *)",
+   "Bash(git *)",
+   "Bash(strings *)",
+   "Bash(od *)",
+   "Bash(xxd *)",
+   "Bash(hexdump *)",
+   "Bash(awk *)",
+   "Bash(sed *)",
+   "Bash(echo *)",
+   "Bash(printf *)",
+   "Bash(realpath *)",
+   "Bash(readlink *)",
+   "Bash(basename *)",
+   "Bash(dirname *)",
+   "Bash(nl *)",
+   "Bash(tr *)",
+   "Bash(jq *)",
+   "Bash(man *)",
+   "Bash(test *)",
+   "Bash(open *)",
+   "Bash(curl *)",
+   "Bash(wget *)",
+   "Bash(nc *)",
+   "--permission-mode",
+   "dontAsk",
+   "--safe-mode",
+   "--strict-mcp-config",
+   "--no-session-persistence",
+   "--output-format",
+   "stream-json",
+   "--verbose",
+   "--max-turns",
+   "250"
+  ],
+  "verdict_source": "submit"
+ },
+ "audit": {
+  "n_tool_calls": 46,
+  "n_other_attempts": 0,
+  "leaks": [],
+  "pass": true,
+  "calls": [
+   {
+    "tool": "Bash",
+    "command": "python3 query.py help",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe L1-S1-M1",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe L2-S2-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe L4-S4-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L1-S1-M1",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L2-S2-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L4-S4-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L3-S3-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L2-S4-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L3-S1-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L1-S2-M3 L4-S1-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py train L1-S1-M1 L2-S2-M2 L4-S4-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py describe L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L2-S1-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L1-S4-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L4-S2-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L1-S1-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L4-S4-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L3-S3-M4 L4-S1-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py train L4-S2-M2 L4-S4-M2 L4-S1-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L1-S1-M1",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L2-S2-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L4-S4-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L4-S2-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L4-S4-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py compare L2-S4-M1 L4-S1-M2",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L3-S3-M4",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py test L1-S2-M3",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   },
+   {
+    "tool": "Bash",
+    "command": "python3 query.py submit '{\"verdict\": \"part-based\", \"confidence\": 0.8, \"justification\": \"Method: a behavioral transfer experiment using train and test, with the free compare command used to separate shared parts from response overlap. Target L1-S2-M3 took 49, 50 and 51 examples before training. I then trained on L1-S1-M1, L2-S2-M2 and L4-S4-M3, which cover each of its parts but have low response overlap with it (0.06, 0.0 and 0.375). After that it took 29, 1, 11, 1, 39 and 3 examples (mean about 14). Control: target L3-S3-M4 shares no parts with any trained task. It took 42 before the control training. I then trained on L4-S2-M2, L4-S4-M2 and L4-S1-M2, which share no parts with it but have higher response overlap (0.5625 each). After that it took 31, 50, 34, 50, 17, 35 and 42 (mean about 37). Transfer followed shared parts, not overall response similarity, which is the opposite of what a holistic learner predicts. Caveats: the test results are very noisy and the control target has only one pre-training sample.\"}'",
+    "allowed_form": true,
+    "is_error": false,
+    "forbidden_strings": []
+   }
+  ]
+ },
+ "baselines_same_instance": {
+  "random": {
+   "correct": 1,
+   "dissociation": 0.7236952226847158,
+   "brier": 0.008174634774876422,
+   "n_tests": 56
+  },
+  "dopt": {
+   "correct": 1,
+   "dissociation": 0.7509708774541239,
+   "brier": 7.270298820362099e-13,
+   "n_tests": 56
+  }
+ }
+}

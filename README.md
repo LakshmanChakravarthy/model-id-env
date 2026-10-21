@@ -137,8 +137,9 @@ model-id-env/
 
 **Pending**
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
-- Day 3c (declared): fix the two pipeline bugs; rerun check 3b, the main pilot, and the case-4 pilot on `claude-opus-5-5`.
-- Day 4 to day 6 in the plan above.
+- Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
+- Day 4: declare the main run (composition, primary measures, and whether to add a crossover-pair design measure), then run it.
+- Day 5 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
 ## Analysis log
@@ -381,6 +382,24 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 **Will run** on `claude-opus-5-5`: check 3b; the main pilot (same 3 instances, seed 5000); the case-4 pilot (same 3 instances, seed 6000).
 
 **Expected result.** No run stops early; every run ends with a verdict (by `submit`, or by the fallback at most once). Check 3b: no command other than queries runs. Main pilot: correct verdicts; I do not have a firm expectation for the dissociation score on the newer model (it was 0.81-0.88 on `claude-opus-5`). Case-4 pilot: `holistic` on the holistic instance; `part-based` (wrong) on at least one of the two part-based-looking instances.
+
+**Result (2026-10-21).** All 7 runs on `claude-opus-5-5` finished, every verdict came through `submit` (the fallback was never needed), and no run attempted a non-query command. All declared expectations met.
+
+| Run | Condition | Learner | Correct | Claude (conf.) | Dissociation | Brier | Random (same inst.) | D-opt (same inst.) | Cost |
+|---|---|---|---|---|---|---|---|---|---|
+| check3-000 | main ("any method") | part-based | part-based | part-based (0.80) | 0.68 | 0.040 | correct, 0.72 | correct, 0.75 | $0.28 |
+| pilot-000 | main | part-based | part-based | part-based (0.85) | 0.38 | 0.023 | correct, 0.59 | correct, 0.74 | $0.29 |
+| pilot-001 | main | holistic | holistic | holistic (0.85) | 0.49 | 0.023 | correct, 0.85 | correct, 0.72 | $0.43 |
+| pilot-002 | main | part-based | part-based | part-based (0.88) | 0.98 | 0.014 | wrong, 0.23 | correct, 0.73 | $0.27 |
+| pilot-case4-000 | case 4 | part-based | cannot_decide | part-based (0.85), wrong | 0.85 | 0.723 | aware: correct | aware: correct | $0.38 |
+| pilot-case4-001 | case 4 | holistic | holistic | holistic (0.85) | 0.78 | 0.023 | correct | correct | $0.29 |
+| pilot-case4-002 | case 4 | factorized | cannot_decide | part-based (0.75), wrong | 0.38 | 0.563 | aware: correct | aware: correct | $0.49 |
+
+- **Check 3b passes**, and this time Claude used the interface fully (17 tests, correct verdict), with no other command attempted.
+- **Main pilot:** 3/3 correct, confidence 0.85-0.88. Every justification names a crossover contrast (for example, a task with 0 new rules and similarity 0.5 against one with 1 new rule and similarity 0.75).
+- **Case 4:** correct on the holistic instance; **wrong on both part-based-looking instances** (part-based, 0.85 and 0.75). Together with the Day 3b runs, 4 of 4 part-based-looking case-4 runs answered part-based. The justifications test the holistic hypothesis only as output overlap ("the opposite of what overlap-based holistic similarity predicts"), although the case-4 prompt says the learner's similarity measure is unobserved.
+- **Measurement issue (dissociation score).** pilot-000 contains a clean crossover pair but scores 0.38, because its supporting tests follow the confound and the score is a correlation over all tested tasks. The score measures the whole test set, not whether the design contains a decisive contrast. Consider a second design measure, declared before the main run.
+- Cost on `claude-opus-5-5`: $0.27-0.49 per run, 1.5-2.5 minutes.
 
 ## Handover prompt
 
