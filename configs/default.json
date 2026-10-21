@@ -153,6 +153,24 @@
         "part_based",
         "factorized_holistic"
       ]
+    },
+    "main": {
+      "seed": 8000,
+      "n_instances": 20,
+      "learners": [
+        "part_based",
+        "holistic"
+      ]
+    },
+    "main_case4": {
+      "seed": 9000,
+      "n_instances": 20,
+      "learners": [
+        "holistic",
+        "holistic",
+        "part_based",
+        "factorized_holistic"
+      ]
     }
   },
   "check4": {
@@ -161,5 +179,13 @@
     "pass": {
       "min_dopt_aware_accuracy": 0.9
     }
+  },
+  "scoring": {
+    "decisive_pair_margin": 5.0,
+    "decisive_pair_min_tests": 3
+  },
+  "summary": {
+    "seed": 0,
+    "n_bootstrap": 10000
   }
 }

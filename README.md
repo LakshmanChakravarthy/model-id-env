@@ -138,7 +138,7 @@ model-id-env/
 **Pending**
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
 - Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
-- Day 4: declare the main run (composition, primary measures, and whether to add a crossover-pair design measure), then run it.
+- Day 4 (declared): main run, 20 main + 20 case-4 instances.
 - Day 5 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -400,6 +400,23 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 - **Case 4:** correct on the holistic instance; **wrong on both part-based-looking instances** (part-based, 0.85 and 0.75). Together with the Day 3b runs, 4 of 4 part-based-looking case-4 runs answered part-based. The justifications test the holistic hypothesis only as output overlap ("the opposite of what overlap-based holistic similarity predicts"), although the case-4 prompt says the learner's similarity measure is unobserved.
 - **Measurement issue (dissociation score).** pilot-000 contains a clean crossover pair but scores 0.38, because its supporting tests follow the confound and the score is a correlation over all tested tasks. The score measures the whole test set, not whether the design contains a decisive contrast. Consider a second design measure, declared before the main run.
 - Cost on `claude-opus-5-5`: $0.27-0.49 per run, 1.5-2.5 minutes.
+
+### Day 4 / main run (declared 2026-10-21)
+
+**Will run** on `claude-opus-5-5` with the Day 3c harness and prompts (`run_claude.py main`, then `run_claude.py main_case4`):
+- **Main condition:** 20 instances (seed 8000; learners balanced by a seeded shuffle, 10 part-based, 10 holistic).
+- **Case-4 condition:** 20 instances (seed 9000; 10 holistic, 5 part-based, 5 factorized, by a seeded shuffle).
+- On every instance, the same-instance baselines: random and D-optimal design (multiple regression); in case 4 also with the aware analysis.
+- A run whose result file exists is skipped, so an interrupted run can be resumed. Failed launches go to `results_failed/` and are rerun.
+
+**New design measure, decisive pair** (added after the Day 3c pilot showed that the dissociation score misses a decisive contrast inside an otherwise confounded test set). Over the tested (task, training state) conditions, a pair (A, B) is decisive if the part-based learner's mean cost of A is lower than of B by more than 5 examples, the holistic (mapping-similarity) learner's mean cost of B is lower than of A by more than 5, and A and B were each tested at least 3 times. Reported per instance as `has_decisive_pair` and `n_decisive_pairs`. Computed for Claude and for the baselines. It uses the hidden learner definitions, so it is a scoring measure only.
+
+**Measures and summaries.** Per condition and learner: accuracy with a 95% Wilson interval; mean Brier and mean dissociation with 95% bootstrap intervals (10,000 resamples, seed 0); share of runs with a decisive pair (Wilson). Claude is always shown beside the baselines on the same instances. No other hypothesis tests.
+
+**Predictions (from the pilots).**
+- Main condition: Claude accuracy >= 0.9; mean Brier <= 0.05; a decisive pair in >= 80% of runs; mean dissociation between 0.5 and 0.8 (pilot 0.38-0.98). Random baseline about 0.9 correct; D-optimal about 1.0.
+- Case 4: Claude correct on most holistic instances (>= 8 of 10); on the 10 part-based-looking instances (part-based and factorized), `part-based` in >= 7 of 10, so accuracy on them <= 0.3 and mean Brier on them >= 0.4. D-optimal + aware about 1.0; D-optimal standard about 0.5.
+- Cost about $15 and 1.5 hours.
 
 ## Handover prompt
 
