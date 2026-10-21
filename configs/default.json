@@ -1,0 +1,31 @@
+{
+  "tasks": {
+    "n_values": 4,
+    "n_features": 4
+  },
+  "similarity": {
+    "measure": "max",
+    "kernel_tau": 0.1
+  },
+  "part_based": {
+    "base": 10.0,
+    "c_new": 10.0,
+    "c_sel": 2.0
+  },
+  "holistic": {
+    "base": 10.0,
+    "c0": 30.0,
+    "alpha": 1.0
+  },
+  "noise": {
+    "sd": 5.0,
+    "min_cost": 1
+  },
+  "check1": {
+    "seed": 0,
+    "train_size": 4,
+    "n_train_sets": 200,
+    "n_example_sets": 3,
+    "margin_in_sd": 1.0
+  }
+}
