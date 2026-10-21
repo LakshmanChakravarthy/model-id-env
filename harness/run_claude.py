@@ -51,7 +51,11 @@ def audit(events):
     """Every tool call, whether it was a query.py command, whether it errored, and forbidden strings in results."""
     calls, results = {}, {}
     for e in events:
-        for block in (e.get("message") or {}).get("content", []) if isinstance((e.get("message") or {}).get("content"), list) else []:
+        msg = e.get("message") if isinstance(e, dict) else None
+        content = msg.get("content") if isinstance(msg, dict) else None
+        for block in content if isinstance(content, list) else []:
+            if not isinstance(block, dict):
+                continue
             if block.get("type") == "tool_use":
                 calls[block["id"]] = {"tool": block["name"], "input": block.get("input", {})}
             elif block.get("type") == "tool_result":
