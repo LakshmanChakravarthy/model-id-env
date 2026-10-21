@@ -31,5 +31,40 @@
       "max_median_corr": -0.3,
       "min_frac_k_with_disagreement": 0.8
     }
+  },
+  "environment": {
+    "budget": 60,
+    "train_cost_per_task": 1,
+    "test_cost": 1
+  },
+  "baselines": {
+    "train_size": 4,
+    "oracle_n_candidate_k": 200
+  },
+  "check2": {
+    "seed": 1,
+    "n_instances": 200,
+    "pass": {
+      "min_oracle_accuracy": 0.9,
+      "min_gap": 0.15
+    },
+    "tuning_grid": {
+      "noise_sd": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "budget": [
+        30,
+        45,
+        60
+      ],
+      "c_sel": [
+        0,
+        2
+      ]
+    },
+    "confirm_seed": 2
   }
 }
