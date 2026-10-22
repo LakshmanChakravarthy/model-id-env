@@ -249,5 +249,21 @@
       "max_turns": 3,
       "source_prefix": "s2main"
     }
+  },
+  "study3": {
+    "model": "claude-opus-5-5",
+    "max_turns": 3,
+    "probe": {
+      "seed": 30000,
+      "n_instances": 4,
+      "n_known": 6,
+      "min_part_repeats": 2,
+      "n_known_examples": 24,
+      "n_shots": 4,
+      "n_test_items": 16,
+      "low_overlap_max": 0.375,
+      "high_overlap_min": 0.625,
+      "n_search": 20000
+    }
   }
 }

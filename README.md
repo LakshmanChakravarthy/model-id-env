@@ -223,7 +223,36 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
+- **Study 3** (declared): Claude as the learner; 3a headroom probe first.
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
+
+## Study 3: Claude as the learner (declared 2026-10-22)
+
+**Why.** Studies 1 and 2 made Claude the *scientist* and the learners formulas, so the question of whether compositional structure makes learning faster and more robust never reached Claude itself. Study 3 makes **Claude the learner** and asks: **when should a learner rely on overall similarity, and when on the task's compositional structure, and does Claude switch at the right points?** The anchor in cognitive science is the rules-vs-memory debate (rule vs. exemplar categorization; the past-tense words-and-rules / dual-route debate, in which regularity and frequency decide which route wins). The plan: first a cheap check for headroom (below), then a boundary hunt (deeper compositions, distant parts, exceptions, one-part changes), each declared separately.
+
+### Study 3a / headroom probe (declared 2026-10-22)
+
+**Will run** (`harness/study3_probe.py`, `claude-opus-5-5`, no tools, single answer per call): 4 instances (seed 30000). Each instance uses the current 64-task space with new arbitrary labels.
+- **Known tasks:** 6 tasks, chosen (search over random sets) so that every component value they use appears in at least 2 of them, and so that the three test tasks below exist. Each known task is shown with 24 random input->output examples (input = two 4-bit stimuli, output = button 0-3).
+- **Test tasks:**
+  - **(a) recombination, low overlap:** all components appear in the known tasks; largest output overlap with any known task <= 0.375.
+  - **(c) recombination, high overlap:** all components known; largest overlap >= 0.625.
+  - **(b) one new component:** exactly one component value never appears in the known tasks.
+  - Each is tested on 16 inputs, disjoint from any examples shown for that task.
+- **Conditions:**
+  - **labelled, 0 shots** (a and c only): the prompt says each task combines three components labelled X?, Y?, Z?, that tasks with the same label share that component, and gives the test task's labels. Nothing says what a component does.
+  - **labelled, 4 shots** (a, b, c): the same, plus 4 examples of the test task.
+  - **unlabelled, 4 shots** (a, b, c): tasks are named Task A, B, and so on, with no mention of components; 4 examples of the test task.
+  - That is 8 calls per instance, 32 calls in total.
+- **Answer:** a JSON list of 16 buttons.
+
+**Measures.**
+- Accuracy per item, by condition and test type.
+- **Strategy signature:** the *similarity answer* for an item is the response of the known task most consistent with what Claude was shown about the test task: the most shown examples matched, or, with 0 shots, the most shared labels. Ties are resolved by majority vote among the tied tasks; items still tied are excluded. On items where the similarity answer differs from the correct one, the share of Claude's answers that equal the similarity answer and the share that equal the correct answer.
+
+**Decision rule (fixed now).** If every condition x test-type cell is >= 0.9 accurate, the flat space is at ceiling, and the boundary hunt moves straight to deeper compositions and exceptions. Otherwise the cells below 0.9 are the first boundary cases, and their strategy signatures say which strategy failed.
+
+**Prediction.** Labelled conditions near ceiling for (a) and (c) (>= 0.9), and (b) with 4 shots about 0.8. Unlabelled with 4 shots: (a) <= 0.7, with errors that match the similarity answer more often than chance; (c) about 0.85.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
