@@ -181,7 +181,7 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 - **Day 5:** figure, transcripts, and this README.
 
 **Pending**
-- **Study 2** (declared 2026-10-22): the factor-when-justified learner; checks 5 and 6, then pilot and 30 Claude runs. See the Study 2 section.
+- **Study 2:** checks 5 and 6 pass; pilot and main run (30) done. Next: figure and README summary for Study 2.
 - Make the repo public; add the link to the application (by 2026-10-28).
 
 ## Study 2: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
@@ -236,6 +236,28 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 - **Claude designed before/after curricula in two of three runs.** On the factor instance: train three tasks so each rule appears once, test a recombination against a control, then train four more tasks that make the rules recur *without changing the similarity of either test task*, and test again. That is the scripted design plus a control task in every phase. In the holistic run it walked the threshold explicitly ("no drop, so not factor with k=2 ... still no recombination benefit, so not k=3").
 - **Contrary to the prediction**, Claude did not train early on the factor instance, and it was **underconfident**: its confidence was 0.13-0.25 below the ideal posterior in all three runs.
 - **The scripted baseline missed 2 of 3 here** (0.94 correct in check 6). Recomputing it on these instances reproduces the same verdicts, so this is noise, not a bug: it puts all its tests on one target, so one noisy stage mean misleads it. Claude's designs, with a control task in each phase, were sturdier on these three instances.
+
+**Result: Study 2 main run (2026-10-22).** 30 runs (`results/s2main-*.json`, `results/summary_s2main.json`), `claude-opus-5-5`; every verdict through `submit`; every audit passed; $15.67. 95% Wilson intervals; bootstrap intervals for means.
+
+| Learner | Experimenter | Accuracy | Brier | Design score (ideal posterior of truth on the run's data) | Ideal analyst on the same data |
+|---|---|---|---|---|---|
+| all (30) | **Claude** | **0.83** [0.66, 0.93] | 0.08 | **0.88** [0.80, 0.95] | 0.93 |
+| | Scripted before/after | 0.90 [0.74, 0.97] | 0.08 | 0.90 [0.79, 0.98] | 0.90 |
+| | Random interleaved | 0.73 [0.56, 0.86] | 0.20 | 0.57 [0.49, 0.65] | 0.73 |
+| | Train-first | 0.70 [0.52, 0.83] | 0.19 | 0.58 [0.48, 0.68] | 0.70 |
+| part-based (10) | Claude | 0.80 | 0.06 | 0.97 | 1.00 |
+| holistic (10) | Claude | 1.00 | 0.07 | 0.93 | 1.00 |
+| factor (10) | Claude | 0.70 | 0.11 | 0.75 | 0.80 |
+| factor (10) | Scripted | 0.80 | 0.18 | 0.79 | 0.80 |
+| factor (10) | Random interleaved | 0.60 | 0.35 | 0.41 | 0.60 |
+
+Confusion (Claude): part-based 8/10 correct (1 factor, 1 holistic); holistic 10/10; factor k=2 4/5 (1 part-based); factor k=3 3/5 (2 holistic).
+
+- **Design is close to the scripted curriculum and far above random.** Claude's design score is 0.88 (scripted 0.90, random 0.57-0.58). It built staged curricula with a control task in most runs.
+- **The losses are mostly in inference, not design.** On Claude's own data, the ideal analysis is correct in 28 of 30 runs (0.93); Claude is correct in 25 (0.83). **4 of Claude's 5 errors are inference errors**: the data favoured the true learner, but Claude concluded otherwise (s2main-009, -013, -014, -021; design scores 0.55-0.97). Only 1 error is design-limited (s2main-003: one training task, then 9 at once; design score 0.16).
+- **Claude flags its errors.** Its confidence was 0.40-0.55 on the 5 errors and 0.79 on average when correct. The inference gap is -0.13 when correct (underconfident) and +0.31 when wrong (the ideal posterior of the wrong verdict was low). Overall it is -0.06 [-0.14, 0.03]; on holistic instances -0.18 [-0.28, -0.08].
+- **Against the predictions.** Part-based and holistic accuracy >= 0.8: met (0.80, 1.00). Factor accuracy <= 0.6: **not met** (0.70). The typical factor error was predicted to be part-based after early training; observed: 2 of 3 factor errors were **holistic on k = 3** instances, and only one run trained in bulk. Design score below scripted on factor instances: met, marginally (0.75 vs. 0.79; intervals overlap). Positive inference gap on wrong answers: met (+0.31).
+- **Limits.** 10 runs per learner. The accuracy intervals of Claude, scripted, and random overlap; the design-score difference from random does not.
 
 ## Analysis log
 
