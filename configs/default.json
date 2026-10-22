@@ -264,6 +264,28 @@
       "low_overlap_max": 0.375,
       "high_overlap_min": 0.625,
       "n_search": 20000
+    },
+    "b": {
+      "seed": 31000,
+      "n_known": 6,
+      "n_known_examples": 24,
+      "n_shots": 4,
+      "n_test_items": 16,
+      "low_overlap_max": 0.375,
+      "high_overlap_min": 0.625,
+      "n_search": 4000,
+      "block_a": {
+        "per_cell": 6
+      },
+      "block_b": {
+        "n_instances": 8
+      },
+      "block_c": {
+        "n_instances": 6,
+        "n_known": 8,
+        "n_known_examples": 32
+      },
+      "max_parallel": 4
     }
   }
 }

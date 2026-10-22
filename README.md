@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 3:** 3a headroom probe done (see Study 3). Next: decide the boundary-hunt design, with an ideal-learner reference relative to what the prompt states.
+- **Study 3:** 3a done; **3b declared** (ambiguity, priority, depth, with an ideal-learner reference).
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -269,6 +269,35 @@ Strategy signature, on items where copying the most consistent known task gives 
 - **The unlabelled cells are partly underdetermined too.** Even for a learner that knows the grammar and prefers tasks built from known parts, the 4 examples fit 2-4 such tasks in 5 of the 12 unlabelled cases. On the 7 cases where the answer is unique under those assumptions, Claude's mean accuracy is 0.83.
 - **Design flaw (mine):** the probe did not check whether each test answer is determined by the information given to Claude. Study 2 had such a check (the exact posterior); 3a did not. Any further Study 3 design needs an ideal-learner reference **relative to what the prompt states**, and must score errors against it.
 - **What it shows anyway.** (1) Given labels and 4 examples, Claude composes perfectly, including a new component. (2) Examples of whole tasks underdetermine their parts. When that happens, Claude commits to one factorization, sometimes noting the ambiguity, sometimes not. This ties directly to Elmoznino et al.'s open question of which decomposition of a whole is the right one. (3) Without labels, Claude discovers parts imperfectly (0.61-0.78), and on a minority of items it falls back on the most similar known task.
+
+### Study 3b / ambiguity, priority, depth, with an ideal-learner reference (declared 2026-10-22)
+
+**Why.** Study 3a showed that, given labels and a few examples, Claude composes perfectly. Its failures came where whole tasks did not determine their parts, and 3a had no reference for what was determinable. 3b states the *form* of the grammar in every prompt, so that the ideal learner's answer, given exactly what the prompt states, is computable for every test. Errors are scored against it.
+
+**Stated in every prompt (form, not content).**
+- A Y component picks one of the 4 features, checked in both stimuli.
+- An X component is a rule on two bits, one of: both are 1; at least one is 1; neither is 1; not both are 1.
+- A Z component gives one button when the rule is true and a different button when it is false.
+- Different versions of a kind (X1, X2, ...) differ. Nothing says which version does what.
+- **Regularity sentence** (stated or withheld, see block A): "For every Z component, the button for true is 1 or 2, and the button for false is 0 or 3."
+- **Answer format:** `{"predictions": [16 buttons], "determined": true/false, "confidence": p}`. "determined" = do the information and examples determine the answers uniquely; confidence = the probability that all 16 predictions are correct.
+
+**Ideal learner** (`harness/study3b.py`). It enumerates every assignment of meanings to labels (or, unlabelled, every candidate task) consistent with the stated form and all shown examples, with a uniform prior. For each test it gives: the set of possible answer vectors; **determined** = exactly one; **ideal confidence** = the share of consistent assignments that give the most common vector. Known-answer checks (unit tests, before any Claude run): the truth is always among the consistent assignments; with the regularity stated, every selected instance is determined and its answer equals the truth.
+
+**Block A, ambiguity** (flat space, labelled, 0 shots, 6 per cell = 24 calls; seed 31000). 2 x 2: **known-task set** (determined even without the regularity / ambiguous without it but determined with it) x **regularity** (stated / withheld). Test task: a recombination of known components.
+- In the ambiguous-withheld cell, the correct response is "not determined" with the ideal confidence (typically 0.5).
+- In the other three cells, the answer is determined.
+
+**Block B, similarity vs. composition when parts must be discovered** (flat space, unlabelled, 4 shots, regularity stated, plus "the new task uses only component versions that appear in the known tasks"; 8 instances x 2 test types = 16 calls). Test types: recombination with low overlap (<= 0.375) and with high overlap (>= 0.625). Only instances whose answer is determined for the ideal learner. Strategy signature as in 3a.
+
+**Block C, depth** (deeper trees, labelled, 0 shots, regularity stated; 6 instances x 2 test types = 12 calls). A task = an outer X rule applied to two conditions, each an X rule on one feature (Y) in both stimuli; then Z maps to buttons. Label format `X2(X1 Y3, X4 Y1) Z2`. 8 known tasks with 32 examples each. Test types: low- and high-overlap recombinations of known components, determined for the ideal learner only.
+
+**Measures.** Item accuracy on determined tests; agreement of Claude's "determined" with the ideal learner's; **overclaim** = Claude's confidence minus the ideal confidence; the strategy signature (B, C).
+
+**Predictions.**
+- A: determined cells >= 0.9 accurate. Ambiguous-stated >= 0.75 (Claude uses the regularity). Ambiguous-withheld: Claude says "determined" in >= 3 of 6 runs, with confidence >= 0.8 (overclaim >= 0.3).
+- B: accuracy about 0.75; low overlap below high overlap; similarity answers on >= 30% of the discriminating items at low overlap.
+- C: low-overlap accuracy <= 0.8 (a boundary case), high overlap higher.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
