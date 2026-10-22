@@ -148,6 +148,10 @@ def analyse(mode):
 def sample():
     """40 responses, random, stratified by type x prompt (about 7 each), seed 4040; blind to codes and condition."""
     rows = load("main")
+    expected = 4 * len(json.load(open(R4 / "main" / "instances.json"))) if (R4 / "main" / "instances.json").exists() else None
+    if expected is None or len(rows) < expected:
+        sys.exit(f"The main run is not complete ({len(rows)} of {expected or 576} responses). "
+                 "Draw the validation sample after it finishes, so that the sample is not biased toward early runs.")
     rng = np.random.default_rng(4040)
     picked = []
     strata = [(t, pv) for t in ("categorical", "ordinal", "polarity") for pv in ("base", "pattern")]
