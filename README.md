@@ -224,7 +224,7 @@ docs/           transcripts.md
 
 **Pending**
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
-- **Study 3d** (declared): intervention, prompting for alternatives (V1) and for cross-component patterns (V2).
+- **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -373,6 +373,23 @@ Strategy signature, on items where copying the most consistent known task gives 
 - **V1 removes the confident errors:** in the two regular cells, from 9 of 16 (3c) to <= 2 of 16. It does so mostly by saying "not determined" at about 0.5. That is calibrated without the overhypothesis, but still short of the ideal 0.91-0.99.
 - **V1 does not cause over-caution:** the 3b determined controls stay >= 0.9 accurate and "determined" in >= 10 of 12.
 - **V2 partly enables the overhypothesis** (low confidence): in regular-high, the class-consistent answer in >= 5 of 8 runs with mean confidence >= 0.7. In irregular, mean confidence stays <= 0.65.
+
+**Result: Study 3d (2026-10-22).** `results/study3d.json`; 60 calls, `claude-opus-5-5`, $5.30; every answer parsed. Paired with the 3c and 3b runs on identical prompts.
+
+| Cell | 3c (no instruction): confident errors / says determined / mean conf. | V1 (alternatives) | V2 (+ cross-component patterns) |
+|---|---|---|---|
+| regular-high (ideal 0.988) | 5 / 5 / 0.81 | **0 / 0 / 0.50** | 0 / 0 / 0.57 |
+| regular-moderate (ideal 0.91) | 4 / 4 / 0.73 | **0 / 0 / 0.50** | 0 / 0 / 0.52 |
+| irregular (ideal 0.50) | 0 / 0 / 0.50 | 0 / 0 / 0.50 | 0 / 0 / 0.59 |
+| class-consistent choice in regular-high | 2/8 | 2/8 | 2/8 |
+| mentions the alternative reading (all 24) | 14/24 | 23/24 | 19/24 |
+
+Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determined" in 12/12, mean confidence 0.97 / 0.96 (3b without the instruction: 1.00 / 0.99, 12/12, 0.96 / 0.95).
+
+- **V1 removes the confident errors:** from 9 of 16 in the regular cells to **0 of 16** (prediction <= 2: met). Claude now says "not determined" at 0.50 in all 24 runs, which is correct given what it considered (it did not use the class structure), and still short of the ideal 0.91-0.99.
+- **No over-caution:** on problems that *are* determined, V1 leaves accuracy, "determined", and confidence unchanged (prediction met).
+- **V2 does not produce the overhypothesis** (prediction: not met; class-consistent 2/8, mean confidence 0.57). The texts show why. Claude did search for cross-component patterns, but tested **ordinal** ones ("true always gets the higher button", "true buttons are distinct") and never the **categorical** split ({1, 2} vs. {0, 3}) that is in the data. In 2 runs it found a *spurious* ordinal regularity ("under A, every Z gives a higher button for true") and chose the reading it favoured, which was wrong (confidence 0.68 and 0.75). Claude treated the button labels as numbers with an order, not as categories, so the hypothesis space it searched for overhypotheses missed the true one. Irregular confidence stayed <= 0.65 (0.59; met).
+- **Reading.** A short, generic "consider the alternatives" instruction (the classic debiasing remedy) turns confident errors into calibrated "not determined" answers without harming determined problems. Inferring an abstract cross-component regularity was not unlocked by a generic instruction. Claude's search for such regularities was shaped by an ordinal reading of the labels, which here produced false patterns.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
