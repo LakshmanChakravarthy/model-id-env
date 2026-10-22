@@ -54,3 +54,54 @@ Chosen together with the user, because the justification shows the failure most 
 - **The inference oversteps.** Ruling out *overlap-based* similarity does not rule out holistic, because the prompt says the learner's similarity measure is unobserved. Claude states this alternative itself, and treats it as a caveat rather than as a reason to answer `cannot_decide`.
 - **It is not a lack of knowledge.** In the comprehension control (Day 4b), Claude got the same wording and comparable data with no experiment to run, and answered `cannot_decide` in 5 of 5 runs. It has the concept, but does not apply it while experimenting.
 - **The baselines on the same instance:** the D-optimal and random designs with the standard analysis also answered part-based (wrong). With the aware analysis, both were correct.
+
+---
+
+# Study 2: the factor-when-justified learner
+
+In Study 2 there are three hypotheses: part-based, holistic, and factor-when-justified. The last one stores whole tasks and turns a rule into a reusable part only once the rule has appeared in k = 2 or 3 trained tasks. "Rule counts" = how many trained tasks contain each of the test task's rules. "Design score" = the exact posterior probability of the true learner given the run's own data.
+
+## Good design: `s2main-024` (factor learner, k = 3)
+
+Selected by a fixed rule: among factor-learner runs that Claude got right, the highest design score (0.999).
+
+| Stage | Trained (cumulative) | Test task | Rule counts | Overlap | Tests | Mean |
+|---|---|---|---|---|---|---|
+| 1 | L1-S1-M1, L4-S2-M3 | **L4-S1-M1** (target) | 1, 1, 1 | 0.00 | 6 | 28.7 |
+| 1 | | L3-S4-M2 (control, all new) | 0, 0, 0 | 0.19 | 5 | 28.6 |
+| 1 | | L2-S3-M4 (control, all new, more similar) | 0, 0, 0 | 0.56 | 4 | 23.5 |
+| 2 | + L4-S1-M3, L1-S2-M1 | **L4-S1-M1** | 2, 2, 2 | 0.375 | 4 | 31.8 |
+| 3 | + L4-S1-M4, L1-S3-M1 | **L4-S1-M1** | 3, 3, 3 | 0.375 | 8 | **12.1** |
+| 3 | | L3-S4-M2 (control) | 0, 0, 0 | 0.19 | 4 | 27.8 |
+
+**Verdict:** factor-when-justified, 0.85 (correct; ideal posterior 0.999).
+
+> "Recombination became cheap only once the rules had appeared 3 times, and this was not explained by similarity. This fits factor-when-justified with k=3, not holistic."
+
+**Why it's good.**
+- **It is the scripted before/after design, improved.** At every stage, Claude adds training tasks that raise each of the target's rule counts by one. It keeps the target's similarity to the trained tasks capped at 0.375, so the holistic account predicts no change.
+- **It adds a control task.** The control has only new rules and is tested before and after, to rule out general drift.
+- **It walks the threshold explicitly.** "No drop at 2" rules out k = 2; "sharp drop at 3" identifies k = 3.
+
+## Inference failure: `s2main-009` (part-based learner)
+
+Selected by a fixed rule: among the 4 inference errors (the ideal analysis of Claude's data is right, Claude is not), the highest design score. Here the ideal posterior gives 0.97 to part-based.
+
+| Stage | Test task | Rule counts | Overlap | Tests | Mean | Part-based predicts |
+|---|---|---|---|---|---|---|
+| 1 | L3-S1-M2 | 1, 1, 1 | 0.375 | 8 | 16.0 | cheap (all rules known) |
+| 1 | L2-S1-M3 | 1, 1, 1 | 0.375 | 5 | 24.8 | cheap |
+| 1 | L4-S4-M4 | 0, 0, 0 | 0.19 | 8 | 26.5 | expensive (3 new) |
+| 2 | L4-S4-M4 | 3, 3, 3 | 0.375 | 6 | 23.5 | now cheap |
+| 2 | L3-S1-M1 | 3, 4, 5 | 0.56 | 5 | 15.4 | cheap |
+| 2 | L2-S3-M3 | 2, 1, 1 | 0.50 | 5 | 27.4 | cheap |
+
+**Verdict:** factor-when-justified, 0.40 (incorrect).
+
+> "The 25 for L2-S1-M3 argues against part-based. [...] its mean moved only from 26.5 to 23.5. [...] L3-S1-M1, whose rules had each appeared 3 or more times, gave a mean of 15 [...] L2-S3-M3, whose rules had appeared once or twice, gave a mean of 27 [...]. That favors factoring only after repeated exposure. The overall evidence is weak."
+
+**What went wrong.**
+- **The design was good** (design score 0.97). The error is in weighing the evidence.
+- **Claude treats single noisy means as decisive.** With 5 tests and a test-to-test sd of 15, a mean has a standard error of about 7. Each contrast Claude cites is within about 1.5 standard errors, but taken together the data strongly favour part-based.
+- **It is visible to Claude.** Its confidence (0.40) was low.
+- **The control rescued this one.** In the inference-only control (same data as a table, no experiment), Claude answered part-based (0.72), correctly. It is the only one of the 4 inference errors that the control rescued; the other 3 were repeated with the same reasoning.

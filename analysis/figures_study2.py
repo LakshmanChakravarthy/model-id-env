@@ -19,7 +19,7 @@ EXPS = [("claude", "Claude", "#2a78d6"), ("scripted", "Scripted before/after", "
         ("random_interleaved", "Random interleaved", "#eb6834"), ("train_first", "Train-first", "#eda100")]
 PANELS = [("accuracy", "accuracy_ci", "Accuracy"), ("design", "design_ci", "Design score (ideal posterior of truth)"),
           ("brier", "brier_ci", "Brier score (lower is better)")]
-INF = [("loop", "Claude, in the loop", "#2a78d6"), ("control", "Claude, data table only", "#7b5ea7"),
+INF = [("loop", "Claude, in the loop", "#2a78d6"), ("control", "Claude, data table only", "#e87ba4"),
        ("ideal", "Ideal analysis of Claude's data", "#888888")]
 
 
