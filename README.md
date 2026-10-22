@@ -219,6 +219,11 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 
 **Wording correction (Study 1).** In Elmoznino et al.'s terms, recombining rules that are already stored adds no new compositional structure. Study 1's part-based account is about *reuse of stored rules in new combinations*, and the README's "compositional" means that.
 
+**Result: checks 5 and 6 (2026-10-22).** Both pass.
+- **Check 5** (`results/checks/check5.json`): all 200 scripted designs separate every pair of learners by more than 5 at some stage (needed 90%). Mean noise-free cost of the target by stage (part-based / holistic / factor k=2 / factor k=3): stage 1: 18.2 / 29.9 / 29.9 / 29.9; stage 2: 20.4 / 29.9 / **16.9** / 29.9; stage 3: 21.3 / 29.9 / 19.2 / **15.9**. Median similarity of the target to the 9 training tasks: 0.375. In random histories of 6 trained tasks, some test task separates the factor learner from both others in 59% (k=2) and 20% (k=3) of histories.
+- **Check 6** (`results/checks/check6.json`, 300 instances per baseline): the scripted curriculum uses 45 queries at every budget, so its accuracy does not change with the budget (0.900 on seed 12). Selected budget: **60** (the smallest that reaches 0.90). Confirmation (seed 13, budget 60): scripted **0.937** (factor learner 0.90), random interleaved **0.703** (factor 0.60, holistic 0.61), train-first 0.673 (factor 0.47). Gap 0.23 (needed 0.20). Design score: scripted 0.89, random 0.60-0.62. Brier: scripted 0.055, random 0.18.
+- Compared with the expectations: the random baselines did somewhat better than predicted (0.62-0.70 vs. 0.45-0.65), and both are weakest on the factor and holistic learners, as expected. The headroom between random and scripted (about 0.25 in accuracy, 0.27 in design score) is much larger than in Study 1.
+
 ## Analysis log
 
 ### Day 1 / check 1 (declared 2026-10-21)
