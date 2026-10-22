@@ -283,6 +283,13 @@ Also reported: control accuracy, the control's inference gap against the ideal p
 
 **README.** A summary of both studies at the top, with the qualifications. The Analysis log stays as the full record.
 
+**Result: inference-only control (2026-10-22).** `results/inference_control.json`; 30 calls, `claude-opus-5-5`, $1.78; every call returned a verdict.
+- **fixed = 1** (s2main-009), **new = 0**. By the declared rule: **weighing noisy evidence is itself the difficulty**; the errors do not arise only while experimenting. The prediction ("mixed", fixed = 2) was not met.
+- Control accuracy **0.87** (in the loop 0.83; ideal analysis of the same data 0.93). By learner: part-based 0.9 (loop 0.8), holistic 1.0 (1.0), factor 0.7 (0.7).
+- **Agreement with the in-loop verdict: 29 of 30.** Given only its own data as a table, with the predictors already computed, Claude reaches the same conclusion as in the loop. The three errors that remain (s2main-013, -014, -021) are ones where the ideal analysis is right.
+- The remaining errors read individual noisy contrasts as decisive instead of combining all the data. In s2main-021 Claude also says "the simpler part-based account is slightly preferred", a simplicity preference that the stated equal prior does not license, which echoes the case-4 pattern in Study 1.
+- Calibration: mean confidence 0.83 when correct, 0.50-0.75 on the 4 errors; inference gap -0.09 when correct, +0.39 when wrong.
+
 ## Analysis log
 
 ### Day 1 / check 1 (declared 2026-10-21)
