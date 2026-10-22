@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 4** (design phase declared): exploratory simulations, then the preregistration, then the pilot and the main run (deadline 2026-10-28).
+- **Study 4:** preregistered (`docs/study4_preregistration.md`). Next: pipeline, tests, pilot (12 calls), main run (576 calls), grader validation (user hand-codes 40).
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
 - **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.
@@ -438,6 +438,8 @@ Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determi
 - known-answer tests.
 
 Then run **exploratory simulations** to establish (1) that each regularity resolves the flip ambiguity, (2) the achievable range of ideal posteriors per type (to set the evidence bands), and (3) instance-generation rates. These simulations inform the cell definitions only. The confirmatory hypotheses, design, sample size, and analysis plan go into `docs/study4_preregistration.md`, committed before any Study 4 Claude call (including the pipeline pilot).
+
+**Design phase result (2026-10-22, exploratory, no Claude calls).** `results/checks/study4_simulation.json`. The flip symmetry holds for all 6 rules. Each regularity resolves the ambiguity: typical ideal posteriors are 0.99 / 0.91 / 0.83 (categorical), 0.95 / 0.87 (ordinal), and 0.92 / 0.78 (polarity). About 35% of irregular worlds contain an accidental regularity that a rational learner would use (ideal 0.87-0.95); these are excluded from the irregular cells. With colour buttons, the ordinal regularity is invisible (ideal 0.5 in 85% of ordinal worlds). A bug was fixed along the way: a hypothesis with fewer rules than distinct labels now drops out instead of dividing by zero. **Preregistration:** `docs/study4_preregistration.md`.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 

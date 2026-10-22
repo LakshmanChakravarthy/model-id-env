@@ -317,5 +317,41 @@
       ],
       "max_parallel": 4
     }
+  },
+  "study4": {
+    "model": "claude-opus-5-5",
+    "grader_model": "claude-opus-5-5",
+    "max_turns": 3,
+    "max_parallel": 4,
+    "seed": 40000,
+    "pilot_seed": 40999,
+    "n_per_pool": 16,
+    "n_known": 6,
+    "n_known_examples": 24,
+    "n_test_items": 16,
+    "bands": {
+      "high": [
+        0.9,
+        1.01
+      ],
+      "moderate": [
+        0.75,
+        0.9
+      ],
+      "irregular_max": 0.55,
+      "ordinal_colour_range": [
+        0.45,
+        0.55
+      ]
+    },
+    "colours": [
+      "red",
+      "green",
+      "blue",
+      "yellow"
+    ],
+    "n_search": 40000,
+    "alternatives": "Before you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit.",
+    "pattern": "Also look for patterns that hold across all the components you can identify, and consider whether such a pattern makes some of the fitting assignments more plausible than others."
   }
 }
