@@ -1,140 +1,187 @@
 # model-id-env
 
-A small environment that tests whether Claude can identify a hidden learning mechanism by designing experiments. The ground truth is known, so the scoring is automatic.
+An environment that tests whether Claude can identify a hidden learning mechanism by designing its own experiments. The ground truth is known by construction, so scoring is automatic. This is a prototype for an application to the Anthropic Conceptual Reasoning Fellowship (deadline 2026-10-28). Everything below was declared before it was run; the full record, including failed checks, is in the [Analysis log](#analysis-log).
 
-This is a prototype for an application to the Anthropic Conceptual Reasoning Fellowship (deadline: 2026-10-28).
+## Summary
 
-## The question
+**Question.** Cognitive scientists often have to choose between mechanisms that predict similar behavior. Here the question is how a learner transfers to new combinations of known rules:
+- **part-based:** it reuses stored rules, so cost depends on how many of a task's rules are new;
+- **holistic:** it stores whole tasks, so cost depends on similarity to known tasks.
 
-Cognitive scientists often must select between mechanisms that predict similar behavior. This environment uses one example: how does a learner transfer to new combinations of known parts?
+The number of shared rules and overall similarity are correlated, so a good experimenter must find the tasks where they come apart.
 
-- **Part-based account.** The learner stores reusable parts. A new combination of known parts transfers quickly, even when the whole task is dissimilar to known tasks.
-- **Holistic account.** The learner represents each task as one whole. Transfer follows overall similarity to known tasks.
+**Setup.** Claude runs headless in a sandbox and can only send queries to an experiment server: `describe`, `compare`, `train`, `test`, and `submit`. It has a budget of 60 costly queries and noisy results (sd 15). It must submit a verdict (`part-based`, `holistic`, or `cannot_decide`) with a confidence. Every run is scored beside two baselines on the same instance: a random design and a D-optimal design, both analysed by regression.
 
-In most task spaces, the number of shared parts and overall similarity are correlated. Then both accounts predict the same result. A good experimenter must find the tasks where the two measures disagree. This is **hard case 1 (the confound)**, and it is the only hard case in this prototype.
+**Results** (`claude-opus-5-5`, 40 runs, $12):
+
+1. **Hard case 1, the confound: Claude designs well.** It was correct in 20/20 runs. Every one of its designs contained a *decisive pair*: two tests where the two hypotheses predict opposite outcomes by a clear margin. That compares with 40% of random designs. It finds the dissociation without being told that a confound exists. Accuracy barely separates it from the random baseline (0.95). In this task space a moderate confound costs a careless design little accuracy; the differences show in design quality.
+2. **Case 4, non-identifiability: Claude fails.** When the holistic learner's similarity measure is stated to be unobserved, data that look part-based cannot confirm part-based. A holistic learner whose similarity counts shared rules predicts the same data, so the correct verdict is `cannot_decide`. Claude answered part-based (or once holistic) in **10 of 10** such runs, with confidence 0.62-0.88. In 4 of them its own justification names the alternative that cannot be excluded, and it commits anyway.
+3. **It has the concept, but does not use it while experimenting.** In a comprehension control with the same wording, data of the same kind, and no experiment to run, Claude answered `cannot_decide` in **5 of 5** runs. Under the main wording it answered part-based in 5 of 5.
+
+![Main figure](results/figures/main.png)
+
+Two annotated runs are in [docs/transcripts.md](docs/transcripts.md): the best design, chosen by a declared rule, and the case-4 failure described in result 2.
+
+## Results
+
+### Main condition (hard case 1): 20 runs, 10 per learner
+
+| Experimenter | Accuracy [95% CI] | Brier | Dissociation | Runs with a decisive pair |
+|---|---|---|---|---|
+| **Claude** | **1.00** [0.84, 1.00] | 0.02 | 0.66 [0.55, 0.76] | **1.00** [0.84, 1.00] |
+| Random design | 0.95 [0.76, 0.99] | 0.04 | 0.57 [0.50, 0.64] | 0.40 [0.22, 0.61] |
+| D-optimal design | 1.00 [0.84, 1.00] | 0.00 | 0.85 [0.80, 0.89] | 1.00 [0.84, 1.00] |
+
+- **Measures.** Dissociation = 1 - |corr(new rules, similarity)| over the tested conditions. A *decisive pair* is two conditions, each tested at least 3 times, where the two learners' mean costs differ by more than 5 in opposite directions.
+- **What Claude's designs look like.** Claude builds a decisive contrast and then adds supporting tests that follow the confound. That is why its dissociation score (0.66) lies between random and D-optimal while it always has a decisive pair. Its best design separated the two measures completely (a correlation of exactly 0).
+- **Strategy.** Claude often trained in stages with pre/post tests, which the D-optimal baseline does not.
+
+### Case 4 (non-identifiability): 20 runs
+
+| Group | Experimenter | Accuracy [95% CI] | Brier | Dissociation | Decisive pair |
+|---|---|---|---|---|---|
+| holistic learner (n = 10) | **Claude** | **1.00** [0.72, 1.00] | 0.05 | 0.64 | 0.90 |
+| | D-optimal (+ aware) | 1.00 | 0.00 | 0.82 | 1.00 |
+| part-based-looking (n = 10: 5 part-based, 5 factorized holistic) | **Claude** | **0.00** [0.00, 0.28] | 0.62 | 0.55 | 0.70 |
+| | Random + aware analysis | 1.00 | 0.04 | 0.64 | 0.30 |
+| | D-optimal + aware analysis | 1.00 | 0.00 | 0.78 | 1.00 |
+| | D-optimal, standard analysis | 0.00 | 0.99 | 0.78 | 1.00 |
+
+- The "aware" analysis is the same regression, with a part-based outcome reported as `cannot_decide`. The standard analysis never says `cannot_decide`.
+- **Claude's verdicts on the part-based-looking runs:** part-based 9 times, holistic once. The holistic one came from a weak design (dissociation 0.14).
+
+**Comprehension control** (no experiment, no tools; one fixed table of part-based-looking data; 5 runs per wording):
+
+| Wording of the holistic hypothesis | Correct | Claude |
+|---|---|---|
+| similarity of the input-output mapping (main) | part-based | part-based 5/5 (0.92-0.95) |
+| the learner's own, unobserved similarity measure (case 4) | cannot_decide | **cannot_decide 5/5** (0.65-0.75) |
+
+### Qualifications
+
+- **The case-4 answer key depends on a standard the prompt does not state.** `cannot_decide` is right if a verdict requires the hypotheses to be distinguishable. With a broad prior over the holistic learner's similarity measure, a Bayesian could favour part-based, because a flexible hypothesis spreads its probability over many patterns. The control shows that Claude, asked directly, uses the distinguishability standard itself. So the main finding is an *inconsistency* between Claude's judgment while experimenting and its judgment out of the loop, not an answer we simply declared wrong.
+- **The `compare` tool may act as a lure.** The only similarity measure Claude can observe is output overlap, and in case 4 we changed one sentence of the prompt but kept the tool. The control removes the tool and the experiment together, so it cannot separate their effects.
+- **Different framings.** The control asks Claude to "judge which mechanism the evidence supports"; the experiment asks it to "find out which mechanism it uses". Being asked to run an experiment may itself push toward a committed verdict.
+- **The design-flaw framing.** Even out of the loop, 2 of 5 control justifications describe the problem as a flaw of the particular design. In case 4 no design can separate the learners.
+- **Small samples.** 10 runs per group, 5 per control wording; one model.
+- **A deliberate difference from C-PRO.** In this task space, buttons 0/3 always mean FALSE and 1/2 always mean TRUE. This removed degenerate tasks and created the confound (check 1), and Claude uses it to build its key contrasts. The stylized learners are a simplification of real learners.
+
+### What the known-answer checks caught
+
+Every check failed at least once before passing, and each failure changed the design before any Claude result was used:
+
+| Check | Failure | Fix |
+|---|---|---|
+| Check 1 | With C-PRO-style motor rules there was almost no confound (median correlation -0.03), so hard case 1 did not exist | 2x2 motor table (correlation -0.40) |
+| Check 2 | At low noise every baseline was 100% correct; even at high noise, a random design with regression stayed at about 90%. A moderate confound costs a random design only about 1 - r^2 = 16% of the information | Noise sd 15; accuracy, calibration, and design measures reported together |
+| Check 3 | Read-only commands (`ls`, `cat`, `ps`) were auto-approved in the sandbox | Deny list, plus an automated permission probe |
+| Pilot | Claude stopped after denied commands, and a quoting error blocked `submit` | Command rules in the prompt; a fallback for the verdict |
 
 ## Design
 
-### Task space (`env/tasks.py`)
-- Three rule dimensions, with 4 values each: logic (for example: both, either, neither, not-both), sensory (which feature of each stimulus to check), motor (how the Boolean result maps to a response: one of 2 buttons for TRUE x one of 2 other buttons for FALSE, see "Day 1b" in the Analysis log). This gives 64 tasks, as in C-PRO.
-- Inputs: a small discrete set of stimulus pairs (for example, 2 stimuli × 4 binary features). Each task is a full mapping from inputs to responses. It is computed by the composition: sensory rule → two bits → logic rule → one Boolean → motor rule → response.
-- **Shared parts** between task T and a set of known tasks K: the number of rule values of T that occur in K. Also record **new parts** = 3 − shared parts.
-- **Overall similarity** between two tasks: the fraction of inputs with the same response. Similarity of T to K = the maximum over K (also compute the kernel-weighted mean, and select one before the main run).
+**Task space** (`env/tasks.py`).
+- **Rules:** 64 tasks = 4 logic rules (both, either, neither, not-both) x 4 sensory rules (which of 4 binary features to check in each of 2 stimuli) x 4 motor rules (one of 2 buttons for TRUE x one of 2 other buttons for FALSE).
+- **Inputs:** 256 stimulus pairs.
+- **New rules** of task T given known tasks K = the rules of T that occur in no task of K.
+- **Similarity** of T to K = the maximum, over K, of the fraction of inputs with the same response.
 
-### Learners (`env/learners.py`)
-Stylized learners. Each mechanism is true by construction. (Trained RNN learners are a next step, not part of this prototype.)
-- **PartBasedLearner.** Cost of a new task = `c_new × new_parts + c_sel × selection_uncertainty + noise`. Selection uncertainty is small when all parts are known.
-- **HolisticLearner.** Cost of a new task = `c0 × (1 − similarity_to_known)^alpha + noise`. It ignores parts.
-- **FactorizedHolisticLearner** (case 4, Day 3b). A holistic learner whose similarity metric is factorized over the rule dimensions. Its cost equals the part-based learner's by construction, so the two cannot be separated by any experiment.
-- Both return **examples to criterion** for a test task, given the tasks that they were trained on. Noise is Gaussian or Poisson, so the experimenter needs repeated measures and statistics.
-- Free parameters (`c_new`, `c0`, `alpha`, noise level) are set so that the two learners give **similar mean costs over a random set of tasks**. Otherwise a trivial strategy solves the environment.
+**Learners** (`env/learners.py`; parameters in `configs/default.json`). Mean examples to criterion, plus Gaussian noise (sd 15, rounded, floor 1):
+- **Part-based:** `10 + 10 x new_rules + 2 x selection_uncertainty`.
+- **Holistic:** `10 + 31.8 x (1 - similarity)`. The 31.8 matches the two learners' mean costs.
+- **Factorized holistic** (case 4): the same cost as the part-based learner, by construction.
 
-### Environment (`env/environment.py`)
-- An **instance** = a hidden learner type + random seed + random permutation of the rule labels (so that names do not reveal structure).
-- Queries (each costs budget):
-  - `train <task_ids>`: add tasks to the learner's experience.
-  - `test <task_id>`: return the examples-to-criterion for one task, given the current experience. Repeating a test gives a new noisy sample.
-  - `describe`: return the task space (rule dimensions, rule values with permuted labels, and the input-output mapping of any task on request).
-  - `budget`: return the remaining budget.
-- Total budget: for example, 60 queries. Tune it in the pilot.
-- At the end the experimenter submits a **verdict** (JSON):
-  ```json
-  {"verdict": "part-based | holistic | cannot_decide",
-   "confidence": 0.0,
-   "justification": "..."}
+**Environment** (`env/environment.py`, `env/server.py`).
+- **Instance:** a learner, a seed, and permuted rule labels.
+- **Queries:** `train` (1 per task) and `test` (1) cost budget. `describe`, `compare`, `budget`, and `submit` are free.
+- **Experience:** training is cumulative, and there is no reset.
+
+**Conditions and prompts** (`harness/prompt.md`, `harness/prompt_case4.md`). Both prompts state the two hypotheses, the commands, the budget, and the verdict format. They never mention the confound. The case-4 prompt differs in one sentence: the holistic learner's similarity measure is unobserved. Correct verdicts in case 4: `holistic` for the holistic learner; `cannot_decide` for the part-based and factorized learners.
+
+**Scoring** (`env/scoring.py`):
+- **Accuracy:** whether the verdict is correct.
+- **Brier:** (confidence - correct)^2.
+- **Dissociation:** see the main-condition notes above.
+- **Decisive pair:** see the main-condition notes above.
+
+**Baselines** (`harness/baselines.py`). The baselines use only the public interface.
+- **Random design:** 4 random training tasks, then random tests.
+- **D-optimal design:** the training set and test allocation that maximize det(cov(new rules, similarity)), chosen from 200 candidates.
+- **Analyses:** multiple regression; "naive" (marginal correlations); "aware" (case 4).
+
+**Harness** (`harness/run_claude.py`). For each run:
+- **Sandbox:** a directory in `/tmp/model-id-sandbox/` holding only `prompt.md` and `query.py`.
+- **Server:** the environment server runs in the harness process, so the hidden learner exists only there.
+- **Command:**
   ```
-- The environment logs every query. The experimenter cannot change the log.
+  claude -p --model claude-opus-5-5 --tools Bash --allowedTools "Bash(python3 query.py *)" \
+         --disallowedTools <read-only commands> --permission-mode dontAsk --safe-mode --strict-mcp-config
+  ```
+- **Records:** a full transcript, and an audit of every tool call.
 
-### Scoring (`env/scoring.py`)
-1. **Verdict correct**: 1 or 0.
-2. **Dissociation score**: computed from the logged test tasks. `1 − |corr(new_parts, similarity)|` over the tasks that the experimenter tested. High = the design separated the two measures.
-3. **Calibration**: Brier score, (confidence - correct)^2, where confidence is the probability that the stated verdict is correct (also for `cannot_decide`, from Day 3b).
-- **Correct verdicts.** Main condition: the hidden learner's type. Case-4 condition (holistic hypothesis stated with an unobserved similarity measure): `holistic` for the mapping-similarity holistic learner, `cannot_decide` for the part-based and the factorized holistic learners.
+## Checks
 
-### Baselines (`harness/baselines.py`)
-- **Random experimenter**: random train set, random tests, then regresses cost on new parts and on similarity, and selects the predictor with the larger effect.
-- **D-optimal design** (called "oracle" before Day 3b): over 200 random candidate training sets, allocates the tests to maximize det(cov(new_parts, similarity)), trains once, then applies the same regression. It knows the task structure but not the learner. It is not an upper bound on the dissociation score: an experimenter who trains in stages can do better (Day 3 pilot).
-- Each design is analysed in two ways (Day 2b): **multiple regression** (cost on both predictors together) and **naive** (each predictor's correlation with cost on its own). This gives four baselines and shows how much of the difficulty is in the design and how much in the analysis.
-
-### Running Claude (`harness/run_claude.py`)
-Claude runs as the experimenter through **Claude Code headless** (`claude -p`).
-- For each instance, the harness makes a new **sandbox directory outside the repo** (for example `/tmp/model-id-sandbox/<instance_id>/`). It contains only `prompt.md` and a thin client `query.py`.
-- `query.py` sends each command to an **environment server** process that the harness starts from the repo (for example, a local socket or HTTP on localhost). The hidden learner type exists only in the server process.
-- Claude's tools are restricted to that one command, with `--allowedTools`, and the other tools are disallowed (Read, Glob, Grep, Edit, Write, WebFetch, and other Bash commands). Check the exact flag syntax with `claude --help` before you write the harness.
-- Use `--output-format json` to capture the final answer, and `--max-turns` as a safety limit.
-- The prompt states the two hypotheses, the tools, the budget, and the verdict format. It does **not** mention the confound. Finding it is the test.
-
-### Analysis (`analysis/figures.py`)
-- One main figure: verdict accuracy, dissociation score, and Brier score for Claude, the random baseline, and the D-optimal baseline, for each learner type and condition.
-- One example transcript of a good design and one of a failure, for the README.
-
-## Checks (known-answer checks before any Claude run)
-
-1. **The dissociation exists.** Over all 64 tasks, plot cost against new parts and against similarity, for both learners. Confirm that some tasks make the two learners disagree. If no such tasks exist, nothing can solve the environment.
-2. **The baselines behave as expected.** The oracle is close to 100% correct, and its designs dissociate the two measures clearly better than random designs (criterion revised in Day 2b: accuracy alone does not separate the baselines, because a moderate confound costs a random design little information).
-3. **No leakage.** In the pilot, run one instance with the prompt: "Find out which learner type is hidden, using any method." Claude must not be able to read the source or the server state. If it can, fix the sandbox before the main run.
-
-## Scope
-
-**In scope:** task space, two stylized learners, hard case 1, query interface, scoring, two baselines, headless Claude harness, 20–40 instances, one figure, README.
-
-**Out of scope (next steps, list in the final README):**
-- Trained RNN and transformer learners (case 2: the learner does not use the designed parts).
-- Case 3: mixtures of mechanisms.
-- Deeper rule trees (an outer logic rule over two inner logic-feature rules, for example "if BOTH are red AND EITHER is vertical"). Productive compositional generalization. An exploratory probe (Day 1b) found that they dilute the confound, and that De Morgan equivalences make half of the trees share a mapping with another tree.
-- Expert rubric scoring of the justification text.
-- The extension: run the same dissociation on Claude's in-context learning.
-
-## Plan
-
-| Day | Date | Work |
+| Check | What it verifies | Status |
 |---|---|---|
-| 1 | Thu 10-22 | `tasks.py`, `learners.py`. Check 1. |
-| 2 | Fri 10-23 | `environment.py`, `scoring.py`, baselines. Check 2. |
-| 3 | Sat 10-24 | Environment server, `query.py`, `run_claude.py`. Check 3. Pilot on 3 instances. |
-| 4 | Sun 10-25 | Main run: 20–40 instances, both learner types balanced. |
-| 5 | Mon 10-26 | Figure, transcripts, final README. Case 4 if time permits. |
-| 6 | Tue 10-27 | Buffer. Make the repo public. Add the link to the application. |
+| 1 | Dissociating tasks exist, and the confound is real | Pass (Day 1b, rerun Day 2d) |
+| 2 | D-optimal is near 100% correct, and its designs dissociate clearly better than random ones | Pass (Day 2d) |
+| 3 | No leakage: automated permission probe, plus an "any method" run | Pass (Day 3b/3c) |
+| 4 | The factorized learner is identical to part-based, and D-optimal + aware is >= 90% correct in case 4 | Pass (Day 3b) |
 
-Note: the headless runs use the Claude subscription, so usage limits apply. Start with 20 instances, and add more if the limits allow.
+## Reproduce
+
+Requires Python 3 with numpy, scipy, matplotlib, and pandas, and Claude Code >= 2.1.280 for `claude-opus-5-5`.
+
+```
+python -m pytest tests                          # 32 tests
+python analysis/check1_dissociation.py          # check 1
+python analysis/check2_baselines.py final       # check 2
+python analysis/check4_case4.py                 # check 4
+python harness/run_claude.py probe              # check 3a (uses Claude)
+python harness/run_claude.py check3             # check 3b (uses Claude)
+python harness/run_claude.py main               # 20 main-condition runs (resumable)
+python harness/run_claude.py main_case4         # 20 case-4 runs (resumable)
+python harness/comprehension_control.py         # case-4 comprehension control
+python analysis/summarize.py && python analysis/figures.py
+```
+
+## Next steps
+
+- **Separate the case-4 explanations:** run case 4 without `compare`; run the control with the experiment framing but fixed data; and state the decision standard for `cannot_decide` in the prompt.
+- **More runs and more models**, for intervals tight enough to compare models.
+- **Trained RNN and transformer learners** (case 2: the learner does not use the designed parts), and mixtures of mechanisms (case 3).
+- **Deeper rule trees** ("if BOTH are red AND EITHER is vertical"), for productive compositional generalization. An exploratory probe found that they dilute the confound, and that De Morgan equivalences make half of the trees share a mapping with another tree, so they need their own design work.
+- **A C-PRO-faithful motor structure** in which buttons do not reveal the Boolean, with a different way to create the confound.
+- **Expert rubric scoring** of the justifications.
+- **Running the same dissociation on Claude's own in-context learning.**
 
 ## Repo structure
 
 ```
-model-id-env/
-  README.md
-  CLAUDE.md
-  env/
-    tasks.py
-    learners.py
-    environment.py
-    server.py
-    scoring.py
-  harness/
-    query.py          # copied into each sandbox
-    prompt.md         # experimenter prompt template
-    run_claude.py
-    baselines.py
-  analysis/
-    figures.py
-  tests/
-  results/            # one JSON per instance: config, query log, verdict, scores
-  configs/
+env/            tasks.py, learners.py, environment.py, server.py, scoring.py, config.py
+harness/        run_claude.py, query.py (copied into each sandbox), prompt.md, prompt_case4.md,
+                prompt_check3.md, baselines.py, comprehension_control.py
+analysis/       check1_dissociation.py, check2_baselines.py, check4_case4.py, summarize.py, figures.py
+configs/        default.json (all parameters and seeds)
+tests/          32 tests
+results/        one JSON per run (config, query log, verdict, scores, audit, baselines on the same instance),
+                transcripts/, checks/, figures/, summary.json, comprehension_control.json
+docs/           transcripts.md
 ```
 
 ## Current status
 
+All work was done on 2026-10-21, ahead of the planned days 1-5.
+
 **Completed** (details and numbers in the Analysis log)
-- Day 1: task space and learners. Check 1 first failed (no confound); the 2x2 motor table fixed it (median corr -0.40).
-- Day 2: environment, scoring, baselines. Check 2 first failed (random baseline too strong; accuracy at ceiling). Settled on noise sd 15, a fixed check-1 margin, and accuracy + dissociation + Brier as joint measures, with four baselines.
-- Day 3: server, sandboxed `query.py`, headless harness. Check 3 (no leakage) passes with a deny list and an automated permission probe. Pilots on `claude-opus-5` and `claude-opus-5-5`; two pipeline bugs fixed. Budget 60 confirmed.
-- Case 4 (non-identifiability) added with user approval; check 4 passes.
-- Day 4: main run, 40 runs on `claude-opus-5-5`, $12. Main condition: 20/20 correct, a decisive pair in every run. Case 4: 10/10 on holistic; 0/10 on part-based-looking (9 answered part-based).
-- Day 4b: comprehension control. Out of the loop, Claude answers `cannot_decide` 5/5 under the case-4 wording (and part-based 5/5 under the main wording).
+- **Day 1:** task space and learners. Check 1 first failed (no confound); the 2x2 motor table fixed it.
+- **Day 2:** environment, scoring, and baselines. Check 2 first failed (too easy); settled on noise sd 15 and joint measures.
+- **Day 3:** server, sandbox, and headless harness. Check 3 passes with a deny list and the probe. Pilots run, and two pipeline bugs fixed.
+- **Case 4:** added with the user's approval; check 4 passes.
+- **Day 4:** main run (40 runs, `claude-opus-5-5`, $12) and the comprehension control.
+- **Day 5:** figure, transcripts, and this README.
 
 **Pending**
-- Day 5 (declared): main figure (accuracy, Brier, dissociation, decisive pair; Claude beside the baselines, by condition and learner); one good and one failure transcript; final README with results, the case-4 qualifications (identifiability vs. Bayesian standard; the `compare` tool as a lure; design-confound framing in the control), and next steps.
-- Day 6: buffer; make the repo public; add the link to the application.
+- **Day 6:** make the repo public; add the link to the application.
 
 ## Analysis log
 
