@@ -41,7 +41,17 @@ def score(env):
     correct = int(v is not None and v["verdict"] == CORRECT_VERDICT[(env.condition, env.learner)])
     brier = 0.25 if v is None else (v["confidence"] - correct) ** 2
     n_dec = decisive_pairs(env.test_events(), env.sim, env.cfg)
-    return {"correct": correct,
+    extra = {}
+    if env.condition == "study2":
+        from env import ideal
+        post, detail = ideal.posterior(env.test_events(), env.cfg, env.sim)
+        truth = CORRECT_VERDICT[(env.condition, env.learner)]
+        best = max(post, key=post.get)
+        extra = {"k": env.k, "ideal_posterior": post, "ideal_posterior_detail": detail,
+                 "design_score": post[truth], "ideal_correct": int(best == truth),
+                 "inference_gap": (None if v is None or v["verdict"] not in post
+                                   else v["confidence"] - post[v["verdict"]])}
+    return {**extra, "correct": correct,
             "dissociation": dissociation(env.test_events(), env.sim, env.cfg),
             "n_decisive_pairs": n_dec,
             "has_decisive_pair": int(n_dec > 0),

@@ -8,7 +8,7 @@ from env import learners, tasks
 
 DIM_PREFIXES = ["L", "S", "M"]
 DIM_NAMES = ["logic", "sensory", "motor"]
-VERDICTS = ["part-based", "holistic", "cannot_decide"]
+VERDICTS = ["part-based", "holistic", "factor-when-justified", "cannot_decide"]
 CORRECT_VERDICT = {
     ("main", "part_based"): "part-based",
     ("main", "holistic"): "holistic",
@@ -16,11 +16,15 @@ CORRECT_VERDICT = {
     ("case4", "holistic"): "holistic",
     ("case4", "part_based"): "cannot_decide",
     ("case4", "factorized_holistic"): "cannot_decide",
+    # Study 2: three fully specified learners; the correct verdict is the hidden learner.
+    ("study2", "part_based"): "part-based",
+    ("study2", "holistic"): "holistic",
+    ("study2", "factor_when_justified"): "factor-when-justified",
 }
 
 
 class Environment:
-    def __init__(self, learner, seed, cfg, condition="main"):
+    def __init__(self, learner, seed, cfg, condition="main", k=None):
         if (condition, learner) not in CORRECT_VERDICT:
             raise ValueError(f"unknown learner {learner!r} for condition {condition!r}")
         self.learner = learner
@@ -30,6 +34,10 @@ class Environment:
         self.rng = np.random.default_rng(seed)
         # label_of[d][true value] = public label index (1..4)
         self.label_of = [self.rng.permutation(cfg["tasks"]["n_values"]) + 1 for _ in range(tasks.N_DIMS)]
+        # Study 2: hidden factoring threshold, drawn per instance unless given.
+        self.k = None
+        if learner == "factor_when_justified":
+            self.k = int(k) if k is not None else int(self.rng.choice(cfg["study2"]["k_values"]))
         self.responses = tasks.response_matrix(cfg["tasks"]["n_features"])
         self.sim = tasks.similarity_matrix(self.responses)
         self.inputs = tasks.all_inputs(cfg["tasks"]["n_features"])
@@ -83,7 +91,7 @@ class Environment:
         if cost > self.budget:
             return self._record("test", [name], {"error": "not enough budget"})
         self.budget -= cost
-        c = learners.sample_cost(self.learner, t, list(self.known), self.cfg, self.sim, self.rng)
+        c = learners.sample_cost(self.learner, t, list(self.known), self.cfg, self.sim, self.rng, self.k)
         return self._record("test", [name], {"examples_to_criterion": c})
 
     def describe(self, name=None):
