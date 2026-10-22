@@ -1,0 +1,582 @@
+{
+ "summary": {
+  "case4/all/claude": {
+   "n": 20,
+   "accuracy": 0.5,
+   "accuracy_ci": [
+    0.2992949144298199,
+    0.7007050855701801
+   ],
+   "brier": 0.33141000000000004,
+   "brier_ci": [
+    0.20443850000000002,
+    0.46469162500000005
+   ],
+   "dissociation": 0.5966343896376397,
+   "dissociation_ci": [
+    0.48836704651444457,
+    0.7049678524307349
+   ],
+   "decisive_pair_share": 0.8,
+   "decisive_pair_ci": [
+    0.5839782779742401,
+    0.9193436467288
+   ]
+  },
+  "case4/all/random": {
+   "n": 20,
+   "accuracy": 0.5,
+   "accuracy_ci": [
+    0.2992949144298199,
+    0.7007050855701801
+   ],
+   "brier": 0.3842019460787603,
+   "brier_ci": [
+    0.2113611231405622,
+    0.563632338820943
+   ],
+   "dissociation": 0.6250567274334385,
+   "dissociation_ci": [
+    0.5459336731153629,
+    0.7055143611547882
+   ],
+   "decisive_pair_share": 0.2,
+   "decisive_pair_ci": [
+    0.0806563532712,
+    0.41602172202575993
+   ]
+  },
+  "case4/all/random_aware": {
+   "n": 20,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "brier": 0.02808799873200954,
+   "brier_ci": [
+    0.008938122179659402,
+    0.05609150938583383
+   ],
+   "dissociation": 0.6250567274334385,
+   "dissociation_ci": [
+    0.5473057412219129,
+    0.7027201809914837
+   ],
+   "decisive_pair_share": 0.2,
+   "decisive_pair_ci": [
+    0.0806563532712,
+    0.41602172202575993
+   ]
+  },
+  "case4/all/dopt": {
+   "n": 20,
+   "accuracy": 0.5,
+   "accuracy_ci": [
+    0.2992949144298199,
+    0.7007050855701801
+   ],
+   "brier": 0.49563776462473574,
+   "brier_ci": [
+    0.29564682411080845,
+    0.6981348628632359
+   ],
+   "dissociation": 0.803896285106099,
+   "dissociation_ci": [
+    0.7644553084202708,
+    0.8451996170522327
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.8388698745050667,
+    1.0
+   ]
+  },
+  "case4/all/dopt_aware": {
+   "n": 20,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "brier": 6.0244362827387114e-05,
+   "brier_ci": [
+    2.755601602439294e-07,
+    0.00017600662676815935
+   ],
+   "dissociation": 0.803896285106099,
+   "dissociation_ci": [
+    0.7649525736776046,
+    0.8463799347114913
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.8388698745050667,
+    1.0
+   ]
+  },
+  "case4/holistic/claude": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.04644,
+   "brier_ci": [
+    0.026500000000000006,
+    0.07038149999999997
+   ],
+   "dissociation": 0.6409698284459558,
+   "dissociation_ci": [
+    0.4778185397890454,
+    0.7930506637886273
+   ],
+   "decisive_pair_share": 0.9,
+   "decisive_pair_ci": [
+    0.5958436145024278,
+    0.9821242504842788
+   ]
+  },
+  "case4/holistic/random": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.013786586004223476,
+   "brier_ci": [
+    0.0006054272178641014,
+    0.03323582644191172
+   ],
+   "dissociation": 0.609477786302385,
+   "dissociation_ci": [
+    0.4914744533141095,
+    0.7320562578969529
+   ],
+   "decisive_pair_share": 0.1,
+   "decisive_pair_ci": [
+    0.01787574951572113,
+    0.4041563854975721
+   ]
+  },
+  "case4/holistic/random_aware": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.013786586004223476,
+   "brier_ci": [
+    0.000493082166022525,
+    0.034993095936528454
+   ],
+   "dissociation": 0.609477786302385,
+   "dissociation_ci": [
+    0.48879567770240395,
+    0.7323350969353466
+   ],
+   "decisive_pair_share": 0.1,
+   "decisive_pair_ci": [
+    0.01787574951572113,
+    0.4041563854975721
+   ]
+  },
+  "case4/holistic/dopt": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 6.346518892810431e-07,
+   "brier_ci": [
+    1.7485365158360163e-08,
+    1.631893864104624e-06
+   ],
+   "dissociation": 0.8237092189446871,
+   "dissociation_ci": [
+    0.7616469640316905,
+    0.8848585185645288
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "case4/holistic/dopt_aware": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 6.346518892810431e-07,
+   "brier_ci": [
+    1.736154363860381e-08,
+    1.6276678370688017e-06
+   ],
+   "dissociation": 0.8237092189446871,
+   "dissociation_ci": [
+    0.7644438390578155,
+    0.8866617796353452
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "case4/part-based-looking/claude": {
+   "n": 10,
+   "accuracy": 0.0,
+   "accuracy_ci": [
+    0.0,
+    0.2775401687666166
+   ],
+   "brier": 0.61638,
+   "brier_ci": [
+    0.52994825,
+    0.69601
+   ],
+   "dissociation": 0.5522989508293235,
+   "dissociation_ci": [
+    0.4118841068864815,
+    0.6909644945799159
+   ],
+   "decisive_pair_share": 0.7,
+   "decisive_pair_ci": [
+    0.39677321997956516,
+    0.892210712513788
+   ]
+  },
+  "case4/part-based-looking/random": {
+   "n": 10,
+   "accuracy": 0.0,
+   "accuracy_ci": [
+    0.0,
+    0.2775401687666166
+   ],
+   "brier": 0.754617306153297,
+   "brier_ci": [
+    0.6003001849593329,
+    0.8908929830239074
+   ],
+   "dissociation": 0.640635668564492,
+   "dissociation_ci": [
+    0.5422513542151111,
+    0.7437096725913387
+   ],
+   "decisive_pair_share": 0.3,
+   "decisive_pair_ci": [
+    0.10778928748621183,
+    0.6032267800204347
+   ]
+  },
+  "case4/part-based-looking/random_aware": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.04238941145979561,
+   "brier_ci": [
+    0.01090650120489725,
+    0.09149230015082059
+   ],
+   "dissociation": 0.640635668564492,
+   "dissociation_ci": [
+    0.5476954796359634,
+    0.7416169793617636
+   ],
+   "decisive_pair_share": 0.3,
+   "decisive_pair_ci": [
+    0.10778928748621183,
+    0.6032267800204347
+   ]
+  },
+  "case4/part-based-looking/dopt": {
+   "n": 10,
+   "accuracy": 0.0,
+   "accuracy_ci": [
+    0.0,
+    0.2775401687666166
+   ],
+   "brier": 0.9912748945975822,
+   "brier_ci": [
+    0.9779658512125833,
+    0.9996635655903928
+   ],
+   "dissociation": 0.7840833512675109,
+   "dissociation_ci": [
+    0.7396608309398143,
+    0.8432084937076929
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "case4/part-based-looking/dopt_aware": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.00011985407376549318,
+   "brier_ci": [
+    1.6884323451282668e-07,
+    0.00034525782381440777
+   ],
+   "dissociation": 0.7840833512675109,
+   "dissociation_ci": [
+    0.7398529161090519,
+    0.8431845751817718
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "main/all/claude": {
+   "n": 20,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "brier": 0.016365,
+   "brier_ci": [
+    0.011249999999999998,
+    0.02386587499999999
+   ],
+   "dissociation": 0.6552956402368989,
+   "dissociation_ci": [
+    0.5470167679951731,
+    0.7582919051107875
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.8388698745050667,
+    1.0
+   ]
+  },
+  "main/all/random": {
+   "n": 20,
+   "accuracy": 0.95,
+   "accuracy_ci": [
+    0.7638641064874331,
+    0.9911187805671268
+   ],
+   "brier": 0.041472357274532835,
+   "brier_ci": [
+    0.008881303159446765,
+    0.08433843455817824
+   ],
+   "dissociation": 0.5744584762209559,
+   "dissociation_ci": [
+    0.5044638483466178,
+    0.6437380684721866
+   ],
+   "decisive_pair_share": 0.4,
+   "decisive_pair_ci": [
+    0.21880396741419272,
+    0.613422057684794
+   ]
+  },
+  "main/all/dopt": {
+   "n": 20,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "brier": 0.00014329969789142737,
+   "brier_ci": [
+    8.0792840325384e-06,
+    0.00038051221065541873
+   ],
+   "dissociation": 0.8475330507164246,
+   "dissociation_ci": [
+    0.8001911229834764,
+    0.8923853847879719
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.8388698745050667,
+    1.0
+   ]
+  },
+  "main/holistic/claude": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.017659999999999995,
+   "brier_ci": [
+    0.008919999999999994,
+    0.03200000000000001
+   ],
+   "dissociation": 0.51166786744695,
+   "dissociation_ci": [
+    0.36906912323243946,
+    0.6672586415003497
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "main/holistic/random": {
+   "n": 10,
+   "accuracy": 0.9,
+   "accuracy_ci": [
+    0.5958436145024278,
+    0.9821242504842788
+   ],
+   "brier": 0.041815458521086105,
+   "brier_ci": [
+    0.0009980837163810197,
+    0.11452517346878442
+   ],
+   "dissociation": 0.6161854487072167,
+   "dissociation_ci": [
+    0.5542308040487494,
+    0.6769223474611019
+   ],
+   "decisive_pair_share": 0.3,
+   "decisive_pair_ci": [
+    0.10778928748621183,
+    0.6032267800204347
+   ]
+  },
+  "main/holistic/dopt": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.00025199250092406637,
+   "brier_ci": [
+    4.5517585202338067e-07,
+    0.0006995812547707263
+   ],
+   "dissociation": 0.8492929322385614,
+   "dissociation_ci": [
+    0.7889127690436498,
+    0.9073679327102586
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "main/part_based/claude": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.015069999999999997,
+   "brier_ci": [
+    0.012129999999999997,
+    0.01838
+   ],
+   "dissociation": 0.7989234130268476,
+   "dissociation_ci": [
+    0.7217898682801345,
+    0.8737548854599675
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  },
+  "main/part_based/random": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 0.041129256027979566,
+   "brier_ci": [
+    0.0030089158320815096,
+    0.0915538592060235
+   ],
+   "dissociation": 0.5327315037346951,
+   "dissociation_ci": [
+    0.4198797954759528,
+    0.6538406640869395
+   ],
+   "decisive_pair_share": 0.5,
+   "decisive_pair_ci": [
+    0.23658959361548731,
+    0.7634104063845126
+   ]
+  },
+  "main/part_based/dopt": {
+   "n": 10,
+   "accuracy": 1.0,
+   "accuracy_ci": [
+    0.7224598312333834,
+    1.0
+   ],
+   "brier": 3.4606894858788415e-05,
+   "brier_ci": [
+    4.952866037342375e-07,
+    8.196714182328438e-05
+   ],
+   "dissociation": 0.8457731691942879,
+   "dissociation_ci": [
+    0.7695329155220507,
+    0.911303403784346
+   ],
+   "decisive_pair_share": 1.0,
+   "decisive_pair_ci": [
+    0.7224598312333834,
+    1.0
+   ]
+  }
+ },
+ "verdict_counts": {
+  "main/holistic": {
+   "holistic": 10
+  },
+  "main/part_based": {
+   "part-based": 10
+  },
+  "case4/part_based": {
+   "part-based": 5
+  },
+  "case4/factorized_holistic": {
+   "part-based": 4,
+   "holistic": 1
+  },
+  "case4/holistic": {
+   "holistic": 10
+  }
+ },
+ "cost_usd": 12.021928,
+ "verdict_sources": {
+  "submit": 40,
+  "final_message": 0,
+  "null": 0
+ },
+ "audit_all_pass": true,
+ "n_records": 40
+}

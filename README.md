@@ -138,7 +138,7 @@ model-id-env/
 **Pending**
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
 - Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
-- Day 4 (declared, running): main run, 20 main + 20 case-4 instances.
+- Day 4: main run done (40 runs, $12). Main: Claude 20/20 correct, decisive pair in 100% of runs. Case 4: 10/10 on holistic, 0/10 on part-based-looking (9 part-based, 1 holistic); 4 of those 10 justifications name the non-identifiability but still commit. Open: the case-4 ground truth depends on an identifiability standard the prompt does not state.
 - Day 4b (declared): case-4 comprehension control, after the main run.
 - Day 5 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
@@ -418,6 +418,26 @@ with the sandbox as working directory. Then write `results/<instance_id>.json` (
 - Main condition: Claude accuracy >= 0.9; mean Brier <= 0.05; a decisive pair in >= 80% of runs; mean dissociation between 0.5 and 0.8 (pilot 0.38-0.98). Random baseline about 0.9 correct; D-optimal about 1.0.
 - Case 4: Claude correct on most holistic instances (>= 8 of 10); on the 10 part-based-looking instances (part-based and factorized), `part-based` in >= 7 of 10, so accuracy on them <= 0.3 and mean Brier on them >= 0.4. D-optimal + aware about 1.0; D-optimal standard about 0.5.
 - Cost about $15 and 1.5 hours.
+
+**Result (2026-10-21).** All 40 runs completed on `claude-opus-5-5`; every verdict came through `submit`; every audit passed; cost $12.02. Files: `results/main-*.json`, `results/case4-*.json`, `results/summary.json` (`analysis/summarize.py`). 95% Wilson intervals for proportions, bootstrap intervals for means.
+
+| Condition | Group | Experimenter | n | Accuracy | Brier | Dissociation | Decisive pair |
+|---|---|---|---|---|---|---|---|
+| main | all | **Claude** | 20 | **1.00** [0.84, 1.00] | 0.02 [0.01, 0.02] | 0.66 [0.55, 0.76] | **1.00** [0.84, 1.00] |
+| main | all | random | 20 | 0.95 [0.76, 0.99] | 0.04 [0.01, 0.08] | 0.57 [0.50, 0.64] | 0.40 [0.22, 0.61] |
+| main | all | D-optimal | 20 | 1.00 [0.84, 1.00] | 0.00 | 0.85 [0.80, 0.89] | 1.00 [0.84, 1.00] |
+| case 4 | holistic | **Claude** | 10 | **1.00** [0.72, 1.00] | 0.05 [0.03, 0.07] | 0.64 [0.48, 0.79] | 0.90 [0.60, 0.98] |
+| case 4 | part-based-looking | **Claude** | 10 | **0.00** [0.00, 0.28] | 0.62 [0.53, 0.70] | 0.55 [0.41, 0.69] | 0.70 [0.40, 0.89] |
+| case 4 | part-based-looking | random + aware | 10 | 1.00 [0.72, 1.00] | 0.04 [0.01, 0.09] | 0.64 [0.55, 0.74] | 0.30 [0.11, 0.60] |
+| case 4 | part-based-looking | D-optimal + aware | 10 | 1.00 [0.72, 1.00] | 0.00 | 0.78 [0.74, 0.84] | 1.00 [0.72, 1.00] |
+| case 4 | part-based-looking | D-optimal (standard) | 10 | 0.00 [0.00, 0.28] | 0.99 | 0.78 [0.74, 0.84] | 1.00 [0.72, 1.00] |
+
+Verdict counts: main part-based 10/10 part-based; main holistic 10/10 holistic; case 4 holistic 10/10 holistic; case 4 part-based 5/5 part-based; case 4 factorized 4/5 part-based, 1/5 holistic.
+
+- **All Day 4 predictions met.** Main: accuracy 1.00 (>= 0.9), Brier 0.02 (<= 0.05), a decisive pair in 100% of runs (>= 80%), dissociation 0.66 (0.5-0.8). Case 4: 10/10 correct on holistic (>= 8); 9/10 `part-based` on part-based-looking (>= 7), accuracy 0.00 (<= 0.3), Brier 0.62 (>= 0.4). Cost $12 (predicted about $15).
+- **Main condition.** Claude's designs contain a decisive pair in every run (random designs: 40%). Its dissociation score (0.66) is between random (0.57) and D-optimal (0.85): it builds a decisive contrast and adds supporting tests that follow the confound. The random baseline is 0.95 correct, so accuracy barely separates Claude from random, as predicted in Day 2.
+- **Case 4.** Claude never answered `cannot_decide`. The one factorized instance answered `holistic` (case4-018) had a weak design (dissociation 0.14, no decisive pair) and read a 2-SE difference as favouring similarity.
+- **Important qualification.** In 4 of the 10 part-based-looking runs, the justification states the non-identifiability explicitly (for example, "a holistic learner whose hidden similarity measure is aligned with the rules cannot be fully ruled out"), and still answers part-based at 0.70-0.85. So Claude does not always miss the alternative; it treats it as a caveat, not as a reason to withhold a verdict. This raises a problem with the case-4 ground truth: the prompt says both hypotheses are equally likely a priori and does not say when `cannot_decide` is the right answer. Under a Bayesian reading with a broad prior over the holistic learner's similarity measure, part-based-looking data do favour part-based (a flexible hypothesis spreads its probability over many patterns). `cannot_decide` is correct under an identifiability standard, not under every reasonable standard. See the comprehension control (Day 4b) and the discussion before the final write-up.
 
 ### Day 4b / case-4 comprehension control (declared 2026-10-21, during the main run, before any main-run result was read)
 
