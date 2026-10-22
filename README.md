@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 3** (declared): Claude as the learner; 3a headroom probe first.
+- **Study 3:** 3a headroom probe done (see Study 3). Next: decide the boundary-hunt design, with an ideal-learner reference relative to what the prompt states.
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -253,6 +253,22 @@ docs/           transcripts.md
 **Decision rule (fixed now).** If every condition x test-type cell is >= 0.9 accurate, the flat space is at ceiling, and the boundary hunt moves straight to deeper compositions and exceptions. Otherwise the cells below 0.9 are the first boundary cases, and their strategy signatures say which strategy failed.
 
 **Prediction.** Labelled conditions near ceiling for (a) and (c) (>= 0.9), and (b) with 4 shots about 0.8. Unlabelled with 4 shots: (a) <= 0.7, with errors that match the similarity answer more often than chance; (c) about 0.85.
+
+**Result: Study 3a (2026-10-22).** `results/study3_probe.json`; 32 calls, `claude-opus-5-5`, $2.18; every answer parsed.
+
+| Condition | (a) recombination, low overlap | (b) one new component | (c) recombination, high overlap |
+|---|---|---|---|
+| labelled, 0 shots | **0.50** (per instance: 0, 1, 0, 1) | - | **0.75** (1, 1, 0, 1) |
+| labelled, 4 shots | 1.00 | 1.00 | 1.00 |
+| unlabelled, 4 shots | **0.61** | **0.77** | **0.78** |
+
+Strategy signature, on items where copying the most consistent known task gives a wrong answer: labelled 4 shots, 0% similarity answers (100% correct); unlabelled 4 shots, 25-41% similarity answers; labelled 0 shots (a), 38% similarity answers and 0% correct.
+
+- **Against the decision rule:** cells below 0.9 are labelled 0 shots (a, c) and every unlabelled cell. **Against the prediction:** labelled 0 shots was predicted >= 0.9 (observed 0.50 and 0.75); labelled 4 shots (b) was predicted about 0.8 (observed 1.00); unlabelled (a) was predicted <= 0.7 (observed 0.61, with similarity answers on 41% of the discriminating items).
+- **Diagnosis of the labelled 0-shot failures: the decomposition was not determined by what Claude was told.** Every failure is all-or-nothing (accuracy exactly 0 or 1 per instance). In seed 30000, component X2 appeared only with Z4. Claude read X2 as "the bit is 1 in both stimuli" with Z4 as "TRUE -> 3, FALSE -> 1"; the truth is the complementary pair ("not both", with a different button mapping). Both readings fit every example Claude saw. Composing the new task from its reading flips every answer. Under the *true* grammar (in which buttons 1 and 2 always mean TRUE), only one reading of the labels is consistent with the examples, in all 4 instances. But the prompt does not state the grammar, so the regularity that removes the ambiguity was not available to Claude. In seed 30002, Claude built a different factorization (Y sets a default button), consistent with the examples because the known tasks confounded components. It flagged the uncertain step ("This step is the uncertain one. A simpler XOR model also fits every example").
+- **The unlabelled cells are partly underdetermined too.** Even for a learner that knows the grammar and prefers tasks built from known parts, the 4 examples fit 2-4 such tasks in 5 of the 12 unlabelled cases. On the 7 cases where the answer is unique under those assumptions, Claude's mean accuracy is 0.83.
+- **Design flaw (mine):** the probe did not check whether each test answer is determined by the information given to Claude. Study 2 had such a check (the exact posterior); 3a did not. Any further Study 3 design needs an ideal-learner reference **relative to what the prompt states**, and must score errors against it.
+- **What it shows anyway.** (1) Given labels and 4 examples, Claude composes perfectly, including a new component. (2) Examples of whole tasks underdetermine their parts. When that happens, Claude commits to one factorization, sometimes noting the ambiguity, sometimes not. This ties directly to Elmoznino et al.'s open question of which decomposition of a whole is the right one. (3) Without labels, Claude discovers parts imperfectly (0.61-0.78), and on a minority of items it falls back on the most similar known task.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
