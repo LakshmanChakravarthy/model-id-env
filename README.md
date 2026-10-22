@@ -224,6 +224,19 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 - **Check 6** (`results/checks/check6.json`, 300 instances per baseline): the scripted curriculum uses 45 queries at every budget, so its accuracy does not change with the budget (0.900 on seed 12). Selected budget: **60** (the smallest that reaches 0.90). Confirmation (seed 13, budget 60): scripted **0.937** (factor learner 0.90), random interleaved **0.703** (factor 0.60, holistic 0.61), train-first 0.673 (factor 0.47). Gap 0.23 (needed 0.20). Design score: scripted 0.89, random 0.60-0.62. Brier: scripted 0.055, random 0.18.
 - Compared with the expectations: the random baselines did somewhat better than predicted (0.62-0.70 vs. 0.45-0.65), and both are weakest on the factor and holistic learners, as expected. The headroom between random and scripted (about 0.25 in accuracy, 0.27 in design score) is much larger than in Study 1.
 
+**Result: Study 2 pilot (2026-10-22).** `results/s2pilot-00{0,1,2}.json`, `claude-opus-5-5`, $0.38-0.46 per run. Permission probe passed again before the pilot.
+
+| Run | Learner | Claude (conf.) | Ideal posterior of truth on Claude's data (design score) | Inference gap | Scripted (same instance) | Random interleaved | Train-first |
+|---|---|---|---|---|---|---|---|
+| s2pilot-000 | factor, k=2 | factor-when-justified (0.60) ✓ | 0.73 | -0.13 | wrong (part-based, 0.69) | correct | correct |
+| s2pilot-001 | holistic | holistic (0.75) ✓ | 0.99 | -0.24 | correct | wrong | wrong |
+| s2pilot-002 | part-based | part-based (0.75) ✓ | 1.00 | -0.25 | wrong (factor, 0.83) | correct | correct |
+
+- The pipeline works: every run submitted, every audit passed, and the budget was enough (59 of 60 used at most).
+- **Claude designed before/after curricula in two of three runs.** On the factor instance: train three tasks so each rule appears once, test a recombination against a control, then train four more tasks that make the rules recur *without changing the similarity of either test task*, and test again. That is the scripted design plus a control task in every phase. In the holistic run it walked the threshold explicitly ("no drop, so not factor with k=2 ... still no recombination benefit, so not k=3").
+- **Contrary to the prediction**, Claude did not train early on the factor instance, and it was **underconfident**: its confidence was 0.13-0.25 below the ideal posterior in all three runs.
+- **The scripted baseline missed 2 of 3 here** (0.94 correct in check 6). Recomputing it on these instances reproduces the same verdicts, so this is noise, not a bug: it puts all its tests on one target, so one noisy stage mean misleads it. Claude's designs, with a control task in each phase, were sturdier on these three instances.
+
 ## Analysis log
 
 ### Day 1 / check 1 (declared 2026-10-21)
