@@ -286,6 +286,18 @@
         "n_known_examples": 32
       },
       "max_parallel": 4
+    },
+    "c": {
+      "seed": 32000,
+      "n_known": 6,
+      "n_known_examples": 24,
+      "n_test_items": 16,
+      "per_cell": 8,
+      "n_search": 6000,
+      "prior_class": 0.5,
+      "high_min": 0.9,
+      "low_max": 0.65,
+      "max_parallel": 4
     }
   }
 }

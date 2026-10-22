@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 3:** 3a and 3b done. Given the form of the grammar, Claude composes like the ideal learner; the open boundary is learning the form (overhypotheses).
+- **Study 3:** 3a and 3b done; **3c declared** (inferring an overhypothesis from data).
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -317,6 +317,28 @@ Strategy signature, on items where copying the most consistent known task gives 
 - **Against the predictions** (almost all wrong, in Claude's favour). A determined >= 0.9: met. Ambiguous-stated >= 0.75: met (1.00). Ambiguous-withheld overclaim: **not met** (1 of 6 said determined; mean confidence 0.58 against the ideal 0.50). B about 0.75 with similarity errors at low overlap: **not met** (1.00, no similarity answers). C low overlap <= 0.8: **not met** (1.00).
 - **Comparison with 3a** (same task space, form *not* stated): unlabelled part discovery rose from 0.61-0.78 to 1.00, and similarity answers fell from 25-41% to 0% of discriminating items. Labelled composition without examples went from all-or-nothing failures (an unknown decomposition) to perfect.
 - **Reading.** In this task space, the boundary is not *composing* known parts, not depth 2, and not low similarity. It is **knowing the space of possible parts** (the "form", including regularities across components such as which buttons mean true). Given the form, Claude composes ideally and flags genuine ambiguity correctly. Without it, Claude must guess a factorization, and partly falls back on similarity to known tasks. In cognitive-science terms, the open question is learning the overhypotheses: the abstract knowledge of what kinds of parts exist (Kemp, Perfors & Tenenbaum, 2007), as opposed to learning the parts themselves.
+
+### Study 3c / can Claude infer an overhypothesis from data? (declared 2026-10-22)
+
+**Why.** In 3b, Claude used the stated regularity perfectly and, without it, correctly said "not determined". A check of the 3b ambiguous instances (exploratory, on recorded data) showed that no Z component's meaning was ever determined there. This is general: complementing every X rule and swapping every Z's buttons leaves every task unchanged, so which button means TRUE can never be identified for a single Z. What the data *can* show is the **pairing structure**: which buttons each Z uses together. If every observed Z pairs one button from {1, 2} with one from {0, 3}, the buttons fall into two classes. The overhypothesis that resolves the ambiguous compositions is **"the same button class means TRUE in every Z component"**. It can be inferred from the pairs without being told. 3c tests whether Claude infers it.
+
+**Design** (`harness/study3c.py`; flat tasks, labelled, 0 shots; the form of the grammar stated as in 3b, the regularity *not* stated; same answer format).
+- **Worlds.** *Regular:* the true Z components are the 4 pairs of the task space (TRUE in {1, 2}, FALSE in {0, 3}). *Irregular:* per instance, 4 distinct (FALSE, TRUE) button pairs whose unordered pairs fit no split of the 4 buttons into two classes of two.
+- **Known sets:** 6 known tasks (24 examples each). The test task is a recombination whose answer is ambiguous without the overhypothesis (2 possible answers when any Z may be any pair of distinct buttons).
+- **Ideal learner (hierarchical).** Prior 0.5 on "class" (a split of the buttons into a TRUE class and a FALSE class, 6 equally likely choices of split and orientation, and every Z maps FALSE into one class and TRUE into the other) and 0.5 on "none" (any pair of distinct buttons). Uniform over consistent injective label meanings within each. Output: the posterior over answer vectors.
+- **Cells (8 instances each, 24 calls; seed 32000):**
+  - **regular-high:** regular world; the known pairs leave a single consistent split, and the ideal posterior of the modal answer is >= 0.9;
+  - **regular-low:** regular world; the known pairs leave the split open, and the ideal posterior of the modal answer is <= 0.65;
+  - **irregular:** irregular world; the known pairs rule out every split, so the ideal posterior is 0.5.
+
+**Measures.**
+- Which answer vector Claude chose: the ideal modal ("class-consistent") one, the other one, or neither (matching on >= 14 of 16 items).
+- Claude's confidence against the ideal posterior of its chosen vector.
+- Its "determined" flag. Logically, nothing here is determined without the overhypothesis.
+
+**What counts as inferring the overhypothesis (fixed now).** In regular-high, Claude chooses the class-consistent answer in >= 6 of 8 runs with mean confidence >= 0.75. In irregular, its confidence stays <= 0.65 (no fixed bias toward a reading). If regular-high looks like regular-low and irregular (about 0.5 confidence, "not determined"), Claude does not infer the overhypothesis from data.
+
+**Prediction.** Low confidence. 3b suggests that Claude reasons within the stated form but does not spontaneously build abstractions across components. I predict that it does **not** infer the overhypothesis: in regular-high, the class-consistent answer in <= 5 of 8 runs, with mean confidence < 0.75.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
