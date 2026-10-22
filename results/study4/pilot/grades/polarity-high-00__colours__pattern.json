@@ -1,0 +1,10 @@
+{
+ "id": "polarity-high-00__colours__pattern",
+ "code": {
+  "regularity_stated": "polarity",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "{\"regularity_stated\": \"polarity\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0231598
+}

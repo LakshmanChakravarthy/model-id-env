@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 4:** preregistered (`docs/study4_preregistration.md`). Next: pipeline, tests, pilot (12 calls), main run (576 calls), grader validation (user hand-codes 40).
+- **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run (576 calls, projected about $64 + $12 for grading) started 2026-10-22. Next: grading, grader validation (user hand-codes 40), analysis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
 - **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.

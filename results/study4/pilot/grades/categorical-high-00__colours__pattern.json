@@ -1,0 +1,10 @@
+{
+ "id": "categorical-high-00__colours__pattern",
+ "code": {
+  "regularity_stated": "other",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Regularity relied on most: rule listing order \u2192 \"other\", used to favour B. Alternatives considered: yes.\n\n{\"regularity_stated\": \"other\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0192922
+}
