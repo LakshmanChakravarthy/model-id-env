@@ -124,24 +124,17 @@ model-id-env/
 
 ## Current status
 
-**Completed**
-- Scope and design (this README).
-- Day 1 code: `env/tasks.py`, `env/learners.py`, `env/config.py`, `configs/default.json`, tests in `tests/` (run with `python -m pytest tests`).
-- Check 1 ran (see Analysis log). It **failed**: for random training sets there is almost no confound between new parts and similarity.
-- Day 1b: motor table changed to the 2x2 design. Check 1 rerun and **passed** (median corr -0.40; dissociations in 98.5% of K). Similarity measure selected: `max`.
-- Day 2 code: `env/environment.py`, `env/scoring.py`, `harness/baselines.py`, `analysis/check2_baselines.py`, tests (20 pass).
-- Check 2 ran with the declared tuning grid and confirmation. It **failed**: the random baseline stays at 0.80-0.85 or higher; the best gap was +0.165 in tuning and +0.140 in confirmation (needed 0.15).
-- Day 2b: criterion revised (accuracy + dissociation + Brier, beside four baselines: {random, oracle} design x {multiple regression, naive} analysis). Check 2 **passed** on a fresh seed, but all four baselines are 100% correct at noise sd 5.
-- Day 3 code: `env/server.py`, `harness/query.py`, `harness/prompt.md`, `harness/run_claude.py`, tests (25 pass). Check 3 passed as declared, but the pilot showed read-only commands (`ls`, `cat` in the sandbox; `ps`) are auto-approved. Pilot: 3/3 correct, Claude's dissociation above the oracle's.
-- Day 2c/2d: noise sd 15; check-1 margin fixed at 5 examples. Checks 1 and 2 **pass**: oracle 1.000 correct, random 0.915 (both analyses); dissociation 0.81 vs 0.56; Brier 0.000 vs 0.059.
+**Completed** (details and numbers in the Analysis log)
+- Day 1: task space and learners. Check 1 first failed (no confound); the 2x2 motor table fixed it (median corr -0.40).
+- Day 2: environment, scoring, baselines. Check 2 first failed (random baseline too strong; accuracy at ceiling). Settled on noise sd 15, a fixed check-1 margin, and accuracy + dissociation + Brier as joint measures, with four baselines.
+- Day 3: server, sandboxed `query.py`, headless harness. Check 3 (no leakage) passes with a deny list and an automated permission probe. Pilots on `claude-opus-5` and `claude-opus-5-5`; two pipeline bugs fixed. Budget 60 confirmed.
+- Case 4 (non-identifiability) added with user approval; check 4 passes.
+- Day 4: main run, 40 runs on `claude-opus-5-5`, $12. Main condition: 20/20 correct, a decisive pair in every run. Case 4: 10/10 on holistic; 0/10 on part-based-looking (9 answered part-based).
+- Day 4b: comprehension control. Out of the loop, Claude answers `cannot_decide` 5/5 under the case-4 wording (and part-based 5/5 under the main wording).
 
 **Pending**
-- Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
-- Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
-- Day 4: main run done (40 runs, $12). Main: Claude 20/20 correct, decisive pair in 100% of runs. Case 4: 10/10 on holistic, 0/10 on part-based-looking (9 part-based, 1 holistic); 4 of those 10 justifications name the non-identifiability but still commit. Open: the case-4 ground truth depends on an identifiability standard the prompt does not state.
-- Day 4b: comprehension control done. Main wording 5/5 part-based; case-4 wording 5/5 cannot_decide. Interpretation (declared rule): Claude can reason about the non-identifiability but does not apply it while experimenting.
-- Day 5 to day 6 in the plan above.
-- Budget (60) to be confirmed in the Day 3 pilot.
+- Day 5: main figure (accuracy, Brier, dissociation, decisive pair; Claude beside the baselines, by condition and learner); one good and one failure transcript; final README with results, the case-4 qualifications (identifiability vs. Bayesian standard; the `compare` tool as a lure; design-confound framing in the control), and next steps.
+- Day 6: buffer; make the repo public; add the link to the application.
 
 ## Analysis log
 
