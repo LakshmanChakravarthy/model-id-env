@@ -106,4 +106,4 @@ Before the main run: 12 calls on separate instances (seed 40999), one per type x
 
 ## 10. Changes after this commit
 
-(none yet)
+- **2026-10-22, before any main-run result: secondary analysis (g) added.** While checking the analysis code on the pilot's pipeline output, I noticed that H3 as defined counts every run that gave the modal answer. That includes runs that picked it by chance at confidence 0.5 without discovering the regularity, which would inflate "under-trust". **H3 is unchanged and stays confirmatory.** The added secondary analysis (g) repeats it on runs where the grader codes `regularity_used` = true. No pilot outcome was used to choose this; it follows from the definition.
