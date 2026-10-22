@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 3:** 3a and 3b done; **3c declared** (inferring an overhypothesis from data).
+- **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -341,6 +341,21 @@ Strategy signature, on items where copying the most consistent known task gives 
 **Prediction.** Low confidence. 3b suggests that Claude reasons within the stated form but does not spontaneously build abstractions across components. I predict that it does **not** infer the overhypothesis: in regular-high, the class-consistent answer in <= 5 of 8 runs, with mean confidence < 0.75.
 
 **Amendment to 3c (2026-10-22, before any Claude call).** Instance generation found no "regular-low" instance. Sampling 80 ambiguous regular-world instances (offline, seed 999) showed that the ideal posterior takes only two values: **0.91** when 3 Z components are known and **0.988** when 4 are. Even weak pairing evidence strongly favours "class", because it predicts the observed pairs far more tightly than "any pair". The regular-low cell (<= 0.65) cannot exist in this design. It is replaced by **regular-moderate** (ideal 0.85-0.95, that is 0.91), and regular-high now requires >= 0.95 (0.988). The criterion for inferring the overhypothesis (regular-high vs. irregular) and the prediction are unchanged.
+
+**Result: Study 3c (2026-10-22).** `results/study3c.json`; 24 calls, `claude-opus-5-5`, $1.74; every answer parsed.
+
+| Cell | Ideal P(class-consistent answer) | Claude: class-consistent / other | Says "determined" | Mean confidence | Mentions the alternative (flipped / complementary) reading |
+|---|---|---|---|---|---|
+| regular-high | 0.988 | **2 / 6** | 5/8 | 0.81 | 3/8 |
+| regular-moderate | 0.91 | 4 / 4 | 4/8 | 0.73 | 4/8 |
+| irregular | 0.50 | 4 / 4 | 0/8 | 0.50 | 7/8 |
+| (3b, ambiguous, regularity withheld) | 0.50 | - | 1/6 | 0.58 | 5/6 |
+
+- **The overhypothesis was not inferred.** Criterion (regular-high: class-consistent in >= 6 of 8 with mean confidence >= 0.75): **not met** (2 of 8). The prediction ("does not infer it") is met.
+- **Unexpected: confident errors in the structured world.** In regular-high, 5 of 8 runs said "determined" with confidence 0.93-0.95. All 5 chose the reading that *breaks* the class structure, an answer with ideal posterior about 0.01 (and only 0.5 even without the overhypothesis). Another 4 such runs occurred in regular-moderate. None occurred in the irregular world.
+- **Mechanism.** In the confident runs, Claude decodes the known tasks one at a time, takes the first reading of each component that fits (for example "X2 = both are 1, so Z3 = true -> 3, false -> 2"), calls it "pinned down", and composes. The complementary reading fits every example equally well, and it never mentions it. Its decoded Z components put TRUE on different button classes (1 in one, 3 in another), so it also ignored the cross-component pairing structure.
+- **Two modes.** Across 3c and the 3b ambiguous cell, "determined = true" occurs **only** in runs that never mention an alternative reading (0 of 11 mention one). "Not determined" occurs, with the ideal 0.50, in runs that consider the flipped reading (19 of 20). Claude is calibrated when it generates the alternative decomposition and confidently wrong when it does not. How often it generates the alternative varies by cell: irregular 7-8/8, regular-high 3/8. Why is not established. One possibility is that greedy decoding in the irregular world produces readings that look odd and prompt a re-check; this is not tested.
+- **Link to Studies 1 and 2.** Case 4 (an alternative account of the same data not weighed), the Study 2 inference errors (single contrasts read as decisive), and 3c (the first consistent decomposition taken as the only one) share a pattern: **Claude does not reliably generate the alternative hypotheses that fit the same data**, and its confidence tracks the alternatives it generated, not the ones that exist. In cognitive science this is hypothesis-generation failure, or alternative neglect (the "out of sight, out of mind" effect, Fischhoff, Slovic & Lichtenstein, 1978; HyGene, Thomas, Dougherty et al., 2008): judged probability depends on which alternatives come to mind.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
