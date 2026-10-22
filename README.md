@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 3:** 3a done; **3b declared** (ambiguity, priority, depth, with an ideal-learner reference).
+- **Study 3:** 3a and 3b done. Given the form of the grammar, Claude composes like the ideal learner; the open boundary is learning the form (overhypotheses).
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -298,6 +298,25 @@ Strategy signature, on items where copying the most consistent known task gives 
 - A: determined cells >= 0.9 accurate. Ambiguous-stated >= 0.75 (Claude uses the regularity). Ambiguous-withheld: Claude says "determined" in >= 3 of 6 runs, with confidence >= 0.8 (overclaim >= 0.3).
 - B: accuracy about 0.75; low overlap below high overlap; similarity answers on >= 30% of the discriminating items at low overlap.
 - C: low-overlap accuracy <= 0.8 (a boundary case), high overlap higher.
+
+**Result: Study 3b (2026-10-22).** `results/study3b.json`; 52 calls, `claude-opus-5-5`, $4.13. One answer is missing: in a deep-tree, high-overlap run Claude, with no tools available, wrote out a tool call to run a script and never answered. It is recorded as missing, not rerun.
+
+| Block / cell | n | Accuracy | Says "determined" (ideal) | Confidence (ideal) | Similarity answers on discriminating items |
+|---|---|---|---|---|---|
+| A, determined set, regularity stated | 6 | 1.00 | 6/6 (6/6) | 0.96 (1.00) | 0% |
+| A, determined set, regularity withheld | 6 | 0.99 | 6/6 (6/6) | 0.95 (1.00) | 3% |
+| A, ambiguous set, regularity stated | 6 | 1.00 | 6/6 (6/6) | 0.96 (1.00) | 0% |
+| A, ambiguous set, regularity withheld | 6 | (0.32 vs. truth; not determined) | **1/6** (0/6) | **0.58** (0.50) | 24% |
+| B, unlabelled, low overlap | 8 | 1.00 | 8/8 | 0.95 | 0% |
+| B, unlabelled, high overlap | 8 | 1.00 | 8/8 | 0.94 | 0% |
+| C, deep trees, low overlap | 6 | 1.00 | 4/6 (6/6) | 0.90 (1.00) | 0% |
+| C, deep trees, high overlap | 5 | 1.00 | 5/5 | 0.93 | 0% |
+
+- **Ambiguity is detected.** In the ambiguous-withheld cell, 5 of 6 runs said "not determined" with confidence **0.50, exactly the ideal value**. One said "determined" at 0.95. In the ambiguous-stated cell, Claude used the regularity to resolve the same sets: 6/6 correct.
+- **With the form of the grammar stated, Claude composes like the ideal learner:** unlabelled part discovery (block B) 1.00, deep trees (block C) 1.00, and no similarity answers on any of the 256 discriminating items in B and C. In 2 deep low-overlap runs it was *under*confident ("not determined", 0.85) where the answer was determined.
+- **Against the predictions** (almost all wrong, in Claude's favour). A determined >= 0.9: met. Ambiguous-stated >= 0.75: met (1.00). Ambiguous-withheld overclaim: **not met** (1 of 6 said determined; mean confidence 0.58 against the ideal 0.50). B about 0.75 with similarity errors at low overlap: **not met** (1.00, no similarity answers). C low overlap <= 0.8: **not met** (1.00).
+- **Comparison with 3a** (same task space, form *not* stated): unlabelled part discovery rose from 0.61-0.78 to 1.00, and similarity answers fell from 25-41% to 0% of discriminating items. Labelled composition without examples went from all-or-nothing failures (an unknown decomposition) to perfect.
+- **Reading.** In this task space, the boundary is not *composing* known parts, not depth 2, and not low similarity. It is **knowing the space of possible parts** (the "form", including regularities across components such as which buttons mean true). Given the form, Claude composes ideally and flags genuine ambiguity correctly. Without it, Claude must guess a factorization, and partly falls back on similarity to known tasks. In cognitive-science terms, the open question is learning the overhypotheses: the abstract knowledge of what kinds of parts exist (Kemp, Perfors & Tenenbaum, 2007), as opposed to learning the parts themselves.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
