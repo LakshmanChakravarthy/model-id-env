@@ -139,7 +139,7 @@ model-id-env/
 - Day 3b: check 4 and the permission probe pass (also on Claude Code 2.1.307). Check 3b and the case-4 pilot ran on `claude-opus-5-5` and exposed two pipeline bugs (Claude stops after denials; a quoting error blocked `submit`). Case-4 signal: Claude said part-based (0.70) where `cannot_decide` is correct, in both runs that reached a verdict.
 - Day 3c: pipeline bugs fixed; check 3b, main pilot, and case-4 pilot rerun on `claude-opus-5-5`. All runs completed. Main pilot 3/3 correct; case 4: part-based (wrong) on both part-based-looking instances.
 - Day 4: main run done (40 runs, $12). Main: Claude 20/20 correct, decisive pair in 100% of runs. Case 4: 10/10 on holistic, 0/10 on part-based-looking (9 part-based, 1 holistic); 4 of those 10 justifications name the non-identifiability but still commit. Open: the case-4 ground truth depends on an identifiability standard the prompt does not state.
-- Day 4b (declared): case-4 comprehension control, after the main run.
+- Day 4b: comprehension control done. Main wording 5/5 part-based; case-4 wording 5/5 cannot_decide. Interpretation (declared rule): Claude can reason about the non-identifiability but does not apply it while experimenting.
 - Day 5 to day 6 in the plan above.
 - Budget (60) to be confirmed in the Day 3 pilot.
 
@@ -450,6 +450,13 @@ Verdict counts: main part-based 10/10 part-based; main holistic 10/10 holistic; 
 **Interpretation rule (fixed now).** Case-4 wording: >= 4 of 5 `cannot_decide` -> explanation (b), neglect while experimenting; <= 1 of 5 -> explanation (a), conceptual; 2-3 -> mixed. The main wording must give `part-based` in >= 4 of 5, or the control is not interpretable.
 
 **Expected result.** Main wording: 5 of 5 `part-based`. Case-4 wording: low confidence; I lean to 3 or more of 5 `cannot_decide` (without the experiment to run, the changed sentence is more salient).
+
+**Result (2026-10-21).** `results/comprehension_control.json`, `claude-opus-5-5`, $0.39 in total.
+- Main wording: 5/5 `part-based` (confidence 0.92-0.95). The control is interpretable.
+- Case-4 wording: **5/5 `cannot_decide`** (confidence 0.65-0.75). By the declared rule: explanation (b), **neglect while experimenting**. Given the same kind of evidence and the same hypothesis wording, but no experiment to run, Claude applies the identifiability argument every time: "output overlap is not necessarily the holistic learner's similarity measure"; "a holistic learner whose similarity tracks shared components predicts the same pattern".
+- This also answers the Day 4 ground-truth concern in part. When asked directly, Claude itself uses the identifiability standard (`cannot_decide`), not the Bayesian one. So its in-loop `part-based` verdicts are inconsistent with its own out-of-loop judgment of the same kind of evidence.
+- **Nuance.** 2 of the 5 control justifications frame the problem as a confound of this particular design ("no 1- or 2-new-rule tasks were tested to break the confound"). That is wrong for case 4: no design can separate a factorized holistic learner from a part-based one. So even out of the loop, Claude does not always see that the non-identifiability is fundamental rather than a design flaw.
+- **Limits.** The control used one fixed data table, not each run's own data, and its framing differs ("judge which mechanism the evidence supports" vs. "find out which mechanism it uses"). Being asked to run an experiment may itself push toward a committed verdict. 5 runs per wording.
 
 ## Handover prompt
 

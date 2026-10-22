@@ -1,0 +1,191 @@
+{
+ "config": {
+  "n_per_wording": 5,
+  "model": "claude-opus-5-5",
+  "max_turns": 3
+ },
+ "prompts": {
+  "main": "# Interpret an experiment\n\nA hidden learner learns tasks. It uses one of two learning mechanisms. Your job is to judge which mechanism the evidence below supports.\n\n## The tasks\n\nThere are 64 tasks. Each task combines one rule from each of three dimensions:\n- a **logic** rule (labels L1-L4),\n- a **sensory** rule (labels S1-S4),\n- a **motor** rule (labels M1-M4).\n\nA task is named by its three labels, for example `L2-S4-M1`. The labels are arbitrary: their numbers say nothing about what the rules do. Each task maps every input (a pair of stimuli with binary features) to a response button. `describe` explains the input encoding and shows any task's full input-output mapping.\n\n## The two hypotheses\n\nThe learner is one of these. Both are equally likely a priori.\n\n- **Part-based.** The learner stores the rules it has learned as reusable parts. The cost of learning a new task depends on how many of the task's three rules are new to the learner (not part of any task it was trained on).\n- **Holistic.** The learner stores each learned task as one whole. The cost of learning a new task depends on how similar the task's overall input-output mapping is to the tasks it was trained on.\n\n## The data\n\nAn experimenter trained the learner on two tasks, L1-S1-M1 and L2-S2-M2. Then the experimenter tested four new tasks, 12 times each. \"New rules\" counts the test task's rules that are not part of any trained task. \"Output overlap\" is the largest fraction of inputs on which the test task gives the same response as a trained task. Lower cost means easier learning.\n\n| Test task | New rules | Output overlap | Mean examples to criterion |\n|---|---|---|---|\n| L1-S1-M2 | 0 | 0.75 | 10.4 |\n| L2-S1-M1 | 0 | 0.06 | 17.8 |\n| L3-S3-M3 | 3 | 0.56 | 37.3 |\n| L4-S4-M4 | 3 | 0.06 | 41.5 |\n\nTest results are noisy (the standard deviation of a single test is about 15).\n\n## Your answer\n\nWhich verdict does this evidence justify: \"part-based\", \"holistic\", or \"cannot_decide\"? Reply with your reasoning, then end with one JSON object: {\"verdict\": \"...\", \"confidence\": 0.0, \"justification\": \"...\"}, where confidence is your probability that the verdict is correct.\n",
+  "case4": "# Interpret an experiment\n\nA hidden learner learns tasks. It uses one of two learning mechanisms. Your job is to judge which mechanism the evidence below supports.\n\n## The tasks\n\nThere are 64 tasks. Each task combines one rule from each of three dimensions:\n- a **logic** rule (labels L1-L4),\n- a **sensory** rule (labels S1-S4),\n- a **motor** rule (labels M1-M4).\n\nA task is named by its three labels, for example `L2-S4-M1`. The labels are arbitrary: their numbers say nothing about what the rules do. Each task maps every input (a pair of stimuli with binary features) to a response button. `describe` explains the input encoding and shows any task's full input-output mapping.\n\n## The two hypotheses\n\nThe learner is one of these. Both are equally likely a priori.\n\n- **Part-based.** The learner stores the rules it has learned as reusable parts. The cost of learning a new task depends on how many of the task's three rules are new to the learner (not part of any task it was trained on).\n- **Holistic.** The learner stores each learned task as one whole. The cost of learning a new task depends on how similar the new task is to the tasks it was trained on, under the learner's own similarity measure, which you do not observe.\n\n## The data\n\nAn experimenter trained the learner on two tasks, L1-S1-M1 and L2-S2-M2. Then the experimenter tested four new tasks, 12 times each. \"New rules\" counts the test task's rules that are not part of any trained task. \"Output overlap\" is the largest fraction of inputs on which the test task gives the same response as a trained task. Lower cost means easier learning.\n\n| Test task | New rules | Output overlap | Mean examples to criterion |\n|---|---|---|---|\n| L1-S1-M2 | 0 | 0.75 | 10.4 |\n| L2-S1-M1 | 0 | 0.06 | 17.8 |\n| L3-S3-M3 | 3 | 0.56 | 37.3 |\n| L4-S4-M4 | 3 | 0.06 | 41.5 |\n\nTest results are noisy (the standard deviation of a single test is about 15).\n\n## Your answer\n\nWhich verdict does this evidence justify: \"part-based\", \"holistic\", or \"cannot_decide\"? Reply with your reasoning, then end with one JSON object: {\"verdict\": \"...\", \"confidence\": 0.0, \"justification\": \"...\"}, where confidence is your probability that the verdict is correct.\n"
+ },
+ "counts": {
+  "main": {
+   "part-based": 5
+  },
+  "case4": {
+   "cannot_decide": 5
+  }
+ },
+ "runs": [
+  {
+   "wording": "main",
+   "i": 0,
+   "verdict": {
+    "verdict": "part-based",
+    "confidence": 0.92,
+    "justification": "In a 2x2 design crossing new rules with output overlap, new rules raise cost by about 25 examples (~5.8 SE). Overlap has a small, unreliable effect (~1.3 SE). Tasks with equal overlap (0.06) differ by 24 examples (~3.9 SE), and a higher-overlap task with 3 new rules is harder than a low-overlap task with 0 new rules. Both results contradict the holistic hypothesis."
+   },
+   "correct": 1,
+   "text": "**Verdict: part-based.** Learning cost follows the number of new rules, not output overlap.\n\n**The design separates the two factors.** The four test tasks cross \"new rules\" (0 or 3) with \"output overlap\" (high or low). Each hypothesis predicts a different pattern:\n\n- **Part-based:** cost depends on new rules. The two 0-new-rule tasks should be easy and the two 3-new-rule tasks hard, whatever their overlap.\n- **Holistic:** cost depends on overlap. The two tasks with 0.06 overlap (L2-S1-M1 and L4-S4-M4) should be equally hard. L3-S3-M3 (0.56 overlap) should be easier than L2-S1-M1 (0.06).\n\n**Noise level.** Each test has SD \u2248 15, so a mean of 12 tests has a standard error of about 15/\u221a12 \u2248 4.3. The difference between two such means has a standard error of about 6.1.\n\n**What the data show:**\n\n- **New-rules effect is large.** The 3-new-rule tasks average 39.4 examples and the 0-new-rule tasks average 14.1. The difference of 25.3 is about 5.8 standard errors.\n- **Overlap effect is small.** High-overlap tasks average 23.9 and low-overlap tasks average 29.7. The difference of 5.8 is about 1.3 standard errors, which is not reliable.\n- **The key holistic prediction fails.** L2-S1-M1 and L4-S4-M4 have the same overlap (0.06) but cost 17.8 versus 41.5. That gap is about 3.9 standard errors.\n- **The data run the wrong way for holistic.** L3-S3-M3 has more overlap than L2-S1-M1 (0.56 vs 0.06), yet it is harder (37.3 vs 17.8). That gap is about 3.2 standard errors.\n\n**A caveat.** Among the 0-new-rule tasks, the high-overlap one is easier (10.4 vs 17.8). That gap is about 1.2 standard errors, so it is weak and could be noise or a minor secondary effect. Either way, it does not explain the dominant pattern.\n\n{\"verdict\": \"part-based\", \"confidence\": 0.92, \"justification\": \"In a 2x2 design crossing new rules with output overlap, new rules raise cost by about 25 examples (~5.8 SE). Overlap has a small, unreliable effect (~1.3 SE). Tasks with equal overlap (0.06) differ by 24 examples (~3.9 SE), and a higher-overlap task with 3 new rules is harder than a low-overlap task with 0 new rules. Both results contradict the holistic hypothesis.\"}",
+   "cost_usd": 0.0486543,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "main",
+   "i": 1,
+   "verdict": {
+    "verdict": "part-based",
+    "confidence": 0.92,
+    "justification": "Two tasks with the same output overlap (0.06) differ greatly in cost: 17.8 with 0 new rules versus 41.5 with 3 new rules (z\u22483.9). Also, L3-S3-M3 has higher overlap (0.56) than L2-S1-M1 (0.06), yet it is much harder (37.3 vs 17.8), which contradicts the holistic prediction. Cost tracks the number of new rules, not output similarity. The small overlap effect between the two 0-new tasks (10.4 vs 17.8) is within noise."
+   },
+   "correct": 1,
+   "text": "**The verdict is part-based.** Two comparisons separate the hypotheses, and both go against the holistic account.\n\n**How big differences must be to count.** One test has a standard deviation of about 15, so a mean of 12 tests has a standard error of about 15/\u221a12 \u2248 4.3. A difference between two means has a standard error of about 6.1.\n\n**What each hypothesis predicts.**\n- **Part-based:** cost follows the count of new rules. The two tasks with 0 new rules should be cheap, and the two with 3 new rules should be expensive.\n- **Holistic:** cost follows output overlap. The order should be L1-S1-M2 (0.75) cheapest, then L3-S3-M3 (0.56), then the two 0.06 tasks, which should cost about the same as each other.\n\n**Comparison 1: overlap held fixed.** L2-S1-M1 and L4-S4-M4 both have overlap 0.06, so the holistic account says they should cost the same.\n- They cost 17.8 and 41.5, a difference of 23.7 (z \u2248 3.9).\n- The only thing that differs is the number of new rules: 0 versus 3.\n- This is exactly what the part-based account predicts.\n\n**Comparison 2: the two hypotheses predict opposite orders.**\n- L3-S3-M3 has higher overlap (0.56) but 3 new rules.\n- L2-S1-M1 has lower overlap (0.06) but 0 new rules.\n- The holistic account says L3-S3-M3 should be easier. Instead it is harder: 37.3 versus 17.8, a difference of 19.5 (z \u2248 3.2).\n\n**One result fits the holistic account a little.** Between the two 0-new-rule tasks, the higher-overlap one is cheaper: 10.4 versus 17.8. That difference is only 7.4 (z \u2248 1.2), so it is within noise. It does not outweigh the two strong results above.\n\nOverall, cost follows the number of new rules and not output overlap.\n\n{\"verdict\": \"part-based\", \"confidence\": 0.92, \"justification\": \"Two tasks with the same output overlap (0.06) differ greatly in cost: 17.8 with 0 new rules versus 41.5 with 3 new rules (z\u22483.9). Also, L3-S3-M3 has higher overlap (0.56) than L2-S1-M1 (0.06), yet it is much harder (37.3 vs 17.8), which contradicts the holistic prediction. Cost tracks the number of new rules, not output similarity. The small overlap effect between the two 0-new tasks (10.4 vs 17.8) is within noise.\"}",
+   "cost_usd": 0.030468699999999998,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "main",
+   "i": 2,
+   "verdict": {
+    "verdict": "part-based",
+    "confidence": 0.95,
+    "justification": "Tasks with equal overlap (0.06) differ greatly by number of new rules (17.8 vs 41.5, ~3.9 SE), and the 0-new/low-overlap task beats the 3-new/higher-overlap task (17.8 vs 37.3, ~3.2 SE), opposite to the holistic prediction. Costs group by new-rule count, not overlap."
+   },
+   "correct": 1,
+   "text": "**Verdict: part-based.** The two hypotheses predict different orderings, and the data follow the part-based one.\n\n**Noise level.** Each mean comes from 12 tests with SD about 15. So the standard error of a mean is about 15/\u221a12 \u2248 4.3, and the standard error of a difference between two means is about 6.1.\n\n**Contrast 1: same overlap, different number of new rules.** L2-S1-M1 and L4-S4-M4 both have output overlap 0.06.\n- Holistic predicts they cost about the same.\n- Part-based predicts L4-S4-M4 (3 new rules) costs much more than L2-S1-M1 (0 new rules).\n- Observed: 41.5 vs 17.8, a difference of 23.7. That is about 3.9 standard errors, so it is very unlikely to be noise.\n\n**Contrast 2: the two hypotheses predict opposite orderings.** Compare L3-S3-M3 (3 new rules, overlap 0.56) with L2-S1-M1 (0 new rules, overlap 0.06).\n- Holistic predicts L3-S3-M3 is easier, because its overlap is higher.\n- Part-based predicts L2-S1-M1 is easier, because none of its rules are new.\n- Observed: L3-S3-M3 costs 37.3 and L2-S1-M1 costs 17.8. The difference is 19.5, about 3.2 standard errors, in the part-based direction.\n\n**Within-group differences.** Overlap could still matter a little when the number of new rules is the same.\n- L1-S1-M2 vs L2-S1-M1 (both 0 new rules): 10.4 vs 17.8, about 1.2 standard errors.\n- L3-S3-M3 vs L4-S4-M4 (both 3 new rules): 37.3 vs 41.5, about 0.7 standard errors.\n- Neither difference is significant, and both fit noise around a part-based pattern.\n\nThe costs split into two clear groups by number of new rules (about 10\u201318 vs 37\u201342). Output overlap does not predict the pattern, and in one key comparison it predicts the wrong direction.\n\n```json\n{\"verdict\": \"part-based\", \"confidence\": 0.95, \"justification\": \"Tasks with equal overlap (0.06) differ greatly by number of new rules (17.8 vs 41.5, ~3.9 SE), and the 0-new/low-overlap task beats the 3-new/higher-overlap task (17.8 vs 37.3, ~3.2 SE), opposite to the holistic prediction. Costs group by new-rule count, not overlap.\"}\n```",
+   "cost_usd": 0.0320767,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "main",
+   "i": 3,
+   "verdict": {
+    "verdict": "part-based",
+    "confidence": 0.93,
+    "justification": "At equal overlap (0.06), the 0-new-rule task costs 17.8 versus 41.5 for the 3-new-rule task (about 3.9 SE). The higher-overlap 3-new-rule task L3-S3-M3 (37.3) is much harder than the low-overlap 0-new-rule task L2-S1-M1 (17.8), contrary to the holistic prediction. Within-novelty overlap effects are small and not significant given SE \u2248 4.3 per mean."
+   },
+   "correct": 1,
+   "text": "**Part-based. The data clearly favour it.**\n\n**Noise level.** A single test has SD \u2248 15, so the mean of 12 tests has a standard error of about 15/\u221a12 \u2248 4.3. The difference between two task means has a standard error of about 6.1.\n\n**What each hypothesis predicts:**\n- **Part-based:** both 0-new-rule tasks should be cheap and both 3-new-rule tasks expensive, whatever their output overlap.\n- **Holistic:** cost should follow output overlap. L1-S1-M2 (0.75) should be easiest, L3-S3-M3 (0.56) next, and L2-S1-M1 and L4-S4-M4 (both 0.06) should be about equally hard.\n\n**The key comparisons:**\n1. **Same overlap, different rule novelty.** L2-S1-M1 and L4-S4-M4 both have overlap 0.06. Holistic predicts equal cost. The observed means are 17.8 and 41.5, a gap of 23.7, or about 3.9 standard errors. The task made of known rules is far easier, which only the part-based account predicts.\n2. **Overlap and novelty pulling in opposite directions.** L3-S3-M3 has much higher overlap (0.56) than L2-S1-M1 (0.06), so holistic predicts L3-S3-M3 is easier. It is actually much harder (37.3 vs 17.8, about 3.2 standard errors). This contradicts the holistic account directly and fits the part-based one.\n3. **Within the same rule novelty**, higher overlap gives slightly lower cost:\n   - 10.4 vs 17.8 for the 0-new-rule tasks (about 1.2 standard errors)\n   - 37.3 vs 41.5 for the 3-new-rule tasks (about 0.7 standard errors)\n   \n   Neither gap is statistically meaningful. Any overlap effect is small next to the effect of new rules.\n\nThe ordering of costs follows the number of new rules, not output overlap. Both decisive contrasts are about 3\u20134 standard errors in the direction the part-based account predicts.\n\n{\"verdict\": \"part-based\", \"confidence\": 0.93, \"justification\": \"At equal overlap (0.06), the 0-new-rule task costs 17.8 versus 41.5 for the 3-new-rule task (about 3.9 SE). The higher-overlap 3-new-rule task L3-S3-M3 (37.3) is much harder than the low-overlap 0-new-rule task L2-S1-M1 (17.8), contrary to the holistic prediction. Within-novelty overlap effects are small and not significant given SE \u2248 4.3 per mean.\"}",
+   "cost_usd": 0.0326767,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "main",
+   "i": 4,
+   "verdict": {
+    "verdict": "part-based",
+    "confidence": 0.92,
+    "justification": "In a 2x2 crossing new-rule count with output overlap, new rules have a large effect (~25 examples, ~5.8 SE), while overlap has a small, non-significant effect (~6 examples, ~1.3 SE). L2-S1-M1 (0 new rules, overlap 0.06) is learned much faster than L3-S3-M3 (3 new rules, overlap 0.56), which contradicts the holistic prediction by ~3 SE."
+   },
+   "correct": 1,
+   "text": "**The evidence supports the part-based learner.**\n\n**The design.** The four test tasks form a 2\u00d72 that separates the two predictors:\n\n| | High overlap | Low overlap |\n|---|---|---|\n| 0 new rules | L1-S1-M2: 10.4 | L2-S1-M1: 17.8 |\n| 3 new rules | L3-S3-M3: 37.3 | L4-S4-M4: 41.5 |\n\n**Noise.** One test has a standard deviation of about 15. Each mean averages 12 tests, so its standard error is about 15/\u221a12 \u2248 4.3. The standard error of the difference between two means is about 6.1.\n\n**Effect of new rules.** Averaging over overlap, tasks with 3 new rules cost 39.4 and tasks with 0 new rules cost 14.1. The difference is about 25 examples, roughly 5.8 standard errors. It holds at both overlap levels: 37.3 vs 10.4, and 41.5 vs 17.8.\n\n**Effect of overlap.** Averaging over new rules, high-overlap tasks cost 23.9 and low-overlap tasks cost 29.7. The difference is about 6 examples, roughly 1.3 standard errors. That is not reliably different from noise.\n\n**The deciding comparison.** L3-S3-M3 has much higher overlap (0.56) than L2-S1-M1 (0.06).\n- A holistic learner should learn L3-S3-M3 more easily.\n- The data show the opposite: L3-S3-M3 costs 37.3 and L2-S1-M1 costs 17.8. The gap is about 19.5 examples, or 3.2 standard errors.\n- A part-based learner predicts this result. L2-S1-M1 reuses three known rules, while L3-S3-M3 has three new ones.\n\n**Caveat.** There is a small trend toward easier learning at high overlap. It is not significant, and it does not change the verdict. The cost is driven mainly by how many rules are new.\n\n{\"verdict\": \"part-based\", \"confidence\": 0.92, \"justification\": \"In a 2x2 crossing new-rule count with output overlap, new rules have a large effect (~25 examples, ~5.8 SE), while overlap has a small, non-significant effect (~6 examples, ~1.3 SE). L2-S1-M1 (0 new rules, overlap 0.06) is learned much faster than L3-S3-M3 (3 new rules, overlap 0.56), which contradicts the holistic prediction by ~3 SE.\"}",
+   "cost_usd": 0.030852699999999997,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "case4",
+   "i": 0,
+   "verdict": {
+    "verdict": "cannot_decide",
+    "confidence": 0.65,
+    "justification": "Cost tracks new-rule count strongly (~6 SE) and output overlap not reliably (\u22641.2 SE), but output overlap is not necessarily the holistic learner's similarity measure. With only L1-S1-M1 and L2-S2-M2 trained, every 0-new-rule task shares 2 of 3 rules with one trained task and the 3-new tasks share none, so rule novelty is fully confounded with structural similarity to a stored whole. No 1- or 2-new-rule tasks were tested to break the confound."
+   },
+   "correct": 1,
+   "text": "**The data pattern**\n\nThe standard error of each 12-test mean is about 15/\u221a12 \u2248 4.3. The difference between two means has a standard error of about 6.1.\n\n- **New-rules contrast.** The 0-new tasks average 14.1 examples and the 3-new tasks average 39.4. The gap of about 25 is roughly 6 standard errors, so it is very reliable.\n- **Output-overlap contrast, holding new rules fixed.** Among the 0-new tasks, 10.4 vs 17.8 is about 1.2 standard errors. Among the 3-new tasks, 37.3 vs 41.5 is about 0.7 standard errors. Neither is reliable.\n\nAt face value, cost follows rule novelty and not output overlap. That looks part-based.\n\n**Why this doesn't settle it**\n\nThe holistic learner uses its own similarity measure, which we do not observe. Output overlap is only one possible measure. Ruling it out does not rule out holistic learning.\n\nThe design confounds rule novelty with a plausible holistic similarity: how many rules a test task shares with its nearest trained task.\n\n- L1-S1-M2 shares 2 rules with L1-S1-M1.\n- L2-S1-M1 shares 2 rules with L1-S1-M1.\n- L3-S3-M3 and L4-S4-M4 share 0 rules with any trained task.\n\nA holistic learner whose similarity tracks shared structure would predict exactly this pattern.\n\nThis confound cannot be broken with these two training tasks. Any task built only from trained rules must take at least 2 of its 3 rules from one trained task, by pigeonhole. So \"0 new rules\" always means \"highly similar to one stored whole.\"\n\nNo tasks with 1 or 2 new rules were tested either. Those are where the two accounts could diverge, for example when a task's new rules make it dissimilar overall even though some of its parts are reusable.\n\n**Conclusion**\n\nThe evidence fits part-based perfectly. It is also predicted by a holistic learner with a structure-sensitive similarity measure, and the design cannot tell these apart. Part-based gets some Bayesian credit for making a sharp prediction that held up. Even so, the evidence does not justify a verdict.\n\n{\"verdict\": \"cannot_decide\", \"confidence\": 0.65, \"justification\": \"Cost tracks new-rule count strongly (~6 SE) and output overlap not reliably (\u22641.2 SE), but output overlap is not necessarily the holistic learner's similarity measure. With only L1-S1-M1 and L2-S2-M2 trained, every 0-new-rule task shares 2 of 3 rules with one trained task and the 3-new tasks share none, so rule novelty is fully confounded with structural similarity to a stored whole. No 1- or 2-new-rule tasks were tested to break the confound.\"}",
+   "cost_usd": 0.05499779999999999,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "case4",
+   "i": 1,
+   "verdict": {
+    "verdict": "cannot_decide",
+    "confidence": 0.75,
+    "justification": "Cost tracks new-rule count strongly (about 25 examples, roughly 6 SE), and output overlap shows no significant effect within each new-rule level. But the holistic learner's similarity measure is unobserved and could be based on shared rules. With only two trained tasks (L1-S1-M1, L2-S2-M2), every 0-new-rule test task shares 2 rules with a trained task and every 3-new-rule task shares 0, so 'no new parts' and 'high whole-task similarity' are perfectly confounded. Both hypotheses predict the observed pattern."
+   },
+   "correct": 1,
+   "text": "**Verdict: cannot decide.** The data fit both hypotheses, and this design cannot separate them.\n\n**What the data show.** The standard error of a 12-test mean is about 15/\u221a12 \u2248 4.3. The standard error of a difference between two means is about 6.1.\n\n- **New rules matters a lot.** Tasks with 0 new rules average about 14 examples. Tasks with 3 new rules average about 39. That gap of about 25 is roughly 6 standard errors, so it is very reliable.\n- **Output overlap shows no reliable effect once new rules is held fixed.**\n  - With 0 new rules: 10.4 vs 17.8, a gap of 7.4, about 1.2 standard errors.\n  - With 3 new rules: 37.3 vs 41.5, a gap of 4.2, about 0.7 standard errors.\n  - Both trends point in the direction overlap predicts, but neither is significant.\n\n**Why this doesn't favour part-based.** At first glance it looks part-based: new rules dominates and output overlap adds little. But the holistic learner's similarity measure is hidden. Output overlap is only one possible measure, and nothing says the learner uses it. A holistic learner could just as well judge similarity by shared structure, such as how many rules a test task shares with its nearest trained task. Under that measure:\n\n| Test task | Rules shared with nearest trained task |\n|---|---|\n| L1-S1-M2 | 2 |\n| L2-S1-M1 | 2 |\n| L3-S3-M3 | 0 |\n| L4-S4-M4 | 0 |\n\nThis splits the tasks exactly the way new rules does. So a plausible holistic learner predicts the same result.\n\n**Why the design cannot fix this.** With only two trained tasks and three dimensions, every task with 0 new rules must share at least 2 rules with one of the trained tasks. That means \"no new parts\" always comes with \"high whole-task similarity.\" To tell the hypotheses apart, you would need, for example:\n- a recombination task that is dissimilar to every trained task as a whole, or\n- tasks with new rules that are still highly similar as wholes.\n\nThose would need more or different trained tasks. The weak output-overlap effect also cannot rule out holistic, because output overlap may not be the learner's measure.\n\n```json\n{\"verdict\": \"cannot_decide\", \"confidence\": 0.75, \"justification\": \"Cost tracks new-rule count strongly (about 25 examples, roughly 6 SE), and output overlap shows no significant effect within each new-rule level. But the holistic learner's similarity measure is unobserved and could be based on shared rules. With only two trained tasks (L1-S1-M1, L2-S2-M2), every 0-new-rule test task shares 2 rules with a trained task and every 3-new-rule task shares 0, so 'no new parts' and 'high whole-task similarity' are perfectly confounded. Both hypotheses predict the observed pattern.\"}\n```",
+   "cost_usd": 0.03638,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "case4",
+   "i": 2,
+   "verdict": {
+    "verdict": "cannot_decide",
+    "confidence": 0.68,
+    "justification": "Cost tracks the number of new rules strongly (~14 vs ~39), and output overlap has no significant effect. That only rules out a holistic learner whose similarity is output overlap. The learner's similarity measure is unobserved. Here, every 0-new-rule task shares 2/3 of its rules with one trained task, and the 3-new-rule tasks share none, so a holistic learner with structural similarity predicts the same pattern. No condition separates rule novelty from whole-task similarity."
+   },
+   "correct": 1,
+   "text": "**What the data clearly shows**\n\n- **Novelty has a large effect.** Tasks with 0 new rules averaged about 14 examples. Tasks with 3 new rules averaged about 39. The difference is roughly 25. With n=12 and a single-test SD of about 15, the standard error of each mean is about 4.3, so this gap is very reliable.\n- **Output overlap does not predict cost.** Within the 0-new tasks, overlap of 0.75 vs 0.06 gave 10.4 vs 17.8. Within the 3-new tasks, overlap of 0.56 vs 0.06 gave 37.3 vs 41.5. Both differences (7.4 and 4.2) are within about 1.2 standard errors of a difference (\u22486.1), so neither is significant. The sharpest contrast is L2-S1-M1 against L4-S4-M4. Both have overlap 0.06, yet they cost 17.8 vs 41.5. Overlap of input-output mappings is plainly not what drives cost.\n\n**Why this doesn't settle the question**\n\nThe holistic hypothesis does not say the learner uses output overlap. It uses its own similarity measure, which we can't see. That measure might compare how tasks are structured, which would track how many rules they share. On such a measure:\n\n- Every 0-new test task shares 2 of 3 rules with one trained task. L1-S1-M2 and L2-S1-M1 both share 2 rules with L1-S1-M1.\n- The 3-new tasks share nothing with either trained task.\n\nSo a holistic learner with a rule-overlap-like similarity measure predicts the same pattern as the part-based learner: 0-new tasks are easy and 3-new tasks are hard. The data rules out one particular holistic learner (one using output overlap), not the holistic hypothesis.\n\nThe two hypotheses only come apart when \"how many rules are new\" and \"how similar the task is to its closest trained task\" point in different directions. An example would compare a recombined task that draws parts from both trained tasks against a task with 1 new rule that still shares 2/3 with one trained task (e.g., L1-S1-M3). In this design, every 0-new task automatically shares at least 2/3 with one trained task, and the 3-new tasks share nothing. The two hypotheses are fully confounded across the conditions tested.\n\n**Verdict**\n\nThe evidence fits part-based learning well. It is also fully consistent with holistic learning under a plausible unobserved similarity measure. The experiment contains no contrast that separates them.\n\n{\"verdict\": \"cannot_decide\", \"confidence\": 0.68, \"justification\": \"Cost tracks the number of new rules strongly (~14 vs ~39), and output overlap has no significant effect. That only rules out a holistic learner whose similarity is output overlap. The learner's similarity measure is unobserved. Here, every 0-new-rule task shares 2/3 of its rules with one trained task, and the 3-new-rule tasks share none, so a holistic learner with structural similarity predicts the same pattern. No condition separates rule novelty from whole-task similarity.\"}",
+   "cost_usd": 0.045992,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "case4",
+   "i": 3,
+   "verdict": {
+    "verdict": "cannot_decide",
+    "confidence": 0.75,
+    "justification": "The large new-rules effect (~25 examples, ~4 SE) is predicted by part-based but equally by a holistic learner whose unobserved similarity tracks shared rules: with two trained tasks, every 0-new-rule test task necessarily shares 2 rules with one trained task while 3-new-rule tasks share none, so the design confounds the two accounts. The within-level output-overlap differences (7.4 and 4.2) are within noise (~1.2 and ~0.7 SE), so they neither confirm holistic-by-output similarity nor rule it out."
+   },
+   "correct": 1,
+   "text": "## Reasoning\n\n**What the data show:**\n- **Effect of new rules is large and reliable.** With 12 tests per task and an SD of 15, each mean has a standard error of about 4.3. Tasks with 0 new rules average about 14 examples. Tasks with 3 new rules average about 39. That gap of roughly 25 is about 4 standard errors.\n- **Effect of output overlap is weak.** Within each new-rule level, higher overlap means lower cost, but not significantly:\n  - 10.4 vs 17.8 is a difference of 7.4, with a standard error of about 6.1 (about 1.2\u03c3).\n  - 37.3 vs 41.5 is a difference of 4.2 (about 0.7\u03c3).\n\n**Why this doesn't settle it:**\n- **Part-based fits.** It predicts a big new-rules effect. It also predicts roughly equal cost within each level, which the data allow, since the within-level differences are within noise.\n- **Holistic also fits.** Its similarity measure is unobserved, and output overlap is only one candidate for it. A holistic learner whose similarity is based on shared rules or task structure predicts exactly the same pattern:\n  - L1-S1-M2 and L2-S1-M1 each share 2 of 3 rules with a trained task.\n  - L3-S3-M3 and L4-S4-M4 share none.\n  - The weak trend with output overlap is, if anything, mildly in holistic's favor.\n- **The design cannot separate the two.** With trained tasks L1-S1-M1 and L2-S2-M2, any test task with 0 new rules must share at least 2 rules with one trained task. This follows from the pigeonhole principle: three dimensions drawn from two tasks. Any task with 3 new rules shares nothing with either. So \"number of new rules\" is perfectly confounded with \"maximum rule-level similarity to a trained task.\"\n- **What would discriminate.** A design with three or more trained tasks would allow a task built entirely from old rules but sharing at most 1 rule with any single trained task. That case was not tested.\n\nBoth hypotheses explain the evidence about equally well, so it does not justify choosing one.\n\n```json\n{\"verdict\": \"cannot_decide\", \"confidence\": 0.75, \"justification\": \"The large new-rules effect (~25 examples, ~4 SE) is predicted by part-based but equally by a holistic learner whose unobserved similarity tracks shared rules: with two trained tasks, every 0-new-rule test task necessarily shares 2 rules with one trained task while 3-new-rule tasks share none, so the design confounds the two accounts. The within-level output-overlap differences (7.4 and 4.2) are within noise (~1.2 and ~0.7 SE), so they neither confirm holistic-by-output similarity nor rule it out.\"}\n```",
+   "cost_usd": 0.036984,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  },
+  {
+   "wording": "case4",
+   "i": 4,
+   "verdict": {
+    "verdict": "cannot_decide",
+    "confidence": 0.65,
+    "justification": "Costs track new-rule count (about 14 vs 39, highly significant), and output overlap does not explain them (same 0.06 overlap gives 17.8 vs 41.5). But the holistic learner's similarity measure is unobserved. Every 0-new-rule test task shares 2 of 3 rules with a trained task and every 3-new-rule task shares none, and with only two trained tasks this confound is unavoidable. A holistic learner whose similarity tracks shared components predicts the same pattern, so the design cannot tell the two hypotheses apart."
+   },
+   "correct": 1,
+   "text": "**Verdict: cannot decide.** The data fit a part-based learner, but they fit a holistic learner equally well.\n\n**What the data show**\n\n- The standard error of each mean is about 15/\u221a12 \u2248 4.3. The standard error of a difference between two means is about 6.1.\n- **Zero new rules versus three new rules:** about 14 examples versus about 39. That gap of roughly 25 is about 4 standard errors, so it is a real effect.\n- **Same rule count, different output overlap:**\n  - L1-S1-M2 versus L2-S1-M1 differ by 7.4, about 1.2 standard errors.\n  - L3-S3-M3 versus L4-S4-M4 differ by 4.2, about 0.7 standard errors.\n  - Neither difference is reliable.\n- **Same output overlap (0.06), different rule count:** L2-S1-M1 takes 17.8 and L4-S4-M4 takes 41.5. So output overlap does not explain the costs, but rule novelty does.\n\n**Why this doesn't settle it**\n\nA holistic learner's cost depends on its own similarity measure, which we don't observe. Output overlap is only one candidate. In this design, rule novelty is confounded with how many rules a test task shares with a trained task:\n\n- Each zero-new-rule task shares 2 of its 3 rules with one trained task:\n  - L1-S1-M2 shares L1 and S1 with L1-S1-M1.\n  - L2-S1-M1 shares S1 and M1 with L1-S1-M1.\n- Each three-new-rule task shares nothing with either trained task.\n\nThis confound cannot be avoided with these two trained tasks. With only two trained tasks and three dimensions, any task built entirely from trained rules must take at least 2 of its rules from the same trained task. So any holistic similarity measure that tracks shared components predicts exactly the pattern observed. A holistic measure based on internal representations could plausibly behave this way too.\n\nTo separate the hypotheses, the experiment would need test tasks where rule novelty and holistic similarity come apart. For example, it could vary novelty while holding shared-component structure fixed, or train on more tasks so that tasks built from old rules can be dissimilar to every trained task.\n\n```json\n{\"verdict\": \"cannot_decide\", \"confidence\": 0.65, \"justification\": \"Costs track new-rule count (about 14 vs 39, highly significant), and output overlap does not explain them (same 0.06 overlap gives 17.8 vs 41.5). But the holistic learner's similarity measure is unobserved. Every 0-new-rule test task shares 2 of 3 rules with a trained task and every 3-new-rule task shares none, and with only two trained tasks this confound is unavoidable. A holistic learner whose similarity tracks shared components predicts the same pattern, so the design cannot tell the two hypotheses apart.\"}\n```",
+   "cost_usd": 0.044059999999999995,
+   "model_usage": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+   ],
+   "returncode": 0
+  }
+ ]
+}
