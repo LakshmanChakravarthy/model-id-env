@@ -133,7 +133,7 @@ model-id-env/
 - Day 4b: comprehension control. Out of the loop, Claude answers `cannot_decide` 5/5 under the case-4 wording (and part-based 5/5 under the main wording).
 
 **Pending**
-- Day 5: main figure (accuracy, Brier, dissociation, decisive pair; Claude beside the baselines, by condition and learner); one good and one failure transcript; final README with results, the case-4 qualifications (identifiability vs. Bayesian standard; the `compare` tool as a lure; design-confound framing in the control), and next steps.
+- Day 5 (declared): main figure (accuracy, Brier, dissociation, decisive pair; Claude beside the baselines, by condition and learner); one good and one failure transcript; final README with results, the case-4 qualifications (identifiability vs. Bayesian standard; the `compare` tool as a lure; design-confound framing in the control), and next steps.
 - Day 6: buffer; make the repo public; add the link to the application.
 
 ## Analysis log
@@ -450,6 +450,17 @@ Verdict counts: main part-based 10/10 part-based; main holistic 10/10 holistic; 
 - This also answers the Day 4 ground-truth concern in part. When asked directly, Claude itself uses the identifiability standard (`cannot_decide`), not the Bayesian one. So its in-loop `part-based` verdicts are inconsistent with its own out-of-loop judgment of the same kind of evidence.
 - **Nuance.** 2 of the 5 control justifications frame the problem as a confound of this particular design ("no 1- or 2-new-rule tasks were tested to break the confound"). That is wrong for case 4: no design can separate a factorized holistic learner from a part-based one. So even out of the loop, Claude does not always see that the non-identifiability is fundamental rather than a design flaw.
 - **Limits.** The control used one fixed data table, not each run's own data, and its framing differs ("judge which mechanism the evidence supports" vs. "find out which mechanism it uses"). Being asked to run an experiment may itself push toward a committed verdict. 5 runs per wording.
+
+### Day 5 / figure, transcripts, final README (declared 2026-10-21)
+
+**Will make.**
+- `analysis/figures.py` -> `results/figures/main.png`: four panels (accuracy, Brier, dissociation, share of runs with a decisive pair). In each panel, four groups (main/part-based, main/holistic, case 4/holistic, case 4/part-based-looking). In each group, the mean and 95% interval (from `results/summary.json`) for Claude, the random baseline, and the D-optimal baseline (standard analysis); in the case-4 groups also D-optimal with the aware analysis. Baselines are always beside Claude.
+- `docs/transcripts.md`: two annotated excerpts (tool calls, key results, verdict).
+  - **Good design**, chosen by a fixed rule: among main-condition runs that are correct and have a decisive pair, the one with the highest dissociation score (ties: the lower instance number).
+  - **Failure:** case4-001 (chosen with the user: part-based learner; Claude names the non-identifiability in its justification and still answers part-based at 0.80).
+- Final README: a short summary at the top (question, design, main results with baselines, case 4 with the comprehension control, qualifications, next steps, how to reproduce). The Analysis log stays as the full record.
+
+**No new runs and no new analyses.** The figure and the README use only recorded results.
 
 ## Handover prompt
 
