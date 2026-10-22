@@ -223,6 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
+- **Study 4** (design phase declared): exploratory simulations, then the preregistration, then the pilot and the main run (deadline 2026-10-28).
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
 - **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.
@@ -425,6 +426,18 @@ Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determi
 - **Reading.** The label format was a real part of the bottleneck. With ordinal labels (digits), Claude searched only ordinal regularities and never found the categorical one; with categorical labels (colours), it found it in half the regular-high runs when prompted, and every time it found it, it used it correctly. But (1) it found the pattern mostly when prompted to look for one (V0: rarely), and (2) when it used the pattern, its confidence (about 0.7) stayed far below the ideal 0.99: it treats a regularity seen in 3-4 components as weak evidence.
 - Colour names alone (V0) also removed the confident errors in the regular cells (9 of 16 with digits, 1 of 16 with colours). In the irregular cell, 3 of 8 said "determined" (1 confident error, against 0 with digits). With 8 runs per cell this difference is suggestive only.
 - An unexplained tie-breaker: in V2-colours irregular, 7 of 8 runs chose the same one of two equally probable readings. One text gives a heuristic ("the X versions follow the order the rules were listed in"), a spurious preference based on how the prompt was written.
+
+## Study 4: do models discover the abstract structure of a compositional world? (design phase declared 2026-10-22)
+
+**Decisions (user, 2026-10-22):** `claude-opus-5-5` only; the user hand-codes a validation subset (about 40 responses) for the response grader; all three regularity types are kept.
+
+**Design phase (declared now; no Claude calls).** Build `harness/study4.py`:
+- a flat grammar with 6 symmetric X rules (both 1; at least one 1; exactly one 1; neither 1; not both 1; both the same), 4 features, and 4 buttons;
+- worlds carrying exactly one cross-component regularity (**categorical** button classes, **ordinal** true > false, or **rule polarity**: every rule false when neither bit is 1), or none;
+- a hierarchical ideal learner over {none, categorical, ordinal, polarity}, with ordinal unavailable when the buttons are colour names;
+- known-answer tests.
+
+Then run **exploratory simulations** to establish (1) that each regularity resolves the flip ambiguity, (2) the achievable range of ideal posteriors per type (to set the evidence bands), and (3) instance-generation rates. These simulations inform the cell definitions only. The confirmatory hypotheses, design, sample size, and analysis plan go into `docs/study4_preregistration.md`, committed before any Study 4 Claude call (including the pipeline pilot).
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
