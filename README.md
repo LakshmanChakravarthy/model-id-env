@@ -181,7 +181,8 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 - **Day 5:** figure, transcripts, and this README.
 
 **Pending**
-- **Study 2:** checks 5 and 6 pass; pilot and main run (30) done. Next: figure and README summary for Study 2.
+- **Study 2:** checks 5 and 6 pass; pilot and main run (30) done.
+- **Study 2b** (declared): inference-only control; Study 2 figure and transcripts; README summary of both studies.
 - Make the repo public; add the link to the application (by 2026-10-28).
 
 ## Study 2: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
@@ -258,6 +259,29 @@ Confusion (Claude): part-based 8/10 correct (1 factor, 1 holistic); holistic 10/
 - **Claude flags its errors.** Its confidence was 0.40-0.55 on the 5 errors and 0.79 on average when correct. The inference gap is -0.13 when correct (underconfident) and +0.31 when wrong (the ideal posterior of the wrong verdict was low). Overall it is -0.06 [-0.14, 0.03]; on holistic instances -0.18 [-0.28, -0.08].
 - **Against the predictions.** Part-based and holistic accuracy >= 0.8: met (0.80, 1.00). Factor accuracy <= 0.6: **not met** (0.70). The typical factor error was predicted to be part-based after early training; observed: 2 of 3 factor errors were **holistic on k = 3** instances, and only one run trained in bulk. Design score below scripted on factor instances: met, marginally (0.75 vs. 0.79; intervals overlap). Positive inference gap on wrong answers: met (+0.31).
 - **Limits.** 10 runs per learner. The accuracy intervals of Claude, scripted, and random overlap; the design-score difference from random does not.
+
+### Study 2b / inference-only control, figure, transcripts, README (declared 2026-10-22, after the Study 2 main results)
+
+**Why.** In the Study 2 main run, 4 of Claude's 5 errors were inference errors: the ideal analysis of Claude's own data was right, Claude was not. Open question: do these come from weighing noisy evidence among three hypotheses, or from doing it while running the experiment?
+
+**Inference-only control** (`harness/inference_control.py`). For each of the 30 main-run instances, one call to `claude-opus-5-5`, with no tools and no experiment. The prompt has the task description and the three hypotheses (verbatim from `harness/prompt_study2.md`), then **that run's own data**: the training stages in order (which tasks were trained when), and for every tested task in every stage, every single test result. Each row also gives the task's rules, how many trained tasks contained each of its rules at that time, and its largest output overlap with the trained tasks at that time. Claude computed these quantities itself during the runs (they appear in its justifications); giving them here isolates the weighing of evidence. It asks for one verdict with confidence, as JSON. Labels are the run's own permuted labels.
+
+**Interpretation rule (fixed now).** E = the 4 in-loop inference errors (s2main-009, -013, -014, -021). fixed = runs in E answered correctly in the control; new = runs answered correctly in the loop but wrongly in the control.
+- **fixed >= 3 and new <= 1:** the errors arise while experimenting.
+- **fixed <= 1:** weighing noisy evidence is itself the difficulty.
+- **Otherwise:** mixed.
+
+Also reported: control accuracy, the control's inference gap against the ideal posterior, and agreement with the in-loop verdicts.
+
+**Prediction.** Low confidence. The control is easier than the loop (the predictors are given), so I lean to **mixed** (fixed = 2), with new <= 2 and control accuracy between in-loop (0.83) and ideal (0.93).
+
+**Figure** (`analysis/figures_study2.py` -> `results/figures/study2.png`): accuracy, design score, and Brier by learner (all, part-based, holistic, factor) for Claude and the three baselines, with 95% intervals. A fourth panel shows, per learner: Claude in the loop, Claude in the control, and the ideal analysis of Claude's data.
+
+**Transcripts** (added to `docs/transcripts.md`), chosen by fixed rules:
+- **Good design:** among factor-learner runs that Claude got right, the highest design score (ties: lowest instance number).
+- **Inference failure:** among the 4 inference errors, the highest design score (the data most clearly favoured the truth).
+
+**README.** A summary of both studies at the top, with the qualifications. The Analysis log stays as the full record.
 
 ## Analysis log
 

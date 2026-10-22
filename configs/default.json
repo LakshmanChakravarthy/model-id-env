@@ -243,6 +243,11 @@
     "main": {
       "seed": 16000,
       "n_instances": 30
+    },
+    "inference_control": {
+      "model": "claude-opus-5-5",
+      "max_turns": 3,
+      "source_prefix": "s2main"
     }
   }
 }
