@@ -306,6 +306,16 @@
       "max_parallel": 4,
       "alternatives": "Before you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit.",
       "overhypothesis": "Also look for patterns that hold across all the components you can identify (for example, in how the buttons are used), and consider whether such a pattern makes some of the fitting assignments more plausible than others."
+    },
+    "e": {
+      "seed": 33000,
+      "colors": [
+        "red",
+        "green",
+        "blue",
+        "yellow"
+      ],
+      "max_parallel": 4
     }
   }
 }

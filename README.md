@@ -391,6 +391,21 @@ Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determi
 - **V2 does not produce the overhypothesis** (prediction: not met; class-consistent 2/8, mean confidence 0.57). The texts show why. Claude did search for cross-component patterns, but tested **ordinal** ones ("true always gets the higher button", "true buttons are distinct") and never the **categorical** split ({1, 2} vs. {0, 3}) that is in the data. In 2 runs it found a *spurious* ordinal regularity ("under A, every Z gives a higher button for true") and chose the reading it favoured, which was wrong (confidence 0.68 and 0.75). Claude treated the button labels as numbers with an order, not as categories, so the hypothesis space it searched for overhypotheses missed the true one. Irregular confidence stayed <= 0.65 (0.59; met).
 - **Reading.** A short, generic "consider the alternatives" instruction (the classic debiasing remedy) turns confident errors into calibrated "not determined" answers without harming determined problems. Inferring an abstract cross-component regularity was not unlocked by a generic instruction. Claude's search for such regularities was shaped by an ordinal reading of the labels, which here produced false patterns.
 
+### Study 3e / does the ordinal reading of button labels block the overhypothesis? (declared 2026-10-22)
+
+**Why.** In 3d V2, Claude searched for cross-component patterns but tested only ordinal ones ("true gets the higher button") and never the categorical split that is in the data. Twice it found spurious ordinal patterns. Hypothesis: numeric button labels invite an ordinal reading that hides the categorical regularity.
+
+**Design** (`harness/study3e.py`, `claude-opus-5-5`). The 24 3c prompts with the four buttons renamed to **colour names** (red, green, blue, yellow), assigned to buttons 0-3 by a random permutation per instance (seed 33000). Colour names carry no order; letters would carry alphabetical order. Every other word is unchanged. The ideal posterior is unchanged, because renaming buttons preserves the class structure. Two variants: **V0** (no instruction; compare with 3c) and **V2** (the 3d cross-component instruction; compare with 3d V2). 48 calls.
+
+**Measures.** As in 3c/3d (choice, "determined", confidence, confident errors), plus whether the text states a categorical pattern (two buttons used for true, the other two for false).
+
+**Decision rule (fixed now).**
+- V2-colours, regular-high: class-consistent in >= 6 of 8 with mean confidence >= 0.75, and irregular mean confidence <= 0.65: **the ordinal explanation is supported**.
+- 4-5 of 8: partial.
+- <= 3 of 8: not supported; the label format is not the bottleneck.
+
+**Prediction.** Uncertain; I lean to **partial** (4-5 of 8 in V2-colours). For V0-colours, I expect no change from 3c (spontaneous use stays rare).
+
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
 **Why.** Study 1 (all of the above) found that the confound is not hard for Claude, and that its interesting failure (case 4) rests on an answer key that can be disputed. Elmoznino et al. (2026, "Defining and generating compositional structure", arXiv:2610.20922) define compositional structure as structure in the shortest model of a whole that cannot be recovered from the models of its parts, and note that an abstraction pays for itself only once it is reused often enough. Two consequences: (1) Study 1 tests the *reuse of stored rules*, not compositional structure in their sense (the README wording is corrected below); (2) a natural third mechanism is a learner that stores whole tasks and factors a rule into a reusable part only after the rule has recurred in enough trained tasks. Transfer then depends on the training history, and identifying the learner becomes a curriculum design problem. The user chose this as the main project on 2026-10-22.
