@@ -225,6 +225,7 @@ docs/           transcripts.md
 **Pending**
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
+- **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -405,6 +406,25 @@ Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determi
 - <= 3 of 8: not supported; the label format is not the bottleneck.
 
 **Prediction.** Uncertain; I lean to **partial** (4-5 of 8 in V2-colours). For V0-colours, I expect no change from 3c (spontaneous use stays rare).
+
+**Result: Study 3e (2026-10-22).** `results/study3e.json`; 48 calls, `claude-opus-5-5`, $4.10; every answer parsed. (Process note: the 3e declaration and code went into one commit instead of separate commits. The declaration text was written before any 3e run.)
+
+| Cell | Digits, no instruction (3c) | Colours, no instruction (V0) | Digits + pattern instruction (3d V2) | **Colours + pattern instruction (V2)** |
+|---|---|---|---|---|
+| regular-high: class-consistent / mean conf. | 2/8, 0.81 | 4/8, 0.54 | 2/8, 0.57 | **5/8, 0.64** |
+| regular-high: confident errors | 5 | 0 | 0 | 0 |
+| regular-moderate: class-consistent / mean conf. | 4/8, 0.73 | 4/8, 0.56 | 4/8, 0.52 | 5/8, 0.62 |
+| irregular: mean conf. / says determined | 0.50, 0/8 | 0.67, 3/8 | 0.59, 0/8 | 0.57, 0/8 |
+
+**States the categorical pattern** ("true" mapped to one of two colours, "false" to the other two; counted with a pattern that also matches the 4 explicit statements in the regular-high texts. The narrower detector declared in the script found only 1, so the broader count is reported):
+- **V2-colours:** regular-high 4/8, and **all 4 chose the class-consistent answer** (mean confidence 0.71). Regular-moderate 2/8 (both class-consistent). Irregular 0/8, which is correct: no such pattern exists there.
+- **3d V2 (digits):** 0 of 16 regular runs. Only ordinal patterns were tested.
+- **V0-colours:** 1-2 per regular cell.
+
+- **Decision rule:** regular-high 5 of 8 with mean confidence 0.64, so **partial** (the prediction "partial" is met). The full criterion (>= 6 of 8 with mean confidence >= 0.75) is not met.
+- **Reading.** The label format was a real part of the bottleneck. With ordinal labels (digits), Claude searched only ordinal regularities and never found the categorical one; with categorical labels (colours), it found it in half the regular-high runs when prompted, and every time it found it, it used it correctly. But (1) it found the pattern mostly when prompted to look for one (V0: rarely), and (2) when it used the pattern, its confidence (about 0.7) stayed far below the ideal 0.99: it treats a regularity seen in 3-4 components as weak evidence.
+- Colour names alone (V0) also removed the confident errors in the regular cells (9 of 16 with digits, 1 of 16 with colours). In the irregular cell, 3 of 8 said "determined" (1 confident error, against 0 with digits). With 8 runs per cell this difference is suggestive only.
+- An unexplained tie-breaker: in V2-colours irregular, 7 of 8 runs chose the same one of two equally probable readings. One text gives a heuristic ("the X versions follow the order the rules were listed in"), a spurious preference based on how the prompt was written.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
