@@ -224,6 +224,7 @@ docs/           transcripts.md
 
 **Pending**
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
+- **Study 3d** (declared): intervention, prompting for alternatives (V1) and for cross-component patterns (V2).
 - Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
@@ -356,6 +357,22 @@ Strategy signature, on items where copying the most consistent known task gives 
 - **Mechanism.** In the confident runs, Claude decodes the known tasks one at a time, takes the first reading of each component that fits (for example "X2 = both are 1, so Z3 = true -> 3, false -> 2"), calls it "pinned down", and composes. The complementary reading fits every example equally well, and it never mentions it. Its decoded Z components put TRUE on different button classes (1 in one, 3 in another), so it also ignored the cross-component pairing structure.
 - **Two modes.** Across 3c and the 3b ambiguous cell, "determined = true" occurs **only** in runs that never mention an alternative reading (0 of 11 mention one). "Not determined" occurs, with the ideal 0.50, in runs that consider the flipped reading (19 of 20). Claude is calibrated when it generates the alternative decomposition and confidently wrong when it does not. How often it generates the alternative varies by cell: irregular 7-8/8, regular-high 3/8. Why is not established. One possibility is that greedy decoding in the irregular world produces readings that look odd and prompt a re-check; this is not tested.
 - **Link to Studies 1 and 2.** Case 4 (an alternative account of the same data not weighed), the Study 2 inference errors (single contrasts read as decisive), and 3c (the first consistent decomposition taken as the only one) share a pattern: **Claude does not reliably generate the alternative hypotheses that fit the same data**, and its confidence tracks the alternatives it generated, not the ones that exist. In cognitive science this is hypothesis-generation failure, or alternative neglect (the "out of sight, out of mind" effect, Fischhoff, Slovic & Lichtenstein, 1978; HyGene, Thomas, Dougherty et al., 2008): judged probability depends on which alternatives come to mind.
+
+### Study 3d / intervention: generating alternatives (declared 2026-10-22)
+
+**Why.** In 3c (and the 3b ambiguous cell), Claude was calibrated when it generated the alternative decomposition and confidently wrong when it did not. The standard remedies for alternative neglect in judgment research are to prompt for alternatives ("consider the opposite"; Lord, Lepper & Preston, 1984) and to make the hypothesis space explicit. 3d tests two such instructions.
+
+**Design** (`harness/study3d.py`, `claude-opus-5-5`, no tools). The **exact prompts** recorded in `results/study3c.json` (24) and, as an over-caution control, the 12 block-A *determined* prompts from `results/study3b.json` (6 with the regularity stated, 6 withheld). Each gets one instruction inserted before the answer-format paragraph. Paired with the original runs.
+- **V1, alternatives** (all 24 + 12): "Before you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, "determined", and your confidence on all the assignments that fit."
+- **V2, alternatives + overhypothesis** (the 24 3c prompts only): V1 plus "Also look for patterns that hold across all the components you can identify (for example, in how the buttons are used), and consider whether such a pattern makes some of the fitting assignments more plausible than others."
+- 60 calls.
+
+**Measures.** As in 3c: choice (class-consistent / other / neither), "determined", confidence, mentions of the alternative reading, and **confident errors** ("determined" with confidence >= 0.9 on a non-modal reading). For the 3b controls: accuracy and "determined" (should stay true with high confidence).
+
+**Predictions.**
+- **V1 removes the confident errors:** in the two regular cells, from 9 of 16 (3c) to <= 2 of 16. It does so mostly by saying "not determined" at about 0.5. That is calibrated without the overhypothesis, but still short of the ideal 0.91-0.99.
+- **V1 does not cause over-caution:** the 3b determined controls stay >= 0.9 accurate and "determined" in >= 10 of 12.
+- **V2 partly enables the overhypothesis** (low confidence): in regular-high, the class-consistent answer in >= 5 of 8 runs with mean confidence >= 0.7. In irregular, mean confidence stays <= 0.65.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
