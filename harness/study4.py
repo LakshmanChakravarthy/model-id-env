@@ -182,3 +182,145 @@ def gen_candidate(rng, typ, regular, p):
     return {"world": world, "known": known, "known_ex": known_ex, "test": test, "items": items,
             "ideal_digits": ideal(known, known_ex, world, test, items, False, sols),
             "ideal_colours": ideal(known, known_ex, world, test, items, True, sols)}
+
+
+# ---------- selection by the preregistered bands ----------
+
+def in_band(cand, cell, typ, b):
+    d, c = cand["ideal_digits"], cand["ideal_colours"]
+    truth = [int(v) for v in true_out(cand["test"], cand["world"], np.array(cand["items"]))]
+    if cell == "irregular":
+        return d["p_modal"] <= b["irregular_max"] and c["p_modal"] <= b["irregular_max"]
+    lo, hi = b[cell]
+    if not (lo <= d["p_modal"] < hi and d["modal"] == truth):
+        return False
+    if typ == "ordinal":
+        return b["ordinal_colour_range"][0] <= c["p_modal"] <= b["ordinal_colour_range"][1]
+    return lo <= c["p_modal"] < hi and c["modal"] == truth
+
+
+def select(rng, typ, cell, p):
+    for _ in range(p["n_search"]):
+        cand = gen_candidate(rng, typ, cell != "irregular", p)
+        if cand is not None and in_band(cand, cell, typ, p["bands"]):
+            return cand
+    raise RuntimeError(f"no instance for {typ}/{cell}")
+
+
+def make_instances(p, seed, plan):
+    """plan: list of (type, cell, n). Returns instances with ids and colour maps, deterministically."""
+    rng = np.random.default_rng(seed)
+    out_list = []
+    for typ, cell, n in plan:
+        for i in range(n):
+            inst = select(rng, typ, cell, p)
+            inst.update({"id": f"{typ}-{cell}-{i:02d}", "type": typ, "cell": cell,
+                         "colours": [p["colours"][int(k)] for k in rng.permutation(4)],
+                         "labels": {k: [int(v) + 1 for v in rng.permutation(6 if k == "X" else 4)] for k in "XYZ"}})
+            out_list.append(inst)
+    return out_list
+
+
+# ---------- prompts ----------
+
+def fmt(x):
+    b = format(x, "08b")
+    return f"{b[:4]} {b[4:]}"
+
+
+GRAMMAR = ("Every task is built from three components. A **Y component** picks one of the 4 features (bit positions "
+           "1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one "
+           "of: " + "; ".join(RULE_TEXT) + ". A **Z component** gives one button when the rule is true and a different "
+           "button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several "
+           "versions (X1, X2, and so on); different versions of a kind are different from each other, and the same "
+           "label always means the same component. You are not told which version does what.")
+
+
+def build_prompt(inst, colours, pattern, p):
+    lab = lambda t: "-".join(f"{k}{inst['labels'][k][v]}" for k, v in slots(t))
+    name = (lambda b: inst["colours"][b]) if colours else (lambda b: str(b))
+    buttons = ", ".join(inst["colours"][:3]) + ", or " + inst["colours"][3] if colours else "0, 1, 2, or 3"
+    lines = ["# Learn tasks from examples", "",
+             f"Each task maps an input to one of four buttons: {buttons}. An input is a pair of stimuli; each stimulus "
+             "has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line "
+             f"`1011 0110 -> {name(2)}` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is "
+             f"{name(2)}.", "", GRAMMAR, "", "## Known tasks", ""]
+    for k, ex in zip(inst["known"], inst["known_ex"]):
+        lines.append(f"### Task {lab(k)}")
+        o = true_out(k, inst["world"], np.array(ex))
+        lines += [f"{fmt(x)} -> {name(int(v))}" for x, v in zip(ex, o)]
+        lines.append("")
+    lines += ["## The new task", "", f"You have no examples of the new task {lab(inst['test'])}.", "",
+              f"Predict the button for each of these {len(inst['items'])} inputs of the new task:"]
+    lines += [f"{i + 1}. {fmt(x)}" for i, x in enumerate(inst["items"])]
+    instr = p["alternatives"] + (" " + p["pattern"] if pattern else "")
+    fmt_note = "the button names as strings" if colours else "the buttons"
+    lines += ["", instr, "", "Reason as you like, then end with one JSON object: "
+              f'{{"predictions": [{fmt_note}, in order], "determined": true or false, "confidence": p}}. '
+              '"determined" says whether the information and examples above determine all the answers uniquely. '
+              '"confidence" is your probability that all of your predictions are correct.']
+    return "\n".join(lines)
+
+
+# ---------- running, scoring, grading ----------
+
+GRADER = """You are coding one response from an experiment. The responder saw labelled tasks built from components (X rules, Y features, Z button pairs), had to predict a new task, and was asked to consider every assignment of meanings that fits the examples. Code the response below.
+
+regularity_stated: the regularity the response says holds across all (or all identified) components, of a kind that could favour one assignment over another:
+- "categorical": the buttons split into two groups, with one group always used for true and the other for false (for example "true is always red or blue", "true is always 1 or 2").
+- "ordinal": an order relation between buttons holds across components (for example "the true button is always higher than the false button").
+- "polarity": all rules share a property, such as all being false when neither bit is 1, or all being non-negated rules.
+- "other": some other cross-component pattern (for example the order in which labels or rules are listed).
+- "none": no cross-component regularity is stated. Saying that no pattern was found counts as "none".
+If several are stated, pick the one the response relies on most.
+regularity_used: true if the response uses a stated regularity to prefer one assignment or answer.
+alternatives_considered: true if the response considers at least two assignments of meanings that fit the examples.
+
+Answer only with one JSON object: {"regularity_stated": "...", "regularity_used": true or false, "alternatives_considered": true or false}
+
+=== RESPONSE ===
+"""
+
+
+def call(prompt, model, max_turns, box):
+    import json as _json
+    import subprocess
+    cmd = ["claude", "-p", prompt, "--model", model, "--tools", "", "--safe-mode", "--strict-mcp-config",
+           "--no-session-persistence", "--output-format", "json", "--max-turns", str(max_turns)]
+    proc = subprocess.run(cmd, cwd=box, capture_output=True, text=True, timeout=1800)
+    try:
+        return _json.loads(proc.stdout)
+    except _json.JSONDecodeError:
+        return {"result": proc.stdout, "error": proc.stderr[-500:], "returncode": proc.returncode}
+
+
+def parse_answer(text, inst, colours):
+    import json as _json
+    decoder, found = _json.JSONDecoder(), None
+    for i, ch in enumerate(text or ""):
+        if ch == "{":
+            try:
+                obj, _ = decoder.raw_decode(text, i)
+            except _json.JSONDecodeError:
+                continue
+            if isinstance(obj, dict) and isinstance(obj.get("predictions"), list) and len(obj["predictions"]) == len(inst["items"]):
+                found = obj
+    if found is None:
+        return None, None
+    if colours:
+        inv = {c: b for b, c in enumerate(inst["colours"])}
+        preds = [inv.get(str(v).strip().lower()) for v in found["predictions"]]
+    else:
+        preds = [int(v) if str(v).strip() in "0123" and str(v).strip() != "" else None for v in found["predictions"]]
+    return found, (None if any(v is None for v in preds) else preds)
+
+
+def score(inst, colours, preds, ans):
+    idl = inst["ideal_colours" if colours else "ideal_digits"]
+    modal = idl["modal"]
+    r = None if preds is None else int(sum(a == b for a, b in zip(preds, modal)) >= 14)
+    other = None if preds is None else int(any(sum(a == b for a, b in zip(preds, v)) >= 14 for v, _ in idl["posterior"][1:]))
+    conf = None if ans is None or ans.get("confidence") is None else float(ans["confidence"])
+    return {"R": r, "other_reading": other, "confidence": conf,
+            "determined": None if ans is None else ans.get("determined"),
+            "ideal_p_modal": idl["p_modal"], "ideal_p_hypothesis": idl["p_hypothesis"]}
