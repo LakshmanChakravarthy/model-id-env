@@ -181,7 +181,43 @@ All work was done on 2026-10-21, ahead of the planned days 1-5.
 - **Day 5:** figure, transcripts, and this README.
 
 **Pending**
-- **Day 6:** make the repo public; add the link to the application.
+- **Study 2** (declared 2026-10-22): the factor-when-justified learner; checks 5 and 6, then pilot and 30 Claude runs. See the Study 2 section.
+- Make the repo public; add the link to the application (by 2026-10-28).
+
+## Study 2: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
+
+**Why.** Study 1 (all of the above) found that the confound is not hard for Claude, and that its interesting failure (case 4) rests on an answer key that can be disputed. Elmoznino et al. (2026, "Defining and generating compositional structure", arXiv:2610.20922) define compositional structure as structure in the shortest model of a whole that cannot be recovered from the models of its parts, and note that an abstraction pays for itself only once it is reused often enough. Two consequences: (1) Study 1 tests the *reuse of stored rules*, not compositional structure in their sense (the README wording is corrected below); (2) a natural third mechanism is a learner that stores whole tasks and factors a rule into a reusable part only after the rule has recurred in enough trained tasks. Transfer then depends on the training history, and identifying the learner becomes a curriculum design problem. The user chose this as the main project on 2026-10-22.
+
+**Learners.** The task space, noise (sd 15), parameters, and the part-based and holistic learners are unchanged. New learner `factor_when_justified` with a hidden threshold k in {2, 3} (drawn per instance, uniformly, seeded):
+- n_d(v) = the number of distinct trained tasks with value v in dimension d. The factored library is {(d, v): n_d(v) >= k}.
+- Part route: `10 + 10 x (rules of T not in the library) + 2 x selection uncertainty over the library`.
+- Holistic route: `10 + 31.8 x (1 - similarity of T to the trained tasks)`.
+- Mean cost = the cheaper route. A stylized minimum-description-length criterion: a rule is stored once it pays for itself.
+
+**Hypotheses and answer key.** The prompt states all three learners exactly, including "k is 2 or 3" and the cheaper-route rule. Verdicts: `part-based`, `holistic`, `factor-when-justified` (`cannot_decide` stays available but is never correct: every pair of learners is distinguishable by some curriculum). Correct verdict = the hidden learner. Equal prior (1/3 each; k uniform within the factor learner).
+
+**Ideal analysis.** All parameters except k are known, so the exact posterior over {part-based, holistic, factor k=2, factor k=3} given any test data is computable. The likelihood of each test result includes rounding and the floor at 1: P(y) = Phi((y + 0.5 - mu)/15) - Phi((y - 0.5 - mu)/15) for y > 1, and Phi((1.5 - mu)/15) for y = 1. Uses:
+- Baselines analyse their data with it (verdict = most probable learner, confidence = its posterior).
+- **Design score for any run (Claude included):** the ideal posterior probability of the true learner given that run's own data.
+- **Inference gap:** Claude's stated confidence minus the ideal posterior of Claude's verdict on the same data.
+
+**Baselines** (all analysed with the ideal analysis):
+- **Random interleaved:** each query trains a random untrained task with probability 0.25, otherwise tests a random task.
+- **Train-first:** train a random number (2-8) of random tasks, then random tests (the Study 1 style).
+- **Scripted before/after curriculum:** pick a target task T. Stage 1: train 3 tasks, each containing exactly one of T's rules, chosen (from 200 candidate sets) to keep T's similarity to the trained tasks low; test T 12 times. Stage 2: 3 more such tasks (each of T's rules now in 2 trained tasks); test T 12 times. Stage 3: 3 more (count 3); test T 12 times. 9 trains + 36 tests = 45 queries. Pattern: part-based cheap at all stages; holistic expensive at all stages; factor k=2 drops at stage 2; factor k=3 drops at stage 3.
+
+**Checks (before any Claude run).**
+- **Check 5 (the regime change exists).** (a) In the scripted design, the four learners' noise-free costs of T follow the four distinct stage patterns above, with every pair of learners differing by more than 5 at some stage, for at least 90% of 200 random targets. (b) Over 200 random histories of 6 trained tasks (seed 11), report how often some test task separates the factor learner from both others by more than 5 (expected: often, so random designs have something to find, but not in a before/after form).
+- **Check 6 (baselines).** 300 instances (100 per learner; seed 12). Budget: the smallest of {60, 80, 100} at which the scripted curriculum is >= 0.90 correct, confirmed on a fresh seed (13). Pass: scripted >= 0.90 and random interleaved <= scripted - 0.20 at the selected budget.
+- **Check 3 (leakage)** is rerun with the new prompt (permission probe only; the sandbox is unchanged).
+
+**Expected.** Check 5 passes by construction for most targets (some targets cannot keep similarity low). Scripted about 0.95 at budget 60. Random interleaved about 0.45-0.65 and train-first about 0.45-0.60, both worst on the factor learner. This leaves real headroom, unlike Study 1.
+
+**Claude runs (after the checks pass).** Pilot: 3 instances, one per learner (seed 15000). Main: 30 instances, 10 per learner (factor: 5 with k=2, 5 with k=3), seed 16000, `claude-opus-5-5`. Measures: accuracy (Wilson interval), Brier, design score, inference gap, all beside the baselines on the same instances.
+
+**Predictions for Claude.** Accuracy >= 0.8 on part-based and holistic; <= 0.6 on the factor learner. The typical error on the factor learner: training several tasks early (crossing the threshold before measuring "before") and answering part-based. Claude's design score is below the scripted curriculum's on factor instances. Its confidence exceeds the ideal posterior (positive inference gap) on wrong answers.
+
+**Wording correction (Study 1).** In Elmoznino et al.'s terms, recombining rules that are already stored adds no new compositional structure. Study 1's part-based account is about *reuse of stored rules in new combinations*, and the README's "compositional" means that.
 
 ## Analysis log
 
