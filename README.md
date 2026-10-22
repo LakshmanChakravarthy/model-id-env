@@ -12,17 +12,26 @@ The number of shared rules and overall similarity are correlated, so a good expe
 
 **Setup.** Claude runs headless in a sandbox and can only send queries to an experiment server: `describe`, `compare`, `train`, `test`, and `submit`. It has a budget of 60 costly queries and noisy results (sd 15). It must submit a verdict (`part-based`, `holistic`, or `cannot_decide`) with a confidence. Every run is scored beside two baselines on the same instance: a random design and a D-optimal design, both analysed by regression.
 
-**Results** (`claude-opus-5-5`, 40 runs, $12):
+**Two studies** (`claude-opus-5-5`, 70 experiment runs and 40 control questions, about $30):
 
-1. **Hard case 1, the confound: Claude designs well.** It was correct in 20/20 runs. Every one of its designs contained a *decisive pair*: two tests where the two hypotheses predict opposite outcomes by a clear margin. That compares with 40% of random designs. It finds the dissociation without being told that a confound exists. Accuracy barely separates it from the random baseline (0.95). In this task space a moderate confound costs a careless design little accuracy; the differences show in design quality.
-2. **Case 4, non-identifiability: Claude fails.** When the holistic learner's similarity measure is stated to be unobserved, data that look part-based cannot confirm part-based. A holistic learner whose similarity counts shared rules predicts the same data, so the correct verdict is `cannot_decide`. Claude answered part-based (or once holistic) in **10 of 10** such runs, with confidence 0.62-0.88. In 4 of them its own justification names the alternative that cannot be excluded, and it commits anyway.
-3. **It has the concept, but does not use it while experimenting.** In a comprehension control with the same wording, data of the same kind, and no experiment to run, Claude answered `cannot_decide` in **5 of 5** runs. Under the main wording it answered part-based in 5 of 5.
+- **Study 1: confounded measures.** Shared rules and overall similarity are correlated; the learner is either part-based or holistic.
+  - Claude designs well: 20/20 correct, and a decisive contrast in every design (random designs: 40%).
+  - In case 4, the holistic learner's similarity measure is unobserved, so part-based-looking data cannot settle the question. There, Claude answers part-based in 9/10 runs (and holistic once), never `cannot_decide`. Asked the same question out of the loop, it answers `cannot_decide` 5/5.
+- **Study 2: a learner that factors a rule only once it has recurred in k trained tasks.** This is motivated by Elmoznino et al. (2026): an abstraction pays for itself only after enough reuse. Identifying the learner needs a before/after curriculum.
+  - **Claude's designs are about as informative as a scripted before/after curriculum** (design score 0.88 vs 0.90; random designs 0.57).
+  - **Its losses are in inference.** An exact analysis of Claude's own data is right in 28/30 runs; Claude is right in 25/30, and 4 of its 5 errors are inference errors.
+  - **The inference errors are not caused by experimenting.** Given its own data as a table, Claude reaches the same verdict in 29/30 runs.
+  - It flags these errors with low confidence (0.40-0.55).
 
-![Main figure](results/figures/main.png)
+**Overall: design is strong, and turning evidence into a conclusion is the weaker step.** When the hypotheses cannot be told apart, Claude commits with confidence (Study 1, case 4). When the evidence is noisy, it reads single contrasts as decisive and errs on close calls with low confidence (Study 2). In one Study 2 control answer it prefers "the simpler part-based account", which the stated equal prior does not license.
 
-Two annotated runs are in [docs/transcripts.md](docs/transcripts.md): the best design, chosen by a declared rule, and the case-4 failure described in result 2.
+![Study 1](results/figures/main.png)
 
-## Results
+![Study 2](results/figures/study2.png)
+
+Annotated runs are in [docs/transcripts.md](docs/transcripts.md): a good design and a failure from each study, each chosen by a declared rule.
+
+## Study 1 results
 
 ### Main condition (hard case 1): 20 runs, 10 per learner
 
@@ -64,6 +73,7 @@ Two annotated runs are in [docs/transcripts.md](docs/transcripts.md): the best d
 - **Different framings.** The control asks Claude to "judge which mechanism the evidence supports"; the experiment asks it to "find out which mechanism it uses". Being asked to run an experiment may itself push toward a committed verdict.
 - **The design-flaw framing.** Even out of the loop, 2 of 5 control justifications describe the problem as a flaw of the particular design. In case 4 no design can separate the learners.
 - **Small samples.** 10 runs per group, 5 per control wording; one model.
+- **Elmoznino et al. (2026):** recombining rules that are already stored adds no new compositional structure. Study 1 tests the *reuse of stored rules*, not compositional structure in their sense. Their shortest-description view also favours "part-based" in case 4 (the factorized holistic learner contains the same rule library), which adds to the dispute over the answer key above.
 - **A deliberate difference from C-PRO.** In this task space, buttons 0/3 always mean FALSE and 1/2 always mean TRUE. This removed degenerate tasks and created the confound (check 1), and Claude uses it to build its key contrasts. The stylized learners are a simplification of real learners.
 
 ### What the known-answer checks caught
@@ -76,6 +86,33 @@ Every check failed at least once before passing, and each failure changed the de
 | Check 2 | At low noise every baseline was 100% correct; even at high noise, a random design with regression stayed at about 90%. A moderate confound costs a random design only about 1 - r^2 = 16% of the information | Noise sd 15; accuracy, calibration, and design measures reported together |
 | Check 3 | Read-only commands (`ls`, `cat`, `ps`) were auto-approved in the sandbox | Deny list, plus an automated permission probe |
 | Pilot | Claude stopped after denied commands, and a quoting error blocked `submit` | Command rules in the prompt; a fallback for the verdict |
+
+## Study 2 results
+
+**Setup.** The task space, noise, and sandbox are unchanged. Three learners, all stated exactly in the prompt (`harness/prompt_study2.md`): part-based; holistic; and **factor-when-justified**. The last stores whole tasks and turns a rule into a reusable part once the rule has appeared in k trained tasks (k = 2 or 3, hidden), then uses whichever route is cheaper. The correct verdict is always the hidden learner. All parameters except k are known, so the exact posterior over the learners given any data is computable (`env/ideal.py`). That gives every run a **design score** (the posterior probability of the true learner given that run's own data) and an **inference gap** (stated confidence minus the exact posterior of the stated verdict). Budget 60.
+
+**Checks.** The regime change exists in all 200 scripted designs (check 5). The scripted before/after curriculum is 0.94 correct, against 0.70 for random interleaved designs (check 6, fresh seed).
+
+**Main run** (30 runs, 10 per learner; factor: 5 with k=2, 5 with k=3):
+
+| Experimenter | Accuracy [95% CI] | Brier | Design score [CI] | Exact analysis of the same data |
+|---|---|---|---|---|
+| **Claude** | **0.83** [0.66, 0.93] | 0.08 | **0.88** [0.80, 0.95] | 0.93 |
+| Scripted before/after | 0.90 [0.74, 0.97] | 0.08 | 0.90 [0.79, 0.98] | 0.90 |
+| Random interleaved | 0.73 [0.56, 0.86] | 0.20 | 0.57 [0.49, 0.65] | 0.73 |
+| Train-first | 0.70 [0.52, 0.83] | 0.19 | 0.58 [0.48, 0.68] | 0.70 |
+
+- **Claude by learner:** part-based 0.80, holistic 1.00, factor 0.70 (k=2: 4/5; k=3: 3/5; two k=3 runs answered holistic).
+- **Design.** Most runs built staged curricula with a control task, holding the target's similarity fixed while raising its rule counts. That is the scripted design plus a control, and it was sturdier than the scripted baseline in the pilot.
+- **Inference.** 4 of 5 errors are inference errors (the exact analysis of the same data is right). Confidence: 0.79 when correct, 0.40-0.55 when wrong. Inference gap: -0.13 when correct (underconfident), +0.31 when wrong.
+- **Inference-only control** (same data as a table, no tools, 30 calls): accuracy 0.87; the same verdict as in the loop in 29/30; it fixed 1 of the 4 inference errors and added none. By the declared rule, weighing noisy evidence is itself the difficulty. The remaining errors read individual noisy contrasts as decisive. One justification prefers "the simpler part-based account", which the equal prior does not license.
+- **Predictions.** Met: part-based and holistic >= 0.8; a positive gap on wrong answers; a design score below scripted on factor instances (marginally). Not met: factor accuracy (0.70 against "<= 0.6"); the error type (predicted: training early, then answering part-based; observed: mostly holistic on k=3); the control (predicted "mixed", observed "weighing").
+
+**Qualifications.**
+- 10 runs per learner; Claude's accuracy interval overlaps those of scripted and random. The design-score difference from random is clear.
+- The scripted baseline is fragile: it puts all its tests on one target. A stronger scripted design (with controls) would raise the bar.
+- The control gives Claude the predictors (rule counts, overlap) ready-made. That makes it easier than the loop, and Claude still made the same calls.
+- Stylized learners, one task space, one model.
 
 ## Design
 
@@ -126,6 +163,8 @@ Every check failed at least once before passing, and each failure changed the de
 | 2 | D-optimal is near 100% correct, and its designs dissociate clearly better than random ones | Pass (Day 2d) |
 | 3 | No leakage: automated permission probe, plus an "any method" run | Pass (Day 3b/3c) |
 | 4 | The factorized learner is identical to part-based, and D-optimal + aware is >= 90% correct in case 4 | Pass (Day 3b) |
+| 5 | Study 2: the scripted curriculum separates all four learner variants by stage | Pass (200/200) |
+| 6 | Study 2: scripted >= 0.90 correct, and random <= scripted - 0.20 | Pass (0.94 vs. 0.70, budget 60) |
 
 ## Reproduce
 
@@ -142,10 +181,18 @@ python harness/run_claude.py main               # 20 main-condition runs (resuma
 python harness/run_claude.py main_case4         # 20 case-4 runs (resumable)
 python harness/comprehension_control.py         # case-4 comprehension control
 python analysis/summarize.py && python analysis/figures.py
+python analysis/check5_6_study2.py check5       # study 2 checks
+python analysis/check5_6_study2.py check6
+python harness/run_claude.py pilot_study2       # study 2 (uses Claude)
+python harness/run_claude.py main_study2
+python harness/inference_control.py             # study 2 inference-only control
+python analysis/summarize_study2.py && python analysis/figures_study2.py
 ```
 
 ## Next steps
 
+- **Study 2 inference:** test whether giving Claude a calculator (code execution inside the sandbox) or the exact likelihoods closes the inference gap. Also, whether an explicit instruction to combine all the evidence changes the "single decisive contrast" habit.
+- **Learners with their own decomposition** (for example, negation or the TRUE/FALSE button as parts), following Elmoznino et al.'s open question about intrinsic decompositions.
 - **Separate the case-4 explanations:** run case 4 without `compare`; run the control with the experiment framing but fixed data; and state the decision standard for `cannot_decide` in the prompt.
 - **More runs and more models**, for intervals tight enough to compare models.
 - **Trained RNN and transformer learners** (case 2: the learner does not use the designed parts), and mixtures of mechanisms (case 3).
@@ -157,10 +204,11 @@ python analysis/summarize.py && python analysis/figures.py
 ## Repo structure
 
 ```
-env/            tasks.py, learners.py, environment.py, server.py, scoring.py, config.py
-harness/        run_claude.py, query.py (copied into each sandbox), prompt.md, prompt_case4.md,
-                prompt_check3.md, baselines.py, comprehension_control.py
-analysis/       check1_dissociation.py, check2_baselines.py, check4_case4.py, summarize.py, figures.py
+env/            tasks.py, learners.py, environment.py, server.py, scoring.py, config.py, ideal.py (study 2)
+harness/        run_claude.py, query.py (copied into each sandbox), prompt.md, prompt_case4.md, prompt_study2.md,
+                prompt_check3.md, baselines.py, baselines_study2.py, comprehension_control.py, inference_control.py
+analysis/       check1_dissociation.py, check2_baselines.py, check4_case4.py, check5_6_study2.py,
+                summarize.py, summarize_study2.py, figures.py, figures_study2.py
 configs/        default.json (all parameters and seeds)
 tests/          32 tests
 results/        one JSON per run (config, query log, verdict, scores, audit, baselines on the same instance),
@@ -170,22 +218,14 @@ docs/           transcripts.md
 
 ## Current status
 
-All work was done on 2026-10-21, ahead of the planned days 1-5.
-
-**Completed** (details and numbers in the Analysis log)
-- **Day 1:** task space and learners. Check 1 first failed (no confound); the 2x2 motor table fixed it.
-- **Day 2:** environment, scoring, and baselines. Check 2 first failed (too easy); settled on noise sd 15 and joint measures.
-- **Day 3:** server, sandbox, and headless harness. Check 3 passes with a deny list and the probe. Pilots run, and two pipeline bugs fixed.
-- **Case 4:** added with the user's approval; check 4 passes.
-- **Day 4:** main run (40 runs, `claude-opus-5-5`, $12) and the comprehension control.
-- **Day 5:** figure, transcripts, and this README.
+**Completed** (details and numbers in the Analysis log and the Study 2 section)
+- **Study 1** (2026-10-21): task space, learners, environment, sandboxed headless harness, checks 1-4, and 40 main runs (main condition and case 4). Plus the case-4 comprehension control.
+- **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 2:** checks 5 and 6 pass; pilot and main run (30) done.
-- **Study 2b** (declared): inference-only control; Study 2 figure and transcripts; README summary of both studies.
-- Make the repo public; add the link to the application (by 2026-10-28).
+- Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
 
-## Study 2: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
+## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
 **Why.** Study 1 (all of the above) found that the confound is not hard for Claude, and that its interesting failure (case 4) rests on an answer key that can be disputed. Elmoznino et al. (2026, "Defining and generating compositional structure", arXiv:2610.20922) define compositional structure as structure in the shortest model of a whole that cannot be recovered from the models of its parts, and note that an abstraction pays for itself only once it is reused often enough. Two consequences: (1) Study 1 tests the *reuse of stored rules*, not compositional structure in their sense (the README wording is corrected below); (2) a natural third mechanism is a learner that stores whole tasks and factors a rule into a reusable part only after the rule has recurred in enough trained tasks. Transfer then depends on the training history, and identifying the learner becomes a curriculum design problem. The user chose this as the main project on 2026-10-22.
 
