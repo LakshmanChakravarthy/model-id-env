@@ -7,6 +7,8 @@ Usage:
   python harness/run_claude.py pilot_case4   # case-4 pilot instances
   python harness/run_claude.py main          # main run, main condition (resumable)
   python harness/run_claude.py main_case4    # main run, case-4 condition (resumable)
+  python harness/run_claude.py pilot_study2  # study 2 pilot (one instance per learner)
+  python harness/run_claude.py main_study2   # study 2 main run, 10 per learner (resumable)
 For each instance: sandbox outside the repo with only prompt.md and query.py; environment server in
 this process; results/<instance_id>.json and results/transcripts/<instance_id>.jsonl.
 """
@@ -25,7 +27,7 @@ sys.path.insert(0, str(REPO))
 from env import scoring, server
 from env.config import load_config
 from env.environment import Environment
-from harness import baselines
+from harness import baselines, baselines_study2
 
 RESULTS = REPO / "results"
 ALLOWED = re.compile(r"^python3 query\.py(\s|$)")
@@ -124,9 +126,9 @@ def audit(events):
             "leaks": leaks, "pass": not leaks, "calls": rows}
 
 
-def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, condition="main", model=None):
+def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, condition="main", model=None, k=None):
     cr = cfg["claude_runs"]
-    env = Environment(learner, seed, cfg, condition)
+    env = Environment(learner, seed, cfg, condition, k=k)
     srv, port = server.start(env)
     prompt = prompt_template.replace("{budget}", str(env.budget))
     box = make_sandbox(cr["sandbox_root"], instance_id, port, prompt)
@@ -177,12 +179,18 @@ def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, conditi
 
     scores = scoring.score(env)
     base = {}
-    analyses = ["multiple", "aware"] if condition == "case4" else ["multiple"]
-    for name, f in [("random", baselines.random_experimenter), ("dopt", baselines.dopt_experimenter)]:
-        for a in analyses:
-            benv = Environment(learner, seed, cfg, condition)
-            f(benv, seed + 1, a)
-            base[name if a == "multiple" else f"{name}_{a}"] = scoring.score(benv)
+    if condition == "study2":
+        for name, f in baselines_study2.BASELINES.items():
+            benv = Environment(learner, seed, cfg, condition, k=env.k)
+            f(benv, seed + 1)
+            base[name] = scoring.score(benv)
+    else:
+        analyses = ["multiple", "aware"] if condition == "case4" else ["multiple"]
+        for name, f in [("random", baselines.random_experimenter), ("dopt", baselines.dopt_experimenter)]:
+            for a in analyses:
+                benv = Environment(learner, seed, cfg, condition)
+                f(benv, seed + 1, a)
+                base[name if a == "multiple" else f"{name}_{a}"] = scoring.score(benv)
     record = scoring.instance_record(env, scores, {"instance_id": instance_id, "kind": kind, "prompt": prompt,
                                                     "claude": claude_meta, "audit": audit(events),
                                                     "baselines_same_instance": base})
@@ -193,7 +201,8 @@ def run_instance(instance_id, learner, seed, cfg, prompt_template, kind, conditi
 
 def summary_line(r):
     v = r["verdict"] or {}
-    base = "  ".join(f"{k} {b['correct']}/{b['dissociation']:.2f}" for k, b in r["baselines_same_instance"].items())
+    key = "design_score" if r["condition"] == "study2" else "dissociation"
+    base = "  ".join(f"{k} {b['correct']}/{b[key]:.2f}" for k, b in r["baselines_same_instance"].items())
     return (f"{r['instance_id']}: {r['condition']} learner {r['learner']} (correct: {r['correct_verdict']})  "
             f"verdict {v.get('verdict')} ({v.get('confidence')})  scores {r['scores']}  baselines {base}  "
             f"audit pass {r['audit']['pass']} "
@@ -272,6 +281,34 @@ def main(mode):
                 continue
             try:
                 r = run_instance(instance_id, str(learner), p["seed"] + i, cfg, template, mode, condition=condition)
+                print(summary_line(r), flush=True)
+            except RuntimeError as e:
+                print(f"{instance_id}: {e}", flush=True)
+    elif mode in ("pilot_study2", "main_study2"):
+        template = (REPO / "harness" / "prompt_study2.md").read_text()
+        s2 = cfg["study2"]
+        if mode == "pilot_study2":
+            p = s2["pilot"]
+            plan = [(l, None) for l in np.random.default_rng(p["seed"]).permutation(p["learners"])]
+            prefix = "s2pilot"
+        else:
+            p = s2["main"]
+            n = p["n_instances"]
+            per = n // 3
+            ks = s2["k_values"]
+            plan = ([("part_based", None)] * per + [("holistic", None)] * per +
+                    [("factor_when_justified", ks[j % len(ks)]) for j in range(per)])
+            order = np.random.default_rng(p["seed"]).permutation(len(plan))
+            plan = [plan[j] for j in order]
+            prefix = "s2main"
+        for i, (learner, k) in enumerate(plan):
+            instance_id = f"{prefix}-{i:03d}"
+            if (RESULTS / f"{instance_id}.json").exists():
+                print(f"{instance_id}: exists, skipped", flush=True)
+                continue
+            try:
+                r = run_instance(instance_id, str(learner), p["seed"] + i, cfg, template, mode,
+                                 condition="study2", k=k)
                 print(summary_line(r), flush=True)
             except RuntimeError as e:
                 print(f"{instance_id}: {e}", flush=True)
