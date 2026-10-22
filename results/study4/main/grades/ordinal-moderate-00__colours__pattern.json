@@ -1,0 +1,10 @@
+{
+ "id": "ordinal-moderate-00__colours__pattern",
+ "code": {
+  "regularity_stated": "ordinal",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Regularity is ordinal (true button earlier in listed order). Used, yes.\n\n{\"regularity_stated\": \"ordinal\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.023480400000000002
+}

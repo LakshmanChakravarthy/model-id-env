@@ -1,0 +1,10 @@
+{
+ "id": "polarity-irregular-12__digits__pattern",
+ "code": {
+  "regularity_stated": "polarity",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Regularity: chose family with un-negated rules \u2014 polarity (all rules non-negated). Used to prefer. Alternatives considered: yes.\n\n{\"regularity_stated\": \"polarity\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0173042
+}

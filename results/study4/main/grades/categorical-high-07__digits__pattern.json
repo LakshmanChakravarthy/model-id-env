@@ -1,0 +1,10 @@
+{
+ "id": "categorical-high-07__digits__pattern",
+ "code": {
+  "regularity_stated": "none",
+  "regularity_used": false,
+  "alternatives_considered": false
+ },
+ "text": "{\"regularity_stated\": \"none\", \"regularity_used\": false, \"alternatives_considered\": false}",
+ "cost_usd": 0.0212122
+}

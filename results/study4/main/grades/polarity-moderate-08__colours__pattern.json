@@ -1,0 +1,10 @@
+{
+ "id": "polarity-moderate-08__colours__pattern",
+ "code": {
+  "regularity_stated": "polarity",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "```json\n{\"regularity_stated\": \"polarity\", \"regularity_used\": true, \"alternatives_considered\": true}\n```",
+ "cost_usd": 0.0322612
+}

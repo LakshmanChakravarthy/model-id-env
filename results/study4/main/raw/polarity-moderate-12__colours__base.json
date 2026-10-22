@@ -1,0 +1,64 @@
+{
+ "id": "polarity-moderate-12",
+ "type": "polarity",
+ "cell": "moderate",
+ "format": "colours",
+ "prompt_variant": "base",
+ "answer": {
+  "predictions": [
+   "yellow",
+   "yellow",
+   "yellow",
+   "green",
+   "yellow",
+   "yellow",
+   "yellow",
+   "yellow",
+   "yellow",
+   "yellow",
+   "yellow",
+   "green",
+   "yellow",
+   "yellow",
+   "green",
+   "yellow"
+  ],
+  "determined": false,
+  "confidence": 0.5
+ },
+ "predictions_as_buttons": [
+  0,
+  0,
+  0,
+  2,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  2,
+  0,
+  0,
+  2,
+  0
+ ],
+ "R": 1,
+ "other_reading": 0,
+ "confidence": 0.5,
+ "determined": false,
+ "ideal_p_modal": 0.7777777777777778,
+ "ideal_p_hypothesis": {
+  "none": 0.4444444444444445,
+  "categorical": 0.0,
+  "polarity": 0.5555555555555556
+ },
+ "text": "**Fitting the components to the examples**\n\n- **Y4 is bit 2.** In X6-Y4-Z1, the only red item is 0101 0111. Bit 4 is ruled out because 1001 1101 has bit 4 set in both stimuli but is green. Bit 2 is the only feature that is 1 in both stimuli for the red item and never both 1 for any green item.\n- **Y3 is bit 3 and Y2 is bit 4.** These fit X6-Y3-Z1 and X6-Y2-Z2.\n- **X6 is \"both 1\" or \"not both 1\".** In every X6 task, the odd button appears exactly when the Y bit is 1 in both stimuli. The two readings differ only in which way Z1 and Z2 point, and both fit all three X6 tasks.\n- **Z4's colours are green and yellow.** In X1-Y4-Z4, looking at bit 2:\n  - green when exactly one stimulus has bit 2 = 1 (01 or 10);\n  - yellow when the bits match (00 or 11).\n- **X1 is \"exactly one\" or \"same\".** These are the only two rules that fit X1-Y4-Z4, and both also fit X1-Y4-Z3.\n  - If X1 is \"exactly one\", Z4 maps true \u2192 green.\n  - If X1 is \"same\", Z4 maps true \u2192 yellow.\n\n**All assignments that fit**\n\nThe four combinations give two different answer sets for X6-Y4-Z4:\n\n| X6 | X1 | Bit 2 both 1 | Otherwise |\n|---|---|---|---|\n| both | exactly one | green | yellow |\n| not both | same | green | yellow |\n| not both | exactly one | yellow | green |\n| both | same | yellow | green |\n\nThe examples do not decide between these, so the answers are not determined. I chose the first set because it uses the more natural readings: X6 = \"both\" and X1 = \"exactly one\". The confidence is about 0.5 because the other answer set fits the examples equally well.\n\n**Predictions**\n\nUnder that choice, an input is green when bit 2 is 1 in both stimuli and yellow otherwise. That happens only for items 4, 12 and 15.\n\n{\"predictions\": [\"yellow\",\"yellow\",\"yellow\",\"green\",\"yellow\",\"yellow\",\"yellow\",\"yellow\",\"yellow\",\"yellow\",\"yellow\",\"green\",\"yellow\",\"yellow\",\"green\",\"yellow\"], \"determined\": false, \"confidence\": 0.5}",
+ "cost_usd": 0.0812027,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Learn tasks from examples\n\nEach task maps an input to one of four buttons: yellow, red, green, or blue. An input is a pair of stimuli; each stimulus has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line `1011 0110 -> green` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is green.\n\nEvery task is built from three components. A **Y component** picks one of the 4 features (bit positions 1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one of: both are 1; at least one is 1; exactly one is 1; neither is 1; not both are 1; both are the same. A **Z component** gives one button when the rule is true and a different button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several versions (X1, X2, and so on); different versions of a kind are different from each other, and the same label always means the same component. You are not told which version does what.\n\n## Known tasks\n\n### Task X6-Y4-Z1\n1001 1101 -> green\n0100 1011 -> green\n1011 1000 -> green\n0101 0011 -> green\n0010 0011 -> green\n0001 1110 -> green\n0000 1000 -> green\n1000 0000 -> green\n1000 0010 -> green\n1100 0000 -> green\n1001 1110 -> green\n1011 1100 -> green\n0001 1101 -> green\n1001 0001 -> green\n0111 1000 -> green\n0010 0101 -> green\n0101 0111 -> red\n0010 0010 -> green\n0101 1000 -> green\n0010 1001 -> green\n1011 0000 -> green\n1011 1110 -> green\n0100 1010 -> green\n1110 1011 -> green\n\n### Task X6-Y4-Z2\n0000 1001 -> yellow\n0101 1101 -> blue\n1011 1110 -> yellow\n0001 0100 -> yellow\n0111 0001 -> yellow\n1101 0001 -> yellow\n0011 1101 -> yellow\n0000 1101 -> yellow\n0101 0010 -> yellow\n0001 0001 -> yellow\n0011 1010 -> yellow\n1111 1000 -> yellow\n1011 0011 -> yellow\n0111 1111 -> blue\n1101 0110 -> blue\n0010 0100 -> yellow\n1111 0010 -> yellow\n0101 1110 -> blue\n1100 0011 -> yellow\n0101 0100 -> blue\n0111 1110 -> blue\n0011 1000 -> yellow\n0000 0011 -> yellow\n0110 1010 -> yellow\n\n### Task X1-Y4-Z4\n1011 1110 -> green\n0100 0001 -> green\n1101 1010 -> green\n1011 0000 -> yellow\n0011 0000 -> yellow\n1111 0100 -> yellow\n1011 0010 -> yellow\n1000 1110 -> green\n0101 1000 -> green\n0100 1001 -> green\n1011 1100 -> green\n0101 1011 -> green\n1001 0101 -> green\n1000 0000 -> yellow\n1101 1101 -> yellow\n0000 0011 -> yellow\n0101 0000 -> green\n1001 0100 -> green\n0001 1101 -> green\n1011 0101 -> green\n1100 1100 -> yellow\n0000 0101 -> green\n0010 1011 -> yellow\n0111 0111 -> yellow\n\n### Task X1-Y4-Z3\n0000 0101 -> green\n0011 0001 -> blue\n0010 0111 -> green\n1010 0101 -> green\n0111 0001 -> green\n0000 1000 -> blue\n1000 0011 -> blue\n1001 1111 -> green\n1100 1100 -> blue\n0000 1010 -> blue\n0011 0110 -> green\n1100 0111 -> blue\n1101 0001 -> green\n1111 0000 -> green\n0100 1101 -> blue\n0001 0000 -> blue\n0111 0010 -> green\n0011 1100 -> green\n0111 1111 -> blue\n0011 1010 -> blue\n1010 0110 -> green\n0010 1101 -> green\n0111 0101 -> blue\n1111 1001 -> green\n\n### Task X6-Y2-Z2\n1101 1100 -> yellow\n1011 0110 -> yellow\n1110 1110 -> yellow\n0101 0101 -> blue\n0011 1111 -> blue\n1011 0111 -> blue\n0101 1001 -> blue\n0001 1110 -> yellow\n0011 0111 -> blue\n0010 0011 -> yellow\n0100 0111 -> yellow\n1101 0111 -> blue\n1000 1010 -> yellow\n0110 0000 -> yellow\n1001 1001 -> blue\n0010 1100 -> yellow\n1101 1010 -> yellow\n0111 0100 -> yellow\n0101 1110 -> yellow\n1110 1100 -> yellow\n1010 1111 -> yellow\n0110 1111 -> yellow\n1111 0100 -> yellow\n0100 0001 -> yellow\n\n### Task X6-Y3-Z1\n0001 0001 -> green\n0011 0010 -> red\n1110 0100 -> green\n0001 0000 -> green\n1010 0100 -> green\n1101 0010 -> green\n0010 1101 -> green\n1111 0000 -> green\n0111 1001 -> green\n1000 0101 -> green\n0001 0011 -> green\n1100 1000 -> green\n1101 0100 -> green\n1110 0101 -> green\n1101 1101 -> green\n1001 1100 -> green\n1110 1100 -> green\n0111 0110 -> red\n0100 0001 -> green\n0101 1000 -> green\n0011 1001 -> green\n1000 0001 -> green\n0100 0000 -> green\n1100 1010 -> green\n\n## The new task\n\nYou have no examples of the new task X6-Y4-Z4.\n\nPredict the button for each of these 16 inputs of the new task:\n1. 1111 1011\n2. 0011 1110\n3. 1010 1110\n4. 0110 0100\n5. 1010 0010\n6. 0110 0000\n7. 1101 1011\n8. 0000 1011\n9. 1110 0011\n10. 0011 0111\n11. 0010 0110\n12. 0100 0100\n13. 0011 0110\n14. 0100 1010\n15. 1110 1100\n16. 0110 0011\n\nBefore you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit.\n\nReason as you like, then end with one JSON object: {\"predictions\": [the button names as strings, in order], \"determined\": true or false, \"confidence\": p}. \"determined\" says whether the information and examples above determine all the answers uniquely. \"confidence\" is your probability that all of your predictions are correct."
+}

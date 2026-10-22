@@ -1,0 +1,65 @@
+{
+ "id": "polarity-moderate-09",
+ "type": "polarity",
+ "cell": "moderate",
+ "format": "digits",
+ "prompt_variant": "pattern",
+ "answer": {
+  "predictions": [
+   3,
+   3,
+   1,
+   1,
+   3,
+   3,
+   3,
+   3,
+   1,
+   3,
+   3,
+   3,
+   3,
+   1,
+   3,
+   3
+  ],
+  "determined": false,
+  "confidence": 0.65
+ },
+ "predictions_as_buttons": [
+  3,
+  3,
+  1,
+  1,
+  3,
+  3,
+  3,
+  3,
+  1,
+  3,
+  3,
+  3,
+  3,
+  1,
+  3,
+  3
+ ],
+ "R": 0,
+ "other_reading": 1,
+ "confidence": 0.65,
+ "determined": false,
+ "ideal_p_modal": 0.7777777777777778,
+ "ideal_p_hypothesis": {
+  "none": 0.4444444444444444,
+  "categorical": 0.0,
+  "polarity": 0.5555555555555556,
+  "ordinal": 0.0
+ },
+ "text": "**Prediction for X3-Y3-Z4:** press **1** when bit 4 is 1 in both stimuli, otherwise press **3**. The examples leave two answers open, and I chose this one on a pattern, not proof.\n\n**What the known tasks pin down**\n\n- **Y components (which bit):**\n  - Y1 is bit 2.\n  - Y2 is bit 1.\n  - Y3 is bit 4.\n  - Y4 is bit 3.\n  - Each is settled by the examples. For instance, in X1-Y3-Z4 every input labelled 1 has bit 4 equal to 0 in both stimuli. Every input labelled 3 has at least one 1 in bit 4.\n- **X1:** \"neither is 1\" or \"at least one is 1\". These are opposite rules, so the examples cannot tell them apart. They only fix how X1 combines with each Z.\n- **X3:** \"both are 1\" or \"not both are 1\". In both X3 tasks, button 3 appears exactly when the bit is 1 in both stimuli.\n\n**Z components under each reading**\n\n| Reading | Z1 (true/false) | Z2 (true/false) | Z3 (true/false) | Z4 (true/false) |\n|---|---|---|---|---|\n| X1 = neither | 2/1 | \u2014 | 0/2 | 1/3 |\n| X1 = at least one | 1/2 | \u2014 | 2/0 | 3/1 |\n| X3 = both | \u2014 | 3/2 | \u2014 | \u2014 |\n| X3 = not both | \u2014 | 2/3 | \u2014 | \u2014 |\n\nThe new task X3-Y3-Z4 applies X3 to bit 4 and uses Z4. That leaves four combinations with two distinct outcomes:\n\n- **Outcome A:** \"both bit-4s are 1\" leads to 1, otherwise 3. This comes from X1 = neither with X3 = both, or X1 = at least one with X3 = not both.\n- **Outcome B:** the reverse, \"both\" leads to 3, otherwise 1. This comes from the other two combinations.\n\nSo the answer is not determined by the examples.\n\n**Pattern that tips the choice**\n\nTake X1 = neither and X3 = both. Then the \"true\" buttons are:\n- Z1 \u2192 2\n- Z2 \u2192 3\n- Z3 \u2192 0\n- Z4 \u2192 1\n\nThat is exactly button (k+1) mod 4 for Zk, and all four are different. The other readings give no clean pattern of this kind. I therefore favour outcome A, while treating it as a judgement call.\n\n**Bit 4 of each input and the predicted button**\n\n| # | Input | Bit 4 | Button |\n|---|---|---|---|\n| 1 | 1100 0111 | 0, 1 | 3 |\n| 2 | 0100 1011 | 0, 1 | 3 |\n| 3 | 0011 0111 | 1, 1 | 1 |\n| 4 | 0011 1001 | 1, 1 | 1 |\n| 5 | 1001 0010 | 1, 0 | 3 |\n| 6 | 1101 1000 | 1, 0 | 3 |\n| 7 | 0111 1110 | 1, 0 | 3 |\n| 8 | 0000 0101 | 0, 1 | 3 |\n| 9 | 0101 0011 | 1, 1 | 1 |\n| 10 | 0100 0001 | 0, 1 | 3 |\n| 11 | 1101 1100 | 1, 0 | 3 |\n| 12 | 1000 1110 | 0, 0 | 3 |\n| 13 | 0011 0110 | 1, 0 | 3 |\n| 14 | 0011 0001 | 1, 1 | 1 |\n| 15 | 0111 1000 | 1, 0 | 3 |\n| 16 | 1010 1011 | 0, 1 | 3 |\n\nConfidence is 0.65: the examples split evenly between the two outcomes, and only the (k+1) pattern favours this one.\n\n{\"predictions\": [3,3,1,1,3,3,3,3,1,3,3,3,3,1,3,3], \"determined\": false, \"confidence\": 0.65}",
+ "cost_usd": 0.116679,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Learn tasks from examples\n\nEach task maps an input to one of four buttons: 0, 1, 2, or 3. An input is a pair of stimuli; each stimulus has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line `1011 0110 -> 2` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is 2.\n\nEvery task is built from three components. A **Y component** picks one of the 4 features (bit positions 1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one of: both are 1; at least one is 1; exactly one is 1; neither is 1; not both are 1; both are the same. A **Z component** gives one button when the rule is true and a different button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several versions (X1, X2, and so on); different versions of a kind are different from each other, and the same label always means the same component. You are not told which version does what.\n\n## Known tasks\n\n### Task X1-Y3-Z4\n1100 1101 -> 3\n0011 1010 -> 3\n1100 1110 -> 1\n0001 1100 -> 3\n0011 0011 -> 3\n0100 0011 -> 3\n0100 0101 -> 3\n0111 0100 -> 3\n0110 1000 -> 1\n1010 0011 -> 3\n1000 0001 -> 3\n0001 0011 -> 3\n0110 0001 -> 3\n1110 1111 -> 3\n1111 0010 -> 3\n1001 0100 -> 3\n0111 1001 -> 3\n1011 1011 -> 3\n1111 0111 -> 3\n0000 1101 -> 3\n1010 0000 -> 1\n0010 0000 -> 1\n0011 0001 -> 3\n1001 0000 -> 3\n\n### Task X3-Y1-Z2\n0000 1010 -> 2\n0101 1011 -> 2\n0110 1110 -> 3\n0100 1000 -> 2\n1111 1000 -> 2\n0111 0010 -> 2\n1011 0000 -> 2\n0101 1001 -> 2\n1000 1101 -> 2\n0100 1101 -> 3\n0000 1100 -> 2\n1010 0010 -> 2\n0011 1000 -> 2\n1110 1010 -> 2\n0001 1001 -> 2\n0011 0011 -> 2\n0111 1100 -> 3\n0010 0100 -> 2\n0011 1011 -> 2\n0100 0111 -> 3\n1001 1000 -> 2\n1110 1100 -> 3\n1100 0111 -> 3\n1101 0011 -> 2\n\n### Task X1-Y1-Z1\n0000 0101 -> 1\n1010 1000 -> 2\n0011 0111 -> 1\n0110 0111 -> 1\n1001 1010 -> 2\n1001 1111 -> 1\n1110 0001 -> 1\n1111 1111 -> 1\n1010 1100 -> 1\n0101 0010 -> 1\n1011 0000 -> 2\n1100 1100 -> 1\n0011 0010 -> 2\n0010 1111 -> 1\n0011 0101 -> 1\n1010 1111 -> 1\n1001 1110 -> 1\n0111 1100 -> 1\n0010 1010 -> 2\n0101 0111 -> 1\n0000 0010 -> 2\n0100 1000 -> 1\n1100 0001 -> 1\n0111 1001 -> 1\n\n### Task X1-Y2-Z3\n0000 1011 -> 2\n1010 1111 -> 2\n1011 0110 -> 2\n0010 0111 -> 0\n0000 1100 -> 2\n0000 1010 -> 2\n1010 1010 -> 2\n1000 0010 -> 2\n0110 1000 -> 2\n0110 1111 -> 2\n0000 1101 -> 2\n0001 1100 -> 2\n1010 1100 -> 2\n0011 1011 -> 2\n1010 0011 -> 2\n1011 1111 -> 2\n1000 0000 -> 2\n0111 0011 -> 0\n0011 0110 -> 0\n0100 1000 -> 2\n0100 1010 -> 2\n1001 1011 -> 2\n1110 1110 -> 2\n1101 0110 -> 2\n\n### Task X3-Y2-Z2\n0010 0101 -> 2\n0010 0110 -> 2\n0010 1001 -> 2\n1101 1111 -> 3\n1100 0000 -> 2\n1101 0110 -> 2\n0011 1110 -> 2\n0001 0100 -> 2\n0101 1110 -> 2\n1100 1111 -> 3\n0001 0111 -> 2\n1101 1101 -> 3\n1101 0011 -> 2\n0101 1001 -> 2\n1111 1111 -> 3\n0001 1011 -> 2\n1111 0100 -> 2\n0010 1010 -> 2\n1100 1001 -> 3\n1011 1100 -> 3\n1000 1011 -> 3\n0000 1101 -> 2\n0000 1110 -> 2\n0001 0000 -> 2\n\n### Task X1-Y4-Z4\n1011 0010 -> 3\n1010 1110 -> 3\n0010 1111 -> 3\n0101 0011 -> 3\n0000 1110 -> 3\n0100 1101 -> 1\n0011 1011 -> 3\n0100 0001 -> 1\n0110 1110 -> 3\n1101 1100 -> 1\n1111 1101 -> 3\n0110 1001 -> 3\n0100 0000 -> 1\n1011 1110 -> 3\n1001 0001 -> 1\n0011 1000 -> 3\n0110 1101 -> 3\n1000 1000 -> 1\n1001 0101 -> 1\n1110 0000 -> 3\n0000 1010 -> 3\n0011 0100 -> 3\n1100 0010 -> 3\n1100 0110 -> 3\n\n## The new task\n\nYou have no examples of the new task X3-Y3-Z4.\n\nPredict the button for each of these 16 inputs of the new task:\n1. 1100 0111\n2. 0100 1011\n3. 0011 0111\n4. 0011 1001\n5. 1001 0010\n6. 1101 1000\n7. 0111 1110\n8. 0000 0101\n9. 0101 0011\n10. 0100 0001\n11. 1101 1100\n12. 1000 1110\n13. 0011 0110\n14. 0011 0001\n15. 0111 1000\n16. 1010 1011\n\nBefore you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit. Also look for patterns that hold across all the components you can identify, and consider whether such a pattern makes some of the fitting assignments more plausible than others.\n\nReason as you like, then end with one JSON object: {\"predictions\": [the buttons, in order], \"determined\": true or false, \"confidence\": p}. \"determined\" says whether the information and examples above determine all the answers uniquely. \"confidence\" is your probability that all of your predictions are correct."
+}

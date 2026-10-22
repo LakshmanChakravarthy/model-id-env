@@ -1,0 +1,65 @@
+{
+ "id": "ordinal-moderate-05",
+ "type": "ordinal",
+ "cell": "moderate",
+ "format": "digits",
+ "prompt_variant": "base",
+ "answer": {
+  "predictions": [
+   0,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   1,
+   0,
+   0
+  ],
+  "determined": false,
+  "confidence": 0.5
+ },
+ "predictions_as_buttons": [
+  0,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  0
+ ],
+ "R": 1,
+ "other_reading": 0,
+ "confidence": 0.5,
+ "determined": false,
+ "ideal_p_modal": 0.8666666666666666,
+ "ideal_p_hypothesis": {
+  "none": 0.26666666666666666,
+  "categorical": 0.0,
+  "polarity": 0.0,
+  "ordinal": 0.7333333333333333
+ },
+ "text": "**Fitting the components to the known tasks**\n\n1. **X2-Y1-Z2:** Y1 is bit 2. The answer is 1 exactly when neither bit is 1. So either X2 = \"neither\" with Z2 mapping true\u21921, or X2 = \"at least one\" with Z2 mapping true\u21920.\n2. **X2-Y3-Z2:** Y3 is bit 4, with the same pattern, which is consistent with step 1.\n3. **X6-Y3-Z3:** On bit 4, the answer is 0 when the bits are the same and 2 when they differ.\n4. **X3-Y3-Z3:** On bit 4, the answer is 2 when both bits are 1, otherwise 0.\n5. **Z3 and its X versions:** Steps 3 and 4 allow two readings.\n   - Z3 maps true\u21922: then X6 = \"exactly one\" and X3 = \"both\".\n   - Z3 maps true\u21920: then X6 = \"same\" and X3 = \"not both\".\n6. **X4-Y2-Z3:** Y2 is bit 1. The answer is 2 when the bits are the same and 0 when they differ. Under the first Z3 reading, X4 = \"same\". Under the second, X4 = \"exactly one\". Both keep all X versions distinct.\n7. **X5-Y2-Z4:** On bit 1, the answer is 2 when neither bit is 1, otherwise 3. X5 is the remaining one of \"neither\" or \"at least one\", whichever X2 is not.\n\n**Consistent assignments**\n\n- {X4 = same, X4 = exactly one} \u00d7 {Z2 maps true\u21921, Z2 maps true\u21920} gives 4 assignments.\n- For X4-Y2-Z2, these collapse into two different predictions:\n  - (same, true\u21921) and (exactly one, true\u21920) give: bits on bit 1 equal \u2192 1, different \u2192 0.\n  - The other two give the reverse.\n\nThe examples don't settle which applies, so the answers are not determined. I'm choosing \"bits equal \u2192 1, different \u2192 0\", which makes my confidence about 50%.\n\n```json\n{\"predictions\": [0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0], \"determined\": false, \"confidence\": 0.5}\n```",
+ "cost_usd": 0.08382579999999999,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Learn tasks from examples\n\nEach task maps an input to one of four buttons: 0, 1, 2, or 3. An input is a pair of stimuli; each stimulus has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line `1011 0110 -> 2` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is 2.\n\nEvery task is built from three components. A **Y component** picks one of the 4 features (bit positions 1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one of: both are 1; at least one is 1; exactly one is 1; neither is 1; not both are 1; both are the same. A **Z component** gives one button when the rule is true and a different button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several versions (X1, X2, and so on); different versions of a kind are different from each other, and the same label always means the same component. You are not told which version does what.\n\n## Known tasks\n\n### Task X6-Y3-Z3\n1101 0110 -> 2\n1011 1110 -> 2\n0111 1100 -> 2\n1111 0111 -> 0\n1001 1011 -> 0\n1111 1000 -> 2\n0011 1000 -> 2\n1000 1000 -> 0\n0100 1001 -> 2\n1001 1110 -> 2\n1000 0110 -> 0\n1011 1101 -> 0\n0100 0100 -> 0\n1001 0100 -> 2\n0100 1011 -> 2\n1011 1010 -> 2\n1010 0100 -> 0\n1101 1101 -> 0\n0101 0111 -> 0\n0001 1101 -> 0\n1111 1100 -> 2\n1010 1011 -> 2\n1100 1101 -> 2\n1100 1100 -> 0\n\n### Task X5-Y2-Z4\n0111 1100 -> 3\n1101 0001 -> 3\n0111 0110 -> 2\n0010 1110 -> 3\n0111 0111 -> 2\n0010 1101 -> 3\n0100 1000 -> 3\n1001 1101 -> 3\n1110 1011 -> 3\n0011 0001 -> 2\n0110 1010 -> 3\n1101 0110 -> 3\n1101 1110 -> 3\n0001 1010 -> 3\n1010 0000 -> 3\n1001 1011 -> 3\n1010 1010 -> 3\n1011 1111 -> 3\n0001 0001 -> 2\n0100 1011 -> 3\n0000 0110 -> 2\n0111 1011 -> 3\n0001 0100 -> 2\n1001 0100 -> 3\n\n### Task X4-Y2-Z3\n1010 0111 -> 0\n1110 1010 -> 2\n1111 1100 -> 2\n1010 0011 -> 0\n1111 1000 -> 2\n0110 1110 -> 0\n0001 0111 -> 2\n0101 1000 -> 0\n1110 1111 -> 2\n0100 1110 -> 0\n1010 1001 -> 2\n1100 0001 -> 0\n1111 1001 -> 2\n0000 1110 -> 0\n1110 1000 -> 2\n0101 1101 -> 0\n1100 1011 -> 2\n0111 0000 -> 2\n0000 1111 -> 0\n0011 0000 -> 2\n1010 0110 -> 0\n0110 0110 -> 2\n0110 1011 -> 0\n1110 1101 -> 2\n\n### Task X2-Y1-Z2\n0010 0010 -> 1\n1111 1101 -> 0\n1100 0000 -> 0\n1010 1011 -> 1\n0101 1000 -> 0\n0010 0001 -> 1\n1000 1010 -> 1\n0010 1000 -> 1\n0001 0101 -> 0\n0001 1100 -> 0\n1011 0111 -> 0\n1110 0011 -> 0\n1111 0011 -> 0\n0001 0010 -> 1\n1010 0010 -> 1\n0111 1001 -> 0\n0001 1110 -> 0\n0110 1111 -> 0\n1010 1111 -> 0\n0001 1011 -> 1\n0000 1000 -> 1\n1000 0001 -> 1\n1111 0110 -> 0\n1101 0101 -> 0\n\n### Task X3-Y3-Z3\n0001 0001 -> 2\n0110 1100 -> 0\n1110 0001 -> 0\n1011 0011 -> 2\n0110 0110 -> 0\n0100 1111 -> 0\n1011 1001 -> 2\n1001 1010 -> 0\n1001 1101 -> 2\n0011 0100 -> 0\n0010 0110 -> 0\n0001 0011 -> 2\n0011 0001 -> 2\n1001 0000 -> 0\n1111 1001 -> 2\n1111 0010 -> 0\n0011 0000 -> 0\n1001 0101 -> 2\n0000 0111 -> 0\n0101 1000 -> 0\n0111 1001 -> 2\n1101 0001 -> 2\n1000 1111 -> 0\n1110 0101 -> 0\n\n### Task X2-Y3-Z2\n1011 0000 -> 0\n1000 0000 -> 1\n0110 1111 -> 0\n0010 0100 -> 1\n0110 0011 -> 0\n1100 0110 -> 1\n0100 0001 -> 0\n1010 0111 -> 0\n1001 0101 -> 0\n0010 1100 -> 1\n1011 1011 -> 0\n0110 1101 -> 0\n1010 1100 -> 1\n0001 1001 -> 0\n1111 1110 -> 0\n0000 0110 -> 1\n1110 1010 -> 1\n0010 1010 -> 1\n0100 1110 -> 1\n1000 1001 -> 0\n1111 0110 -> 0\n0010 1110 -> 1\n0010 0111 -> 0\n0010 0010 -> 1\n\n## The new task\n\nYou have no examples of the new task X4-Y2-Z2.\n\nPredict the button for each of these 16 inputs of the new task:\n1. 1001 0000\n2. 1000 1000\n3. 0010 0111\n4. 1110 1000\n5. 0011 1101\n6. 0001 1010\n7. 1111 0110\n8. 1110 0110\n9. 1010 0011\n10. 0110 0100\n11. 0110 0101\n12. 0110 1001\n13. 1000 0000\n14. 1010 1001\n15. 0110 1100\n16. 0101 1111\n\nBefore you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit.\n\nReason as you like, then end with one JSON object: {\"predictions\": [the buttons, in order], \"determined\": true or false, \"confidence\": p}. \"determined\" says whether the information and examples above determine all the answers uniquely. \"confidence\" is your probability that all of your predictions are correct."
+}

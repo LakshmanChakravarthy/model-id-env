@@ -1,0 +1,64 @@
+{
+ "id": "ordinal-high-07",
+ "type": "ordinal",
+ "cell": "high",
+ "format": "colours",
+ "prompt_variant": "pattern",
+ "answer": {
+  "predictions": [
+   "red",
+   "blue",
+   "red",
+   "red",
+   "red",
+   "blue",
+   "red",
+   "blue",
+   "red",
+   "blue",
+   "red",
+   "red",
+   "red",
+   "red",
+   "blue",
+   "red"
+  ],
+  "determined": false,
+  "confidence": 0.7
+ },
+ "predictions_as_buttons": [
+  2,
+  3,
+  2,
+  2,
+  2,
+  3,
+  2,
+  3,
+  2,
+  3,
+  2,
+  2,
+  2,
+  2,
+  3,
+  2
+ ],
+ "R": 0,
+ "other_reading": 1,
+ "confidence": 0.7,
+ "determined": false,
+ "ideal_p_modal": 0.5,
+ "ideal_p_hypothesis": {
+  "none": 1.0,
+  "categorical": 0.0,
+  "polarity": 0.0
+ },
+ "text": "Predictions: inputs with bit 4 equal to 0 in both stimuli get **blue**; every other input gets **red**. The examples alone don't settle this. It depends on a colour-ordering pattern, so it is not determined.\n\n**Which bit each Y picks**\n- **Y1 is bit 3.** In every Y1 task the labels follow bit 3. For example, in X6-Y1-Z4, green appears exactly when bit 3 is 1 in both stimuli.\n- **Y4 is bit 4.** In X1-Y4-Z1, red appears exactly when bit 4 is 1 in both stimuli.\n\n**What each rule can be, given its buttons**\n- **X6:** \"both 1\" with green for true, or \"not both 1\" with yellow for true.\n- **X1** (from X1-Y1-Z2 and X1-Y4-Z1): \"both 1\" with red for true in both tasks, or \"not both 1\" with green (Z2) and yellow (Z1) for true.\n- X1 and X6 are different components, so one is \"both 1\" and the other is \"not both 1.\"\n- **X4:** \"at least one 1\" with red for true, or \"neither 1\" with yellow for true. Z1 must match X1's reading.\n- **X2:** \"neither 1\" with red for true, or \"at least one 1\" with yellow for true. Again Z1 must match X1.\n- **X3:** \"exactly one 1\" with red for true, or \"same\" with blue for true.\n\n**The assignments that fit all six tasks**\n- **Scenario A:** X1 = both 1, X6 = not both, X4 = at least one, X2 = neither. True gives red for Z1, red for Z2 and yellow for Z4.\n- **Scenario B:** X1 = not both, X6 = both 1, X4 = neither, X2 = at least one. True gives yellow for Z1, green for Z2 and green for Z4.\n- Z3 is independent of both: either \"exactly one\" with red for true, or \"same\" with blue for true.\n\nThat makes four assignments in total. They split evenly: two predict blue when bit 4 is 0 in both stimuli, and two predict red in that case.\n\n**A pattern across the components**\n- Take the button order green, yellow, red, blue.\n- In Scenario A, the \"true\" button is the later colour of the pair for every Z.\n- In Scenario B, the \"true\" button is always the earlier colour.\n- Carrying that consistency over to Z3: A gives blue for true, and B gives red for true.\n- Both combinations predict the same thing for the new task:\n  - bit 4 is 0 in both stimuli \u2192 **blue**\n  - otherwise \u2192 **red**\n\nApplying that rule to bit 4 of each input gives the predictions below. Confidence is about 0.7, because it rests on the colour-ordering pattern rather than on the examples.\n\n```json\n{\"predictions\": [\"red\",\"blue\",\"red\",\"red\",\"red\",\"blue\",\"red\",\"blue\",\"red\",\"blue\",\"red\",\"red\",\"red\",\"red\",\"blue\",\"red\"], \"determined\": false, \"confidence\": 0.7}\n```",
+ "cost_usd": 0.09635719999999999,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Learn tasks from examples\n\nEach task maps an input to one of four buttons: green, yellow, red, or blue. An input is a pair of stimuli; each stimulus has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line `1011 0110 -> red` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is red.\n\nEvery task is built from three components. A **Y component** picks one of the 4 features (bit positions 1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one of: both are 1; at least one is 1; exactly one is 1; neither is 1; not both are 1; both are the same. A **Z component** gives one button when the rule is true and a different button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several versions (X1, X2, and so on); different versions of a kind are different from each other, and the same label always means the same component. You are not told which version does what.\n\n## Known tasks\n\n### Task X6-Y1-Z4\n1010 0010 -> green\n0011 0111 -> green\n0110 0111 -> green\n0001 0101 -> yellow\n0100 0101 -> yellow\n1100 1100 -> yellow\n0111 1000 -> yellow\n1011 0110 -> green\n0001 0111 -> yellow\n1011 0010 -> green\n1100 0001 -> yellow\n0101 0011 -> yellow\n1001 0110 -> yellow\n0111 1010 -> green\n0000 1110 -> yellow\n0000 0011 -> yellow\n1101 1010 -> yellow\n1101 1001 -> yellow\n0001 0100 -> yellow\n1010 1110 -> green\n1110 0001 -> yellow\n1110 1000 -> yellow\n1111 1101 -> yellow\n1100 1111 -> yellow\n\n### Task X3-Y1-Z3\n1101 1100 -> blue\n0100 0000 -> blue\n0100 1100 -> blue\n0001 0110 -> red\n1110 1010 -> blue\n1001 1000 -> blue\n1101 1000 -> blue\n0100 1001 -> blue\n1010 1011 -> blue\n0001 1011 -> red\n0011 1111 -> blue\n0110 0100 -> red\n1000 0010 -> red\n1111 0011 -> blue\n0101 0110 -> red\n1110 0100 -> red\n0011 1011 -> blue\n0010 1001 -> red\n1000 1101 -> blue\n0011 1000 -> red\n0101 1000 -> blue\n1111 0001 -> red\n0010 0101 -> red\n1010 0001 -> red\n\n### Task X4-Y1-Z1\n0001 0101 -> yellow\n0110 1100 -> red\n0110 1000 -> red\n1001 0000 -> yellow\n0110 0100 -> red\n0111 1011 -> red\n0100 1111 -> red\n1011 1110 -> red\n0000 0101 -> yellow\n1101 1011 -> red\n0100 0010 -> red\n0101 1110 -> red\n1111 1000 -> red\n1100 0011 -> red\n0100 1000 -> yellow\n0101 1010 -> red\n1011 1011 -> red\n1101 0101 -> yellow\n0010 1111 -> red\n0101 1011 -> red\n0011 1110 -> red\n1110 1100 -> red\n1011 1001 -> red\n1010 0011 -> red\n\n### Task X1-Y1-Z2\n1000 1110 -> green\n1010 1010 -> red\n0011 0011 -> red\n0011 1110 -> red\n1111 1111 -> red\n0100 1010 -> green\n1010 0010 -> red\n0011 0100 -> green\n1001 0110 -> green\n1001 1111 -> green\n1101 0011 -> green\n0010 0100 -> green\n0100 1110 -> green\n1000 1101 -> green\n1011 0110 -> red\n0000 0011 -> green\n1110 1001 -> green\n0111 0011 -> red\n0000 1111 -> green\n0100 1111 -> green\n1111 1110 -> red\n1110 0101 -> green\n0100 0011 -> green\n0010 0011 -> red\n\n### Task X2-Y1-Z1\n1001 1001 -> red\n0101 0001 -> red\n0010 0100 -> yellow\n1110 1010 -> yellow\n1101 0001 -> red\n1110 0111 -> yellow\n1010 0101 -> yellow\n0000 1001 -> red\n0010 1000 -> yellow\n0010 1011 -> yellow\n0111 0001 -> yellow\n1100 0111 -> yellow\n1100 1111 -> yellow\n0110 0110 -> yellow\n1010 1111 -> yellow\n1000 1110 -> yellow\n1111 1010 -> yellow\n0101 1111 -> yellow\n0001 1001 -> red\n0101 0101 -> red\n0100 0110 -> yellow\n1100 0100 -> red\n1100 1001 -> red\n1111 1100 -> yellow\n\n### Task X1-Y4-Z1\n1001 1001 -> red\n1111 1001 -> red\n1110 0110 -> yellow\n1100 1111 -> yellow\n1000 1001 -> yellow\n1011 0110 -> yellow\n0111 1100 -> yellow\n0110 1011 -> yellow\n0011 0111 -> red\n0011 0001 -> red\n1000 0011 -> yellow\n1011 1100 -> yellow\n0100 1001 -> yellow\n0000 0101 -> yellow\n1010 1010 -> yellow\n0010 0100 -> yellow\n0110 0100 -> yellow\n0000 0111 -> yellow\n1001 0110 -> yellow\n0110 0101 -> yellow\n0111 1110 -> yellow\n0111 0000 -> yellow\n1101 0110 -> yellow\n1111 0111 -> red\n\n## The new task\n\nYou have no examples of the new task X2-Y4-Z3.\n\nPredict the button for each of these 16 inputs of the new task:\n1. 1011 1110\n2. 0110 0110\n3. 1010 1111\n4. 1111 1011\n5. 0101 1001\n6. 0010 1100\n7. 0011 0001\n8. 0100 1100\n9. 1001 0000\n10. 0100 0000\n11. 1011 1111\n12. 1111 0000\n13. 0001 1000\n14. 0101 1101\n15. 0110 1010\n16. 1001 1111\n\nBefore you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit. Also look for patterns that hold across all the components you can identify, and consider whether such a pattern makes some of the fitting assignments more plausible than others.\n\nReason as you like, then end with one JSON object: {\"predictions\": [the button names as strings, in order], \"determined\": true or false, \"confidence\": p}. \"determined\" says whether the information and examples above determine all the answers uniquely. \"confidence\" is your probability that all of your predictions are correct."
+}

@@ -1,0 +1,10 @@
+{
+ "id": "ordinal-moderate-09__digits__pattern",
+ "code": {
+  "regularity_stated": "categorical",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "The response's pattern is \"false is always button 0\", which is categorical: one button is always used for false. It uses this to prefer reading (a), and it considers two readings.\n\n{\"regularity_stated\": \"categorical\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0219442
+}

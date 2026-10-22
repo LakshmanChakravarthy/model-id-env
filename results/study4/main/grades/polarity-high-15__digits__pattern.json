@@ -1,0 +1,10 @@
+{
+ "id": "polarity-high-15__digits__pattern",
+ "code": {
+  "regularity_stated": "other",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Button-uniqueness across Z components (each button used once for true) \u2014 that's \"other\"? It's a cross-component pattern about buttons, not categorical split or ordinal. Other.\n\n{\"regularity_stated\": \"other\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0184702
+}

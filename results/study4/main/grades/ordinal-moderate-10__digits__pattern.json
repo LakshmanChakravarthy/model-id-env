@@ -1,0 +1,10 @@
+{
+ "id": "ordinal-moderate-10__digits__pattern",
+ "code": {
+  "regularity_stated": "categorical",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "{\"regularity_stated\": \"categorical\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0232322
+}

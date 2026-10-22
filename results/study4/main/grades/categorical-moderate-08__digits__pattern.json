@@ -1,0 +1,10 @@
+{
+ "id": "categorical-moderate-08__digits__pattern",
+ "code": {
+  "regularity_stated": "categorical",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Odd/even split of true vs false buttons is categorical.\n\n{\"regularity_stated\": \"categorical\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0182282
+}

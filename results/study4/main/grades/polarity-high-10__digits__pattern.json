@@ -1,0 +1,10 @@
+{
+ "id": "polarity-high-10__digits__pattern",
+ "code": {
+  "regularity_stated": "none",
+  "regularity_used": false,
+  "alternatives_considered": true
+ },
+ "text": "The response states that no cross-component pattern holds, which counts as \"none.\" It prefers assignment A because the readings are \"natural,\" not because of a regularity. It considers multiple assignments.\n\n{\"regularity_stated\": \"none\", \"regularity_used\": false, \"alternatives_considered\": true}",
+ "cost_usd": 0.0233425
+}

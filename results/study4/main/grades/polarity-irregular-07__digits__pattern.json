@@ -1,0 +1,10 @@
+{
+ "id": "polarity-irregular-07__digits__pattern",
+ "code": {
+  "regularity_stated": "polarity",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "{\"regularity_stated\": \"polarity\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.021044200000000002
+}

@@ -1,0 +1,10 @@
+{
+ "id": "ordinal-high-12__digits__pattern",
+ "code": {
+  "regularity_stated": "ordinal",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Ordinal: true \u2192 lower/higher button consistently. Used to prefer. Alternatives considered.\n\n{\"regularity_stated\": \"ordinal\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0229522
+}

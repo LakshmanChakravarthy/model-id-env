@@ -1,0 +1,10 @@
+{
+ "id": "categorical-irregular-02__colours__pattern",
+ "code": {
+  "regularity_stated": "categorical",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Regularity: false always maps to blue across all Z, so it's categorical (one button group for false). Used to choose. Alternatives considered yes.\n\n{\"regularity_stated\": \"categorical\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0201682
+}

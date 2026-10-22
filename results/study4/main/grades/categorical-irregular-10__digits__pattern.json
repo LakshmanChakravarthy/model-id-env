@@ -1,0 +1,10 @@
+{
+ "id": "categorical-irregular-10__digits__pattern",
+ "code": {
+  "regularity_stated": "ordinal",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Ordinal: \"give the lower button when true\" across Z components, used to pick D; four assignments considered.\n\n{\"regularity_stated\": \"ordinal\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0250802
+}

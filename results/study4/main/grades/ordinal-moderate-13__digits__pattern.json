@@ -1,0 +1,10 @@
+{
+ "id": "ordinal-moderate-13__digits__pattern",
+ "code": {
+  "regularity_stated": "categorical",
+  "regularity_used": true,
+  "alternatives_considered": true
+ },
+ "text": "Button 3 means true in every Z (A2), or false in every Z (B1). This is a categorical split, not an order relation, and the response uses it to choose its answer.\n\n{\"regularity_stated\": \"categorical\", \"regularity_used\": true, \"alternatives_considered\": true}",
+ "cost_usd": 0.0194642
+}

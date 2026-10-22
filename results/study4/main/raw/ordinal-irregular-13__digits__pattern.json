@@ -1,0 +1,65 @@
+{
+ "id": "ordinal-irregular-13",
+ "type": "ordinal",
+ "cell": "irregular",
+ "format": "digits",
+ "prompt_variant": "pattern",
+ "answer": {
+  "predictions": [
+   2,
+   0,
+   0,
+   2,
+   2,
+   2,
+   0,
+   0,
+   2,
+   2,
+   2,
+   0,
+   2,
+   0,
+   2,
+   0
+  ],
+  "determined": false,
+  "confidence": 0.5
+ },
+ "predictions_as_buttons": [
+  2,
+  0,
+  0,
+  2,
+  2,
+  2,
+  0,
+  0,
+  2,
+  2,
+  2,
+  0,
+  2,
+  0,
+  2,
+  0
+ ],
+ "R": 0,
+ "other_reading": 1,
+ "confidence": 0.5,
+ "determined": false,
+ "ideal_p_modal": 0.5,
+ "ideal_p_hypothesis": {
+  "none": 1.0,
+  "categorical": 0.0,
+  "polarity": 0.0,
+  "ordinal": 0.0
+ },
+ "text": "**The new task depends only on whether feature 2 matches between the two stimuli. The examples leave the button mapping open: two predictions fit equally well, and I picked one by convention.**\n\n**Y components (which feature):** In each known task, only one feature position is consistent with the labels.\n- Y2 = feature 2 (checked against X4-Y2-Z2; features 1, 3 and 4 each contradict an example).\n- Y3 = feature 3.\n- Y4 = feature 4.\n\n**X4:** In all four X4 tasks, the button depends only on whether the two bits are equal. So X4 is either \"exactly one is 1\" or \"both are the same\", and the Z mapping flips to match.\n- If X4 = exactly one: Z2 is true\u21922, false\u21923, and Z4 is true\u21923, false\u21922.\n- If X4 = both same: Z2 is true\u21923, false\u21922, and Z4 is true\u21922, false\u21923.\n\n**X2 and X5:**\n- X2-Y3-Z1 separates \"neither bit is 1\" (button 1) from the rest (button 2). So X2 is \"at least one\" or \"neither\", and Z1 flips to match.\n- X5-Y4-Z3 likewise: \"neither bit is 1\" gives 0, the rest give 2. So X5 is \"at least one\" or \"neither\".\n- X2 and X5 are different versions, so one is \"at least one\" and the other is \"neither\". This still leaves two choices.\n\n**Fitting assignments for X4-Y2-Z3:** There are 2 choices for X4 times 2 for (X2, X5), giving 4 assignments.\n\n| X4 | X5 | Z3 | Feature-2 bits differ | Feature-2 bits same |\n|---|---|---|---|---|\n| exactly one | at least one | true\u21922, false\u21920 | 2 | 0 |\n| exactly one | neither | true\u21920, false\u21922 | 0 | 2 |\n| both same | at least one | true\u21922, false\u21920 | 0 | 2 |\n| both same | neither | true\u21920, false\u21922 | 2 | 0 |\n\nThese give exactly two distinct prediction sets, each backed by two assignments: \"differ\u21922, same\u21920\" or \"differ\u21920, same\u21922\".\n\n**Cross-component patterns:** I looked for a regularity across all the Z mappings, such as \"true always gives 2\" or \"false always gives 2\". None holds under every option, so nothing breaks the tie. I chose \"differ\u21922, same\u21920\", the reading where X4 = \"exactly one\" and X5 = \"at least one\". This is only a slight preference based on reading the rules in their positive form.\n\n**Predictions (feature-2 bits of each pair):**\n1. 1,0 \u2192 2\n2. 0,0 \u2192 0\n3. 1,1 \u2192 0\n4. 0,1 \u2192 2\n5. 0,1 \u2192 2\n6. 0,1 \u2192 2\n7. 1,1 \u2192 0\n8. 1,1 \u2192 0\n9. 1,0 \u2192 2\n10. 1,0 \u2192 2\n11. 0,1 \u2192 2\n12. 0,0 \u2192 0\n13. 1,0 \u2192 2\n14. 0,0 \u2192 0\n15. 0,1 \u2192 2\n16. 0,0 \u2192 0\n\nIf the other mapping is correct, every 2 becomes 0 and every 0 becomes 2, so the chance that all 16 are right is about one half.\n\n{\"predictions\": [2,0,0,2,2,2,0,0,2,2,2,0,2,0,2,0], \"determined\": false, \"confidence\": 0.5}",
+ "cost_usd": 0.11377949999999999,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Learn tasks from examples\n\nEach task maps an input to one of four buttons: 0, 1, 2, or 3. An input is a pair of stimuli; each stimulus has 4 binary features, written as 4 bits (bit positions 1-4, left to right). The line `1011 0110 -> 2` means: stimulus 1 is 1011, stimulus 2 is 0110, and the correct button is 2.\n\nEvery task is built from three components. A **Y component** picks one of the 4 features (bit positions 1-4); the task looks at that feature in both stimuli. An **X component** is a rule on those two bits, one of: both are 1; at least one is 1; exactly one is 1; neither is 1; not both are 1; both are the same. A **Z component** gives one button when the rule is true and a different button when it is false. A task's label lists its components, for example X2-Y1-Z3. Each kind has several versions (X1, X2, and so on); different versions of a kind are different from each other, and the same label always means the same component. You are not told which version does what.\n\n## Known tasks\n\n### Task X4-Y4-Z4\n0100 1101 -> 3\n1011 0001 -> 2\n0100 1011 -> 3\n1001 0011 -> 2\n0001 0010 -> 3\n0000 1111 -> 3\n1100 0000 -> 2\n1101 0100 -> 3\n1110 0000 -> 2\n0000 0111 -> 3\n0110 1011 -> 3\n1000 1000 -> 2\n1001 1000 -> 3\n0011 1001 -> 2\n0110 0100 -> 2\n0001 0100 -> 3\n1100 0110 -> 2\n1111 1011 -> 2\n1111 1000 -> 3\n1110 1101 -> 3\n0010 0001 -> 3\n0001 0101 -> 2\n0000 0001 -> 3\n0010 0011 -> 3\n\n### Task X4-Y3-Z2\n0100 0111 -> 2\n0000 1100 -> 3\n1011 1110 -> 3\n0111 0010 -> 3\n0010 0100 -> 2\n0111 1010 -> 3\n0101 1111 -> 2\n0010 0000 -> 2\n1101 1010 -> 2\n1011 0101 -> 2\n0110 1010 -> 3\n1111 0111 -> 3\n0000 0000 -> 3\n1111 0100 -> 2\n0010 1111 -> 3\n1000 0101 -> 3\n1110 0011 -> 3\n0010 1000 -> 2\n1001 0011 -> 2\n0110 1001 -> 2\n0001 1011 -> 2\n1001 1010 -> 2\n0010 0011 -> 3\n0100 0001 -> 3\n\n### Task X2-Y3-Z1\n1011 0101 -> 2\n1010 1100 -> 2\n0011 1000 -> 2\n0001 0111 -> 2\n0111 1010 -> 2\n1111 0010 -> 2\n0000 1110 -> 2\n1010 1110 -> 2\n1010 0011 -> 2\n1110 0011 -> 2\n1000 0101 -> 1\n0001 0110 -> 2\n1100 1100 -> 1\n0011 0110 -> 2\n0100 1100 -> 1\n1110 0010 -> 2\n1100 1010 -> 2\n0101 1110 -> 2\n0110 1111 -> 2\n0010 0101 -> 2\n1001 1100 -> 1\n0111 0101 -> 2\n1011 0011 -> 2\n1000 1111 -> 2\n\n### Task X4-Y3-Z4\n0110 0001 -> 3\n0111 0001 -> 3\n0111 0110 -> 2\n1110 0000 -> 3\n0011 0101 -> 3\n1110 1100 -> 3\n1011 1111 -> 2\n1111 1000 -> 3\n0110 1110 -> 2\n1001 1010 -> 3\n0000 0000 -> 2\n1011 0110 -> 2\n1100 1011 -> 3\n1000 0111 -> 3\n0011 1010 -> 2\n1010 1011 -> 2\n0111 0010 -> 2\n1010 1101 -> 3\n1010 1100 -> 3\n1000 1101 -> 2\n1100 1110 -> 3\n0110 1101 -> 3\n1110 1011 -> 2\n1111 1101 -> 3\n\n### Task X4-Y2-Z2\n1000 0001 -> 3\n0010 1001 -> 3\n1110 1001 -> 2\n0010 1101 -> 2\n0000 1001 -> 3\n1100 0001 -> 2\n1101 1101 -> 3\n0110 1001 -> 2\n0100 0001 -> 2\n1001 1100 -> 2\n1100 0011 -> 2\n1001 0000 -> 3\n1110 1010 -> 2\n1101 1001 -> 2\n1000 1100 -> 2\n1100 1100 -> 3\n0110 1110 -> 3\n1010 0010 -> 3\n1000 1111 -> 2\n0011 0011 -> 3\n1110 1011 -> 2\n0011 0010 -> 3\n0101 1100 -> 3\n1110 1111 -> 3\n\n### Task X5-Y4-Z3\n0001 0100 -> 2\n0010 1110 -> 0\n1010 1110 -> 0\n1010 0100 -> 0\n1110 1001 -> 2\n0011 1101 -> 2\n1111 1010 -> 2\n0011 0011 -> 2\n0111 0111 -> 2\n0110 1100 -> 0\n1010 1101 -> 2\n0111 0101 -> 2\n0110 1010 -> 0\n1110 0110 -> 0\n0111 1101 -> 2\n1010 1001 -> 2\n1100 1100 -> 0\n1111 0000 -> 2\n1011 0111 -> 2\n1000 1000 -> 0\n0001 0011 -> 2\n0100 1110 -> 0\n1000 1110 -> 0\n0110 0101 -> 2\n\n## The new task\n\nYou have no examples of the new task X4-Y2-Z3.\n\nPredict the button for each of these 16 inputs of the new task:\n1. 0101 1000\n2. 0000 0011\n3. 1101 0111\n4. 0011 1111\n5. 0000 0110\n6. 1001 1100\n7. 1110 0100\n8. 1110 1111\n9. 1110 1001\n10. 1110 0011\n11. 1001 1101\n12. 0001 1001\n13. 1100 0010\n14. 0010 0010\n15. 1011 1100\n16. 1010 0010\n\nBefore you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit. Also look for patterns that hold across all the components you can identify, and consider whether such a pattern makes some of the fitting assignments more plausible than others.\n\nReason as you like, then end with one JSON object: {\"predictions\": [the buttons, in order], \"determined\": true or false, \"confidence\": p}. \"determined\" says whether the information and examples above determine all the answers uniquely. \"confidence\" is your probability that all of your predictions are correct."
+}
