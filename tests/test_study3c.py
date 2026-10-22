@@ -23,7 +23,7 @@ def test_global_flip_symmetry_without_overhypothesis():
 
 def test_cells_and_ideal():
     rng = np.random.default_rng(1)
-    for cell in ("regular-high", "regular-low", "irregular"):
+    for cell in ("regular-high", "regular-moderate", "irregular"):
         inst = s3c.gen(rng, P, cell)
         idl = inst["ideal"]
         assert abs(sum(q for _, q in idl["posterior"]) - 1) < 1e-9

@@ -295,9 +295,12 @@
       "per_cell": 8,
       "n_search": 6000,
       "prior_class": 0.5,
-      "high_min": 0.9,
-      "low_max": 0.65,
-      "max_parallel": 4
+      "high_min": 0.95,
+      "max_parallel": 4,
+      "moderate_range": [
+        0.85,
+        0.95
+      ]
     }
   }
 }

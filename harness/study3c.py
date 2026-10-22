@@ -124,7 +124,7 @@ def gen(rng, p, cell):
         if idl["n_answers_without_overhypothesis"] != 2:
             continue
         ok = {"regular-high": idl["p_modal"] >= p["high_min"],
-              "regular-low": idl["p_modal"] <= p["low_max"],
+              "regular-moderate": p["moderate_range"][0] <= idl["p_modal"] < p["moderate_range"][1],
               "irregular": idl["p_class"] < 1e-9}[cell]
         if ok:
             return {"world": world, "known": known, "known_ex": known_ex, "test": test, "items": items, "ideal": idl}
@@ -169,7 +169,7 @@ def main():
     p = s3["c"]
     rng = np.random.default_rng(p["seed"])
     jobs = []
-    for cell in ("regular-high", "regular-low", "irregular"):
+    for cell in ("regular-high", "regular-moderate", "irregular"):
         for i in range(p["per_cell"]):
             inst = gen(rng, p, cell)
             lm = s3b.label_maps(rng)
@@ -204,7 +204,7 @@ def main():
 
 def summarize(rows):
     print("cost", round(sum(r["cost_usd"] or 0 for r in rows), 2), "unparsed", sum(r["answer"] is None for r in rows))
-    for cell in ("regular-high", "regular-low", "irregular"):
+    for cell in ("regular-high", "regular-moderate", "irregular"):
         rr = [r for r in rows if r["cell"] == cell and r["answer"]]
         choices = {}
         for r in rr:
