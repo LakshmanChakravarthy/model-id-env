@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 5 (centerpiece)**, design phase declared: generative model, simulations, sample reports for the user's review, preregistration, pilot, main run.
+- **Study 5 (centerpiece)**: generative model and calibrated ideal reader built; sample reports in `docs/study5_sample_reports.md` await the user's realism review; then the preregistration, pilot, and main run.
 - **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
@@ -519,6 +519,22 @@ Irregular worlds: R 0.54.
 - the **exact posterior** (Monte Carlo over each account's parameter prior; Gaussian likelihood of the reported means given the reported standard errors).
 
 Then simulate to check that (1) the three accounts produce the predicted signature table, and (2) the ideal posterior rises across the evidence levels. Sample reports go to the user for a realism review. The preregistration (`docs/study5_preregistration.md`) is committed before any Study 5 Claude call.
+
+**Design phase result (2026-10-23, simulations only, no Claude calls).** `env/cpro.py`, `harness/study5.py`, `results/checks/study5_*.json`, `docs/study5_sample_reports.md`.
+- **First attempt:** the evidence ladder failed. Level 1 alone identified the account (posterior 1.0), because the accounts' priors gave non-overlapping overall performance. **Fix:** every account gets the same broad prior for the nuisance parameters (speeds, error rates, rule costs, composition errors 3-30%), and the accounts differ only in the mechanism parameters (similarity retrieval, compilation, decay, general speed-up). Overall levels then carry little information, and a reader cannot know our parameter ranges anyway.
+- **The ideal reader was overconfident:** predicted 0.70 corresponded to observed 0.54. Its likelihood ignores between-participant variability and correlations between conditions. **Fix:** likelihood tempering, tau = 4, chosen on one simulated set; calibration error 0.061 -> 0.017, and 0.055 -> 0.017 on a fresh validation set.
+- **Evidence ladder** (mean ideal posterior of the true account, chance 0.33; L1 / L2 / L3 / L4): compositional 0.56 / 0.85 / 0.99 / 1.00; conjunctive 0.48 / 0.61 / 0.65 / 0.98; dual-route 0.39 / 0.48 / 0.60 / 0.99.
+- **Simulated signature table** (compositional / conjunctive / dual-route):
+  - shared-rules RT effect: 115 / 188 / 152 ms (present under every account; the trap);
+  - shared-rules accuracy effect: 0.00 / -0.08 / -0.05;
+  - accuracy when the motor rule differs: 0.85 / 0.53 / 0.63;
+  - intrusion share of errors: 0.34 (chance) / 0.78 / 0.67;
+  - repetition benefit: 76 / 409 / 229 ms;
+  - lag effect: about 0 / 61 / 133 ms;
+  - 3rd occurrence vs. practiced: 567 / 173 / 464 ms.
+
+  This matches the table the user approved, with one refinement: the conjunctive account, not dual-route, comes closest to practiced performance by the 3rd occurrence (dual-route's compiled traces decay).
+- **Report generator:** method summary, practice curves, practiced vs. novel, the shared-rules and rule-type breakdowns, intrusions, and repetition x lag, revealed by evidence level, with neutral paired t-tests. Sample reports are written for the user's realism review.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
