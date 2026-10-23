@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run (576 calls, projected about $64 + $12 for grading) started 2026-10-22. Next: grading, grader validation (user hand-codes 40), analysis.
+- **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
 - **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.
@@ -440,6 +440,56 @@ Over-caution control (3b determined prompts, V1): accuracy 0.99 / 1.00, "determi
 Then run **exploratory simulations** to establish (1) that each regularity resolves the flip ambiguity, (2) the achievable range of ideal posteriors per type (to set the evidence bands), and (3) instance-generation rates. These simulations inform the cell definitions only. The confirmatory hypotheses, design, sample size, and analysis plan go into `docs/study4_preregistration.md`, committed before any Study 4 Claude call (including the pipeline pilot).
 
 **Design phase result (2026-10-22, exploratory, no Claude calls).** `results/checks/study4_simulation.json`. The flip symmetry holds for all 6 rules. Each regularity resolves the ambiguity: typical ideal posteriors are 0.99 / 0.91 / 0.83 (categorical), 0.95 / 0.87 (ordinal), and 0.92 / 0.78 (polarity). About 35% of irregular worlds contain an accidental regularity that a rational learner would use (ideal 0.87-0.95); these are excluded from the irregular cells. With colour buttons, the ordinal regularity is invisible (ideal 0.5 in 85% of ordinal worlds). A bug was fixed along the way: a hypothesis with fewer rules than distinct labels now drops out instead of dividing by zero. **Preregistration:** `docs/study4_preregistration.md`.
+
+**Result: Study 4 main run (2026-10-23).** `results/study4/main/` (576 responses, 574 parsed; grader codes for all), `results/study4/main/analysis.json` (`analysis/study4_analysis.py`). Cost: $56.47 (subject) + $11.79 (grader). Grader codes are **unvalidated** (user decision, 2026-10-23; preregistration section 10).
+
+**Confirmatory tests (Holm-corrected):**
+
+| Hypothesis | Result | p (Holm) |
+|---|---|---|
+| H1: categorical regularity found more with colour than digit labels | **Not supported.** Discordant pairs 9 (colours only) vs. 11 (digits only); R 0.59 colours vs. 0.62 digits | 0.75 |
+| H2: the pattern prompt raises discovery | **Not supported** after correction (33 vs. 21 discordant pairs; raw p = 0.067) | 0.13 |
+| H3: confidence below the ideal when the regularity-consistent answer is given | **Supported:** mean gap 0.33 (n = 182) | < 1e-30 |
+| H4: confident claims in irregular worlds below 15% | **Supported:** 5.8% (11 of 191) | 0.0002 |
+
+**Secondary:**
+- (a) Polarity: no format effect (15 vs. 11 discordant, p = 0.56; as predicted).
+- (b) Ordinal with digits: R = 0.64 [0.52, 0.75], above 0.5 (p = 0.03).
+- (c) Ordinal with colours (regularity invisible): R = 0.55, near chance by design.
+- (g) Under-trust restricted to runs coded as using a regularity: gap 0.27 (n = 74, p < 1e-13).
+
+**Discovery rates (R in regular cells, chance 0.5):**
+
+| Type | digits / base | digits / pattern | colours / base | colours / pattern |
+|---|---|---|---|---|
+| categorical | 0.66 | 0.59 | 0.58 | 0.59 |
+| ordinal | 0.50 | **0.78** | 0.53 | 0.56 (invisible) |
+| polarity | 0.47 | 0.59 | 0.47 | 0.47 |
+
+Irregular worlds: R 0.54.
+
+**Mechanism (pattern prompt, visible regular cells; unvalidated codes):**
+- With the base prompt, Claude almost never states a cross-component regularity (coded "none" in 154 of 160 regular-cell runs; R 0.54).
+- With the pattern prompt, it states one in most runs, but the **right kind** in only 54 of 157 (34%), a **wrong kind** in 60 (38%), and none in 43.
+- **When it states and uses the right kind, it gets the answer: R = 0.87** (categorical 15/15, ordinal 20/22, polarity 12/17).
+- **When it uses a wrong kind, R = 0.43.** Its confidence is the same either way (0.65 vs. 0.63).
+- Which kind it finds follows the label format only for ordinal (digits/pattern: ordinal stated in 22 of 32 runs). With colours in an ordinal world, where order is invisible, it states a (spurious) categorical pattern in 14 of 32.
+
+**Confidence does not track the evidence:**
+- With the pattern prompt, mean confidence is about 0.55-0.69 in every cell. The ideal is 0.81-0.96 in the regular cells and 0.50 in the irregular ones.
+- Example, categorical: 0.57 (high evidence), 0.60 (moderate), 0.59 (irregular).
+- In irregular worlds, 25-32% of runs state some regularity (spurious), but they hold it weakly; confident claims are 5.8% (H4).
+
+**Against the predictions:**
+- Met: H3, H4, (a), (b).
+- **Not met:** H1 (the 3e contrast, 5/8 vs. 2/8 with 8 runs per cell, did not replicate with 16 instances x 2 prompts per format) and H2.
+- Overall discovery was lower than the predicted about 0.6 with the pattern prompt: 0.47-0.78 by cell.
+
+**Reading.**
+1. **Claude rarely discovers cross-component regularities unprompted.** With base prompts its choices are at chance and its stated reasoning names no pattern.
+2. **When prompted, it finds *a* regularity most of the time but often the wrong kind.** When it lands on the right kind it uses it correctly (R 0.87), so the bottleneck is selecting *which kind* of abstract structure holds, not applying it.
+3. **Its confidence is insensitive to the evidence:** about 0.6 whether the regularity is strongly supported, weakly supported, absent, or wrong. This is under-trust where the evidence is strong, and a failure to separate real from spurious structure.
+4. **The label-format account from 3e is not supported for categorical regularities.** Format matters for ordinal ones: digits invite them, which helps when they are real.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 

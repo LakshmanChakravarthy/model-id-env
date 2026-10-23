@@ -1,0 +1,616 @@
+{
+ "n_responses": 574,
+ "n_unparsed": 2,
+ "cost_usd": 56.47372059999999,
+ "confirmatory": {
+  "H1": {
+   "n_pairs": 63,
+   "treatment_only": 9,
+   "control_only": 11,
+   "p": 0.7482776641845703,
+   "p_holm": 0.7482776641845703,
+   "supported": false
+  },
+  "H2": {
+   "n_pairs": 159,
+   "treatment_only": 33,
+   "control_only": 21,
+   "p": 0.06683711768205261,
+   "p_holm": 0.13367423536410522,
+   "supported": false
+  },
+  "H3": {
+   "n": 182,
+   "mean_gap": 0.3331392254305345,
+   "p": 6.773676474331284e-32,
+   "p_holm": 2.7094705897325134e-31,
+   "supported": true
+  },
+  "H4": {
+   "k": 11,
+   "n": 191,
+   "rate": 0.05759162303664921,
+   "p": 5.869717547805627e-05,
+   "p_holm": 0.00017609152643416882,
+   "supported": true
+  }
+ },
+ "secondary": {
+  "a_polarity_format_digits_vs_colours": {
+   "n_pairs": 64,
+   "first_only": 15,
+   "second_only": 11,
+   "p": 0.557197093963623
+  },
+  "b_ordinal_digits_R": {
+   "k": 41,
+   "n": 64,
+   "p": 0.640625,
+   "ci": [
+    0.5182062363615084,
+    0.7471176946778538
+   ],
+   "p_vs_0.5": 0.0327657590988232
+  },
+  "c_ordinal_colours_R": {
+   "k": 35,
+   "n": 64,
+   "p": 0.546875,
+   "ci": [
+    0.42573382520679776,
+    0.6627074851396563
+   ]
+  },
+  "d_confidence_by_band": {
+   "categorical/high/base": {
+    "mean_conf": 0.5,
+    "mean_ideal": 0.9624679472290019,
+    "n": 32
+   },
+   "categorical/high/pattern": {
+    "mean_conf": 0.5746875,
+    "mean_ideal": 0.9624679472290019,
+    "n": 32
+   },
+   "categorical/moderate/base": {
+    "mean_conf": 0.5145161290322581,
+    "mean_ideal": 0.8730278187566501,
+    "n": 31
+   },
+   "categorical/moderate/pattern": {
+    "mean_conf": 0.6040625,
+    "mean_ideal": 0.8733581332829389,
+    "n": 32
+   },
+   "categorical/irregular/base": {
+    "mean_conf": 0.5,
+    "mean_ideal": 0.5,
+    "n": 32
+   },
+   "categorical/irregular/pattern": {
+    "mean_conf": 0.59,
+    "mean_ideal": 0.5,
+    "n": 32
+   },
+   "ordinal/high/base": {
+    "mean_conf": 0.52875,
+    "mean_ideal": 0.9432267633487147,
+    "n": 16
+   },
+   "ordinal/high/pattern": {
+    "mean_conf": 0.6875,
+    "mean_ideal": 0.9432267633487147,
+    "n": 16
+   },
+   "ordinal/moderate/base": {
+    "mean_conf": 0.5,
+    "mean_ideal": 0.8666666666666667,
+    "n": 16
+   },
+   "ordinal/moderate/pattern": {
+    "mean_conf": 0.6812499999999999,
+    "mean_ideal": 0.8666666666666667,
+    "n": 16
+   },
+   "ordinal/irregular/base": {
+    "mean_conf": 0.5315624999999999,
+    "mean_ideal": 0.5,
+    "n": 32
+   },
+   "ordinal/irregular/pattern": {
+    "mean_conf": 0.5534375,
+    "mean_ideal": 0.5,
+    "n": 32
+   },
+   "polarity/high/base": {
+    "mean_conf": 0.5,
+    "mean_ideal": 0.9174851190476191,
+    "n": 32
+   },
+   "polarity/high/pattern": {
+    "mean_conf": 0.6,
+    "mean_ideal": 0.9174851190476191,
+    "n": 32
+   },
+   "polarity/moderate/base": {
+    "mean_conf": 0.5,
+    "mean_ideal": 0.8095056197465835,
+    "n": 32
+   },
+   "polarity/moderate/pattern": {
+    "mean_conf": 0.5990624999999999,
+    "mean_ideal": 0.8095056197465835,
+    "n": 32
+   },
+   "polarity/irregular/base": {
+    "mean_conf": 0.5145161290322581,
+    "mean_ideal": 0.5,
+    "n": 31
+   },
+   "polarity/irregular/pattern": {
+    "mean_conf": 0.545,
+    "mean_ideal": 0.5,
+    "n": 32
+   }
+  },
+  "e_irregular_stated_regularity_by_format": {
+   "digits": {
+    "any": {
+     "k": 24,
+     "n": 95,
+     "p": 0.25263157894736843,
+     "ci": [
+      0.1760442180666685,
+      0.3484474939250436
+     ]
+    },
+    "ordinal": {
+     "k": 4,
+     "n": 95,
+     "p": 0.042105263157894736,
+     "ci": [
+      0.016493505976432808,
+      0.10331030132737451
+     ]
+    }
+   },
+   "colours": {
+    "any": {
+     "k": 31,
+     "n": 96,
+     "p": 0.3229166666666667,
+     "ci": [
+      0.23775702086652156,
+      0.4217035647010175
+     ]
+    },
+    "ordinal": {
+     "k": 1,
+     "n": 96,
+     "p": 0.010416666666666666,
+     "ci": [
+      0.001841122818436635,
+      0.056667554927112326
+     ]
+    }
+   }
+  },
+  "f_R_table": {
+   "categorical/high/digits/base": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "categorical/high/digits/pattern": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "categorical/high/colours/base": {
+    "k": 11,
+    "n": 16,
+    "p": 0.6875,
+    "ci": [
+     0.4440393186673406,
+     0.8583556494803894
+    ]
+   },
+   "categorical/high/colours/pattern": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "categorical/moderate/digits/base": {
+    "k": 12,
+    "n": 16,
+    "p": 0.75,
+    "ci": [
+     0.5050123107060135,
+     0.8981809801576265
+    ]
+   },
+   "categorical/moderate/digits/pattern": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "categorical/moderate/colours/base": {
+    "k": 7,
+    "n": 15,
+    "p": 0.4666666666666667,
+    "ci": [
+     0.24809225259746442,
+     0.6988336984894921
+    ]
+   },
+   "categorical/moderate/colours/pattern": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "categorical/irregular/digits/base": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "categorical/irregular/digits/pattern": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "categorical/irregular/colours/base": {
+    "k": 7,
+    "n": 16,
+    "p": 0.4375,
+    "ci": [
+     0.2309836333518552,
+     0.6682180439322347
+    ]
+   },
+   "categorical/irregular/colours/pattern": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "ordinal/high/digits/base": {
+    "k": 6,
+    "n": 16,
+    "p": 0.375,
+    "ci": [
+     0.18480982554752806,
+     0.613593529020652
+    ]
+   },
+   "ordinal/high/digits/pattern": {
+    "k": 11,
+    "n": 16,
+    "p": 0.6875,
+    "ci": [
+     0.4440393186673406,
+     0.8583556494803894
+    ]
+   },
+   "ordinal/high/colours/base": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "ordinal/high/colours/pattern": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "ordinal/moderate/digits/base": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "ordinal/moderate/digits/pattern": {
+    "k": 14,
+    "n": 16,
+    "p": 0.875,
+    "ci": [
+     0.6397666856325173,
+     0.9650232506629428
+    ]
+   },
+   "ordinal/moderate/colours/base": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "ordinal/moderate/colours/pattern": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "ordinal/irregular/digits/base": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "ordinal/irregular/digits/pattern": {
+    "k": 6,
+    "n": 16,
+    "p": 0.375,
+    "ci": [
+     0.18480982554752806,
+     0.613593529020652
+    ]
+   },
+   "ordinal/irregular/colours/base": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "ordinal/irregular/colours/pattern": {
+    "k": 11,
+    "n": 16,
+    "p": 0.6875,
+    "ci": [
+     0.4440393186673406,
+     0.8583556494803894
+    ]
+   },
+   "polarity/high/digits/base": {
+    "k": 7,
+    "n": 16,
+    "p": 0.4375,
+    "ci": [
+     0.2309836333518552,
+     0.6682180439322347
+    ]
+   },
+   "polarity/high/digits/pattern": {
+    "k": 10,
+    "n": 16,
+    "p": 0.625,
+    "ci": [
+     0.3864064709793481,
+     0.815190174452472
+    ]
+   },
+   "polarity/high/colours/base": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "polarity/high/colours/pattern": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "polarity/moderate/digits/base": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "polarity/moderate/digits/pattern": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   },
+   "polarity/moderate/colours/base": {
+    "k": 7,
+    "n": 16,
+    "p": 0.4375,
+    "ci": [
+     0.2309836333518552,
+     0.6682180439322347
+    ]
+   },
+   "polarity/moderate/colours/pattern": {
+    "k": 7,
+    "n": 16,
+    "p": 0.4375,
+    "ci": [
+     0.2309836333518552,
+     0.6682180439322347
+    ]
+   },
+   "polarity/irregular/digits/base": {
+    "k": 9,
+    "n": 15,
+    "p": 0.6,
+    "ci": [
+     0.357464427565077,
+     0.8017577191740534
+    ]
+   },
+   "polarity/irregular/digits/pattern": {
+    "k": 8,
+    "n": 16,
+    "p": 0.5,
+    "ci": [
+     0.2799923761135083,
+     0.7200076238864916
+    ]
+   },
+   "polarity/irregular/colours/base": {
+    "k": 6,
+    "n": 16,
+    "p": 0.375,
+    "ci": [
+     0.18480982554752806,
+     0.613593529020652
+    ]
+   },
+   "polarity/irregular/colours/pattern": {
+    "k": 9,
+    "n": 16,
+    "p": 0.5625,
+    "ci": [
+     0.33178195606776517,
+     0.7690163666481448
+    ]
+   }
+  },
+  "coded_stated_regularity_regular_cells": {
+   "categorical/digits/base": {
+    "none": 32,
+    "categorical": 0,
+    "ordinal": 0,
+    "polarity": 0,
+    "other": 0
+   },
+   "categorical/digits/pattern": {
+    "none": 11,
+    "categorical": 5,
+    "ordinal": 3,
+    "polarity": 7,
+    "other": 6
+   },
+   "categorical/colours/base": {
+    "none": 29,
+    "categorical": 0,
+    "ordinal": 0,
+    "polarity": 1,
+    "other": 1
+   },
+   "categorical/colours/pattern": {
+    "none": 8,
+    "categorical": 10,
+    "ordinal": 0,
+    "polarity": 6,
+    "other": 8
+   },
+   "ordinal/digits/base": {
+    "none": 32,
+    "categorical": 0,
+    "ordinal": 0,
+    "polarity": 0,
+    "other": 0
+   },
+   "ordinal/digits/pattern": {
+    "none": 2,
+    "categorical": 6,
+    "ordinal": 22,
+    "polarity": 0,
+    "other": 2
+   },
+   "ordinal/colours/base": {
+    "none": 30,
+    "categorical": 1,
+    "ordinal": 0,
+    "polarity": 0,
+    "other": 1
+   },
+   "ordinal/colours/pattern": {
+    "none": 7,
+    "categorical": 14,
+    "ordinal": 5,
+    "polarity": 1,
+    "other": 5
+   },
+   "polarity/digits/base": {
+    "none": 31,
+    "categorical": 0,
+    "ordinal": 0,
+    "polarity": 0,
+    "other": 1
+   },
+   "polarity/digits/pattern": {
+    "none": 13,
+    "categorical": 6,
+    "ordinal": 2,
+    "polarity": 5,
+    "other": 6
+   },
+   "polarity/colours/base": {
+    "none": 32,
+    "categorical": 0,
+    "ordinal": 0,
+    "polarity": 0,
+    "other": 0
+   },
+   "polarity/colours/pattern": {
+    "none": 9,
+    "categorical": 3,
+    "ordinal": 0,
+    "polarity": 12,
+    "other": 8
+   }
+  },
+  "g_H3_regularity_used_only": {
+   "n": 74,
+   "mean_gap": 0.26721335824126846,
+   "p_one_sided": 3.852040742002363e-14
+  }
+ }
+}
