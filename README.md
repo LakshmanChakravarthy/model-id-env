@@ -223,6 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
+- **Study 5 (centerpiece)**, design phase declared: generative model, simulations, sample reports for the user's review, preregistration, pilot, main run.
 - **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
@@ -490,6 +491,34 @@ Irregular worlds: R 0.54.
 2. **When prompted, it finds *a* regularity most of the time but often the wrong kind.** When it lands on the right kind it uses it correctly (R 0.87), so the bottleneck is selecting *which kind* of abstract structure holds, not applying it.
 3. **Its confidence is insensitive to the evidence:** about 0.6 whether the regularity is strongly supported, weakly supported, absent, or wrong. This is under-trust where the evidence is strong, and a failure to separate real from spurious structure.
 4. **The label-format account from 3e is not supported for categorical regularities.** Format matters for ordinal ones: digits invite them, which helps when they are real.
+
+## Study 5 (centerpiece): Claude interprets cognitive experiments on compositional task learning (design phase declared 2026-10-23)
+
+**Why.** Studies 1-4 used artificial grammars to identify failure signatures (alternative neglect, confidence that does not track evidence, selecting the wrong kind of structure) and a fix ("consider alternatives"). The user (a cognitive scientist) asked whether these matter outside artificial tasks. The answer chosen: make the centerpiece a task scientists actually do, in the user's field. Claude reads results sections of simulated C-PRO-style experiments (RT and accuracy; practice curves; test phase with practiced vs. novel tasks) and must judge what they show about **compositional vs. conjunctive representations**. Ground truth is exact, because simulated participants have known mechanisms. Decisions with the user (2026-10-23):
+- RT and accuracy only (no trials to criterion);
+- a practice set of 4 tasks covering all 12 rules;
+- standard breakdowns by number of shared rules and by rule type changed;
+- intrusion errors (responding as the similar practiced task would), following the field's compositional-vs-conjunctive framing;
+- **repetition of novel tasks during test, and its lag**: does a novel composition become practiced-like, and does that decay?;
+- the speeded regime only (the unspeeded, complex-rule regime is deferred to the fellowship proposal);
+- Study 5a (the abstract dose-response study) is dropped. Evidence strength is varied inside the centerpiece instead.
+
+**Design phase (declared now; no Claude calls).** Build `env/cpro.py`:
+- **C-PRO semantics:** logic both / not both / either / neither; sensory red / vertical / high pitch / constant tone; motor left/right index/middle, where "left index" means true -> left index and false -> left middle;
+- a practice set of 4 tasks covering 12 rules, and a test schedule of practiced and novel mini-blocks, with novel tasks repeated at short and long lags;
+- **simulated participants with a dual-route mechanism:**
+  - composition: slower; costs by rule type; accurate;
+  - retrieval of the most similar practiced conjunction: fast; errors are intrusions; probability scaled by response overlap;
+  - compilation of a novel task into its own conjunction after an occurrence, decaying with lag;
+- three accounts as parameter regions: **compositional** (no similarity retrieval, no compilation), **conjunctive** (strong similarity retrieval, slow composition, compilation with weak decay), and **dual-route with compilation** (moderate retrieval, compilation with lag-dependent decay);
+- reports at 4 **evidence levels**:
+  1. practiced vs. novel;
+  2. plus the shared-rules and rule-type breakdowns;
+  3. plus intrusion analyses;
+  4. plus repetition x lag;
+- the **exact posterior** (Monte Carlo over each account's parameter prior; Gaussian likelihood of the reported means given the reported standard errors).
+
+Then simulate to check that (1) the three accounts produce the predicted signature table, and (2) the ideal posterior rises across the evidence levels. Sample reports go to the user for a realism review. The preregistration (`docs/study5_preregistration.md`) is committed before any Study 5 Claude call.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 
