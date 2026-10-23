@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 5 (centerpiece)**: sample reports approved by the user (2026-10-23); **preregistered** (`docs/study5_preregistration.md`). Next: pilot (3 calls), main run (192 calls), analysis.
+- **Study 5 (centerpiece)**: done (192 calls, $13.29). H1a, H1b, H4 supported (H4 not by the trap mechanism); H2, H3 not (Claude underclaims). Next: synthesis (README, figures, application text).
 - **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
@@ -535,6 +535,40 @@ Then simulate to check that (1) the three accounts produce the predicted signatu
 
   This matches the table the user approved, with one refinement: the conjunctive account, not dual-route, comes closest to practiced performance by the 3rd occurrence (dual-route's compiled traces decay).
 - **Report generator:** method summary, practice curves, practiced vs. novel, the shared-rules and rule-type breakdowns, intrusions, and repetition x lag, revealed by evidence level, with neutral paired t-tests. Sample reports are written for the user's realism review.
+
+**Result: Study 5 main run (2026-10-23).** `results/study5/main/` (192 calls, all parsed), `results/study5/main/analysis.json` (`analysis/study5_analysis.py`), $13.29. A 3-call pipeline pilot ran first (`results/study5/pilot/`; not analysed).
+
+**Confirmatory tests (Holm-corrected):**
+
+| Hypothesis | Result | p (Holm) |
+|---|---|---|
+| H1a: p_truth rises from level 1 to 4 | **Supported:** +0.25 | 3e-7 |
+| H1b: it rises less than the ideal reader's | **Supported:** by 0.29 less | 1e-7 |
+| H2: overclaiming at levels 1-2 | **Not supported, opposite direction:** Claude is *less* certain than the ideal (overclaim -0.19) | 1.0 |
+| H3: the alternatives instruction reduces overclaiming | **Not supported** (no overclaiming to reduce; mean difference 0.00) | 0.98 |
+| H4: excess p(compositional) at level 2 when the truth is not compositional | **Supported statistically** (+0.12), **but not by the predicted mechanism** (see below) | 7e-5 |
+
+**By level** (Claude vs. ideal; base / alternatives instruction):
+
+| Level | Top choice correct | p_truth | Brier |
+|---|---|---|---|
+| L1 | 0.50 / 0.54 (ideal 0.50) | 0.34 (0.46) | 0.66 (0.53) |
+| L2 | 0.71 / 0.62 (ideal 0.79) | 0.47 / 0.45 (0.66) | 0.48 (0.32) |
+| L3 | 0.58 / 0.54 (ideal 0.83) | 0.46 / 0.45 (0.74) | 0.51 (0.25) |
+| L4 | 0.71 / 0.75 (ideal 1.00) | 0.58 / 0.60 (1.00) | 0.38 (0.00) |
+
+The secondary prediction (level-4 top choice correct >= 0.8) is **not met** (0.71-0.75).
+
+**Diagnostics (descriptive):**
+- **Level 1:** Claude answered `cannot_tell` with near-uniform probabilities in **48 of 48** runs. The ideal reader is moderately informed at level 1 (0.39-0.53), but that information comes partly from our parameter priors, which a reader cannot know. Uniform is defensible here.
+- **H4 is not the shared-rules trap.** At level 2, 29 of 32 non-compositional-truth runs cite the shared-rules RT advantage, and they read it *correctly*, together with the accuracy cost, as retrieval with intrusions. Example: "faster (1615 vs 1918 ms) but less accurate (64.4% vs 75.0%) ... the speed-accuracy signature of retrieving the most similar practiced conjunction with intrusions. Compositional reuse predicts the opposite accuracy pattern." Runs that cite it give compositional *less* probability (0.17) than runs that do not (0.28). The ideal gives 0.06. The excess comes from probability spread too evenly, not from the trap.
+- **Qualitative vs. degree distinctions:**
+  - *Compositional vs. the rest* (a qualitative signature: retrieval and intrusions present or absent): top choice correct in 16/16 (L2), 15/16 (L3), and 15/16 (L4) runs when the truth was compositional, and compositional was rarely chosen otherwise.
+  - *Conjunctive vs. dual-route* (which differ in degree: how much retrieval, how fast compiled traces decay): confused. Dual-route was read as conjunctive in 9/16 (L2) and 13/16 (L3); conjunctive was read as dual-route in 10/16 at L4, where the ideal reader is certain.
+- **Under-confidence throughout:** Claude's maximum probability is 0.16-0.31 below the ideal's at every level. At L4 its p_truth is 0.58-0.60 where the evidence supports 1.00.
+- **The alternatives instruction** changed nothing measurable (it targets alternative neglect; here Claude already weighs all three accounts and often says `cannot_tell`).
+
+**Reading.** As a reader of C-PRO experiments, Claude reasons like an expert about *qualitative* signatures. It recognises the speed-accuracy dissociation of conjunctive retrieval, explains the motor-rule intrusion cost correctly, and does not fall for the shared-rules trap. It is weak where accounts differ in *degree*, and its confidence rises with evidence far less than it should. This replicates Study 4's evidence-insensitive confidence in a realistic setting. In contrast with Study 1 (case 4) and Study 3c, the error here is **under**claiming. Claude's caution in realistic scientific reading costs information (Brier 0.38 vs. the ideal 0.00 at L4) rather than producing confident mistakes.
 
 ## Study 2 record: a learner that factors rules only when reuse justifies it (declared 2026-10-22)
 

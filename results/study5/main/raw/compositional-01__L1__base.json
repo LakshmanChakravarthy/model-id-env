@@ -1,0 +1,45 @@
+{
+ "id": "compositional-01",
+ "account": "compositional",
+ "level": 1,
+ "instruction": "base",
+ "answer": {
+  "account": "cannot_tell",
+  "probabilities": {
+   "compositional": 0.34,
+   "conjunctive": 0.32,
+   "dual-route": 0.34
+  },
+  "key_evidence": "The only test result is a large novel-vs-practiced cost (RT +958 ms, accuracy -12 points). All three accounts predict this. Novel RT exceeding practice-block-1 RT points to a slow composing route dominating, but every account includes such a route.",
+  "alternative_readings": "The cost could reflect slow reconfiguration of the most-overlapping task set (compositional), slow composition plus intrusions from retrieved conjunctions (conjunctive), or mostly composition with occasional competition (dual-route). Mean RT and accuracy cannot separate these.",
+  "next_step": "Classify novel-task errors by whether they match the response of the most-overlapping practiced task, and compare 2-rule vs. 1-rule overlap tasks on RT and intrusion rate. Then analyze repeated novel tasks for a task-specific benefit and test whether it decays with the number of intervening mini-blocks (persistent: conjunctive; decaying: dual-route; absent: compositional).",
+  "probabilities_normalised": {
+   "compositional": 0.34,
+   "conjunctive": 0.32,
+   "dual-route": 0.34
+  }
+ },
+ "ideal": {
+  "compositional": 0.48976622395556646,
+  "conjunctive": 0.1358151514882521,
+  "dual-route": 0.37441862455618147
+ },
+ "score": {
+  "p_truth": 0.34,
+  "ideal_p_truth": 0.48976622395556646,
+  "brier": 0.6536,
+  "ideal_brier": 0.41897356800488084,
+  "top_correct": 1,
+  "ideal_top_correct": 1,
+  "account": "cannot_tell",
+  "overclaim_vs_ideal": -0.14976622395556644,
+  "kl_ideal_to_claude": 0.09846375299276658
+ },
+ "text": "**Verdict: cannot tell.** These results don't distinguish the three accounts.\n\n## What the data show\n\n- **Practice:** a standard learning curve. RT falls from 1285 to 699 ms and accuracy rises from 74% to 91%, flattening after block 4.\n- **Test:** novel tasks are much slower (+958 ms) and less accurate (\u221212 points) than practiced tasks. Accuracy is still well above chance (82.9% vs. 50%).\n\n## Why this doesn't discriminate\n\nAll three accounts predict a large novel-task cost:\n\n- **Compositional:** reconfiguring a task set and swapping rules takes time. Novel tasks lack the whole-task practice benefit.\n- **Conjunctive:** composing is slow. Where a practiced conjunction is retrieved instead, its responses intrude and cause errors.\n- **Dual-route:** mostly slow composition, plus occasional intrusions from competing conjunctions.\n\nOne feature is mildly interesting. Novel-task RT (1611 ms) is slower than the *first* practice block (1285 ms). That suggests a slow, effortful route dominates on novel trials. But all three accounts include a slow composing process, so this doesn't separate them. The accounts differ on things this summary doesn't report:\n\n1. **Error type.** Are errors on novel tasks the responses that the most-overlapping practiced task would give? Conjunctive predicts many such intrusions, dual-route some, compositional none beyond chance.\n2. **Rule overlap.** Because each rule appears in exactly one practiced task, a novel task shares either 2 rules or only 1 rule with its closest practiced task. Conjunctive predicts faster responses but more intrusions for the 2-overlap tasks. Compositional predicts faster reconfiguration with fewer rule changes, but no intrusions.\n3. **Repetition.** On the second performance of a novel task, conjunctive predicts a task-specific benefit that persists across the session. Dual-route predicts a benefit that shrinks as more mini-blocks intervene. Compositional predicts only general practice gains, with no task-specific effect.\n\nWith no diagnostic evidence, I keep near-uniform probabilities.\n\n```json\n{\"account\": \"cannot_tell\", \"probabilities\": {\"compositional\": 0.34, \"conjunctive\": 0.32, \"dual-route\": 0.34}, \"key_evidence\": \"The only test result is a large novel-vs-practiced cost (RT +958 ms, accuracy -12 points). All three accounts predict this. Novel RT exceeding practice-block-1 RT points to a slow composing route dominating, but every account includes such a route.\", \"alternative_readings\": \"The cost could reflect slow reconfiguration of the most-overlapping task set (compositional), slow composition plus intrusions from retrieved conjunctions (conjunctive), or mostly composition with occasional competition (dual-route). Mean RT and accuracy cannot separate these.\", \"next_step\": \"Classify novel-task errors by whether they match the response of the most-overlapping practiced task, and compare 2-rule vs. 1-rule overlap tasks on RT and intrusion rate. Then analyze repeated novel tasks for a task-specific benefit and test whether it decays with the number of intervening mini-blocks (persistent: conjunctive; decaying: dual-route; absent: compositional).\"}\n```",
+ "cost_usd": 0.0500316,
+ "model_usage": [
+  "claude-haiku-5-5",
+  "claude-opus-5-5"
+ ],
+ "prompt": "# Interpret a cognitive experiment\n\nBelow is the method and results summary of an experiment on rapid instructed task learning. Three accounts of how participants perform novel tasks are under consideration. Exactly one of them describes these participants.\n\n**(A) Compositional.** Participants perform novel tasks by reusing the practiced rules as separable parts: they reconfigure the practiced task set that shares the most rules with the novel task, changing the rules that differ. They do not rely on practiced conjunctive (whole-task) representations for novel tasks. Repeating a novel task only adds general practice; no new whole-task representation is formed.\n\n**(B) Conjunctive.** Performance relies mainly on conjunctive (whole-task) representations formed during practice. A novel task tends to retrieve the practiced conjunction that shares the most rules with it: this is fast, but the retrieved task's responses intrude where the two tasks differ. Composing a novel task from its rules is possible but slow. Once a novel task has been performed, it is stored as a new conjunction that persists across the session.\n\n**(C) Dual-route with compilation.** Participants mostly compose novel tasks from rules, but practiced conjunctions are sometimes retrieved and compete (with occasional intrusions). A novel task that has been performed is compiled into a new conjunction, but this new representation decays over intervening mini-blocks.\n\n---\n\n## Method (summary)\n\n32 participants performed the Concrete Permuted Rule Operations (C-PRO) paradigm. Each task combines one logic rule (BOTH, NOT BOTH, EITHER, NEITHER), one sensory rule (RED, VERTICAL, HIGH PITCH, CONSTANT TONE), and one motor rule (LEFT INDEX, LEFT MIDDLE, RIGHT INDEX, RIGHT MIDDLE); 64 tasks in total. On each trial two audiovisual stimuli are presented; the logic rule is applied to whether each stimulus has the sensory feature, and the motor rule maps the result to a button (for example, LEFT INDEX: true -> left index finger, false -> left middle finger). Tasks are presented in mini-blocks: an instruction screen, then 3 trials, with speeded responses.\n\n**Practice phase.** Four tasks covering all 12 rules (each rule in exactly one practiced task), practiced over 6 blocks:\n- BOTH / HIGH PITCH / RIGHT INDEX\n- NEITHER / CONSTANT TONE / RIGHT MIDDLE\n- NOT BOTH / VERTICAL / LEFT MIDDLE\n- EITHER / RED / LEFT INDEX\n\n**Test phase.** The 4 practiced tasks (2 mini-blocks each) and 18 novel tasks. Every novel task combines practiced rules. Unless noted, novel-task results refer to the first time each novel task was performed.\n\nRT is the mean of correct trials. SE is the standard error across participants.\n\n## Results\n\n**Practice.** RT and accuracy for the practiced tasks over the practice blocks:\n\n| Block | RT | Accuracy |\n|---|---|---|\n| 1 | 1285 ms (SE 35) | 74.3% (SE 0.9) |\n| 2 | 888 ms (SE 24) | 86.2% (SE 0.6) |\n| 3 | 776 ms (SE 19) | 89.2% (SE 0.8) |\n| 4 | 738 ms (SE 18) | 90.7% (SE 0.8) |\n| 5 | 723 ms (SE 17) | 91.0% (SE 0.9) |\n| 6 | 699 ms (SE 17) | 91.1% (SE 0.7) |\n\n**Test: practiced vs. novel tasks.**\n\n| Condition | RT | Accuracy |\n|---|---|---|\n| Practiced tasks | 653 ms (SE 18) | 95.2% (SE 0.8) |\n| Novel tasks | 1611 ms (SE 37) | 82.9% (SE 1.3) |\n\nNovel vs. practiced tasks, paired t-tests: RT t(31) = 25.04, p < .001; accuracy t(31) = -8.71, p < .001.\n\n---\n\n## Your judgment\n\nWhich account do these results support, and how strongly? Reason as you like, then end with one JSON object: {\"account\": \"compositional\" | \"conjunctive\" | \"dual-route\" | \"cannot_tell\", \"probabilities\": {\"compositional\": p, \"conjunctive\": p, \"dual-route\": p}, \"key_evidence\": \"...\", \"alternative_readings\": \"...\", \"next_step\": \"the analysis or experiment you would run next\"}. The probabilities are your probabilities that each account is the true one; they should sum to 1. Use \"cannot_tell\" if the results do not favour one account clearly."
+}
