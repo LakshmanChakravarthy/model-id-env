@@ -353,5 +353,15 @@
     "n_search": 40000,
     "alternatives": "Before you answer, write down every way of assigning meanings to the components that fits all the examples, not only the first one you find. Check each candidate against all the known tasks. Base your predictions, \"determined\", and your confidence on all the assignments that fit.",
     "pattern": "Also look for patterns that hold across all the components you can identify, and consider whether such a pattern makes some of the fitting assignments more plausible than others."
+  },
+  "study5": {
+    "model": "claude-opus-5-5",
+    "max_turns": 3,
+    "max_parallel": 4,
+    "seed": 50000,
+    "pilot_seed": 50999,
+    "n_per_account": 8,
+    "n_participants": 32,
+    "ideal_k": 8000
   }
 }

@@ -223,7 +223,7 @@ docs/           transcripts.md
 - **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
 
 **Pending**
-- **Study 5 (centerpiece)**: generative model and calibrated ideal reader built; sample reports in `docs/study5_sample_reports.md` await the user's realism review; then the preregistration, pilot, and main run.
+- **Study 5 (centerpiece)**: sample reports approved by the user (2026-10-23); **preregistered** (`docs/study5_preregistration.md`). Next: pilot (3 calls), main run (192 calls), analysis.
 - **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
 - **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
 - **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
