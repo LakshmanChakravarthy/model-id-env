@@ -1,35 +1,60 @@
-# model-id-env
+# Claude as a cognitive scientist: a pilot
 
-An environment that tests whether Claude can identify a hidden learning mechanism by designing its own experiments. The ground truth is known by construction, so scoring is automatic. This is a prototype for an application to the Anthropic Conceptual Reasoning Fellowship (deadline 2026-10-28). Everything below was declared before it was run; the full record, including failed checks, is in the [Analysis log](#analysis-log).
+This repository is a one-week pilot built for an application to the Anthropic Conceptual Reasoning Fellowship. It asks how well Claude (`claude-opus-5-5`) reasons about one question from cognitive science: whether learners use **compositional** representations (reusable parts) or **conjunctive** ones (whole tasks), and what the evidence for each looks like. Every study uses simulated learners or participants with known mechanisms, so every answer has an exact reference. The record below is complete, including the checks that failed and the decisions made along the way.
 
-## Summary
+## Five studies at a glance
 
-**Question.** Cognitive scientists often have to choose between mechanisms that predict similar behavior. Here the question is how a learner transfers to new combinations of known rules:
-- **part-based:** it reuses stored rules, so cost depends on how many of a task's rules are new;
-- **holistic:** it stores whole tasks, so cost depends on similarity to known tasks.
+| Study | Claude's role | Question | Main result |
+|---|---|---|---|
+| 1 | **Experimenter** | Design train/test queries to tell a part-based learner from a similarity-based one, when shared parts and similarity are confounded | Designs a decisive contrast in 20/20 runs. When the hypotheses cannot be told apart (case 4), it commits anyway (0/10 `cannot_decide`), although out of the loop it answers `cannot_decide` 5/5 |
+| 2 | **Experimenter** | Identify a learner that factors a rule only after it recurs (a curriculum problem) | Design about as informative as a scripted before/after curriculum (0.88 vs. 0.90; random 0.57); 4 of 5 errors are inference errors, repeated when the same data are given as a table (29/30 same verdict) |
+| 3 | **Learner** (in context) | Learn rule-based tasks from examples; compose new ones | Composes like an ideal learner once the *form* of the parts is stated (depth 2, no labels); does not discover the form; commits to the first decomposition it finds (confidently wrong in 9/16), which a "consider the alternatives" instruction fixes (0/16) |
+| 4 | **Learner** (preregistered, 576 calls) | Discover a regularity across components that resolves an ambiguity (three kinds) | Rarely looks unprompted; when prompted, finds the right kind in 34% of runs and then uses it correctly (87%); its confidence barely moves with the evidence |
+| 5 | **Reader of experiments** (preregistered, 192 calls) | Interpret C-PRO-style results sections (practice curves, transfer, shared-rule and rule-type breakdowns, intrusions, repetition x lag) | Reads qualitative signatures like an expert (the speed-accuracy signature of intrusions; not misled by the shared-rules effect); confuses accounts that differ in degree; its belief rises far less than the evidence warrants |
 
-The number of shared rules and overall similarity are correlated, so a good experimenter must find the tasks where they come apart.
+![Study 5](results/figures/study5.png)
 
-**Setup.** Claude runs headless in a sandbox and can only send queries to an experiment server: `describe`, `compare`, `train`, `test`, and `submit`. It has a budget of 60 costly queries and noisy results (sd 15). It must submit a verdict (`part-based`, `holistic`, or `cannot_decide`) with a confidence. Every run is scored beside two baselines on the same instance: a random design and a D-optimal design, both analysed by regression.
+## What it adds up to
 
-**Two studies** (`claude-opus-5-5`, 70 experiment runs and 40 control questions, about $30):
+Claude's **qualitative** scientific reasoning is strong. It designs decisive contrasts, composes given the parts, and recognises interference signatures. Its consistent weakness is **graded, quantitative inference**: telling apart accounts that differ in degree, and moving belief in proportion to evidence. The direction of its errors depends on the setting. In artificial puzzles, where a first decomposition seemed to fit, it was confidently wrong. Reading realistic experiments, it was too cautious. This motivates the direction proposed in the application: environments for interpreting **representational-geometry analyses** (RSA, decoding, cross-condition generalization), which are quantitative and rest on many assumptions, built on simulated neural data with known geometry.
 
-- **Study 1: confounded measures.** Shared rules and overall similarity are correlated; the learner is either part-based or holistic.
-  - Claude designs well: 20/20 correct, and a decisive contrast in every design (random designs: 40%).
-  - In case 4, the holistic learner's similarity measure is unobserved, so part-based-looking data cannot settle the question. There, Claude answers part-based in 9/10 runs (and holistic once), never `cannot_decide`. Asked the same question out of the loop, it answers `cannot_decide` 5/5.
-- **Study 2: a learner that factors a rule only once it has recurred in k trained tasks.** This is motivated by Elmoznino et al. (2026): an abstraction pays for itself only after enough reuse. Identifying the learner needs a before/after curriculum.
-  - **Claude's designs are about as informative as a scripted before/after curriculum** (design score 0.88 vs 0.90; random designs 0.57).
-  - **Its losses are in inference.** An exact analysis of Claude's own data is right in 28/30 runs; Claude is right in 25/30, and 4 of its 5 errors are inference errors.
-  - **The inference errors are not caused by experimenting.** Given its own data as a table, Claude reaches the same verdict in 29/30 runs.
-  - It flags these errors with low confidence (0.40-0.55).
+## How the work was done
 
-**Overall: design is strong, and turning evidence into a conclusion is the weaker step.** When the hypotheses cannot be told apart, Claude commits with confidence (Study 1, case 4). When the evidence is noisy, it reads single contrasts as decisive and errs on close calls with low confidence (Study 2). In one Study 2 control answer it prefers "the simpler part-based account", which the stated equal prior does not license.
+- **Conventions** in `CLAUDE.md`: all parameters in `configs/`, explicit seeds, one record per run, no hidden constants.
+- **A cycle for every analysis:** a *declare* commit (what will run, what is expected), then code and tests, then a *record results* commit. Studies 4 and 5 were formally preregistered (`docs/study4_preregistration.md`, `docs/study5_preregistration.md`), with deviations logged in each document.
+- **Known-answer checks before any Claude result.** They caught wrong premises:
+  - the first task space had no confound (check 1);
+  - random designs were already at ceiling (check 2);
+  - a check's margin was tied to the noise level;
+  - the sandbox let read-only commands through (check 3, fixed with a deny list and an automated permission probe);
+  - accidental regularities contaminated the "irregular" control worlds (Study 4 simulations);
+  - an over-informative evidence ladder and an overconfident ideal reader (Study 5 simulations; fixed and recalibrated before any run).
+- **Isolation:** Claude ran headless (`claude -p`), with tools restricted or disabled, in sandboxes outside the repository.
 
-![Study 1](results/figures/main.png)
+## Limitations
 
-![Study 2](results/figures/study2.png)
+- One model.
+- Simulated learners and participants. The Study 5 generative model was reviewed for realism by a domain expert, but it is still a model.
+- 8-16 instances per cell.
+- Grader codes in Study 4 were not validated against hand coding (a recorded decision).
 
-Annotated runs are in [docs/transcripts.md](docs/transcripts.md): a good design and a failure from each study, each chosen by a declared rule.
+## Reproduce
+
+Python 3 with numpy, scipy, matplotlib, and pandas; Claude Code >= 2.1.280 for `claude-opus-5-5`. `python -m pytest tests` runs 50 tests.
+
+| Study | Commands |
+|---|---|
+| 1 | `analysis/check1_dissociation.py`, `analysis/check2_baselines.py final`, `analysis/check4_case4.py`, `harness/run_claude.py {probe,check3,main,main_case4}`, `harness/comprehension_control.py` |
+| 2 | `analysis/check5_6_study2.py {check5,check6}`, `harness/run_claude.py {pilot_study2,main_study2}`, `harness/inference_control.py` |
+| 3 | `harness/study3_probe.py`, `harness/study3b.py`, `harness/study3c.py`, `harness/study3d.py`, `harness/study3e.py` |
+| 4 | `harness/run_study4.py {pilot,main,grade main}`, `analysis/study4_analysis.py analyse` |
+| 5 | `harness/run_study5.py {pilot,main}`, `analysis/study5_analysis.py`, `analysis/figures_study5.py` |
+
+Annotated example runs: `docs/transcripts.md`.
+
+# Detailed record
+
+The sections below are the full record, in the order the work was done: Studies 1-2 (results, design, checks), then each later study's declaration and results, then the day-by-day analysis log for Studies 1-2.
 
 ## Study 1 results
 
@@ -218,17 +243,9 @@ docs/           transcripts.md
 
 ## Current status
 
-**Completed** (details and numbers in the Analysis log and the Study 2 section)
-- **Study 1** (2026-10-21): task space, learners, environment, sandboxed headless harness, checks 1-4, and 40 main runs (main condition and case 4). Plus the case-4 comprehension control.
-- **Study 2** (2026-10-22): the factor-when-justified learner, the exact analysis, three baselines, checks 5-6, the pilot, 30 main runs, the inference-only control, the figure, and transcripts.
+**Completed** (2026-10-21 to 2026-10-27): Studies 1-5, the figures, the transcripts, the README synthesis, the application draft (`docs/application_draft.md`), and a scrub of the local username from the probe commands and recorded outputs.
 
-**Pending**
-- **Study 5 (centerpiece)**: done (192 calls, $13.29). H1a, H1b, H4 supported (H4 not by the trap mechanism); H2, H3 not (Claude underclaims). Next: synthesis (README, figures, application text).
-- **Study 4:** preregistered (`docs/study4_preregistration.md`). Pipeline pilot done (12 calls + 12 grader calls, $1.59; every response parsed and graded; no pipeline bugs; outcomes not analysed, as preregistered). Main run done (576 calls, $56.47 + $11.79 grading). Validation skipped (user decision). Analysis done: H3, H4 supported; H1, H2 not. Next: figure and synthesis.
-- **Study 3:** 3a, 3b, 3c done. Claude composes ideally given the form; it does not infer the button-class overhypothesis; when several decompositions fit, it is calibrated only if it generates the alternative, otherwise confidently wrong.
-- **Study 3d:** done. 'Consider alternatives' removes the confident errors (9/16 -> 0/16) without over-caution; the overhypothesis is still not inferred (Claude searches for ordinal, not categorical, patterns).
-- **Study 3e:** done. With colour-named buttons and the pattern instruction, Claude finds the categorical regularity in 4/8 regular-high runs and then always uses it (0/8 with digits), but with confidence about 0.7 vs. the ideal 0.99. Partial support for the ordinal-label explanation.
-- Make the repo public; add the link to the application (deadline 2026-10-28). Before that, check the committed transcripts and probe records for personal paths, and update CLAUDE.md's hypothesis statement if wanted.
+**Pending:** make the repository public and add its link to the application (deadline 2026-10-28).
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
 
