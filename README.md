@@ -14,9 +14,29 @@ This repository is a one-week pilot built for an application to the Anthropic Co
 
 ![Study 5](results/figures/study5.png)
 
-## What it adds up to
+## What the results show
 
-Claude's **qualitative** scientific reasoning is strong. It designs decisive contrasts, composes given the parts, and recognises interference signatures. Its consistent weakness is **graded, quantitative inference**: telling apart accounts that differ in degree, and moving belief in proportion to evidence. The direction of its errors depends on the setting. In artificial puzzles, where a first decomposition seemed to fit, it was confidently wrong. Reading realistic experiments, it was too cautious. This motivates the direction proposed in the application: environments for interpreting **representational-geometry analyses** (RSA, decoding, cross-condition generalization), which are quantitative and rest on many assumptions, built on simulated neural data with known geometry.
+Claude's **qualitative** scientific reasoning is strong. It designs decisive contrasts, composes given the parts, and recognises interference signatures. Its consistent weakness is **graded, quantitative inference**: telling apart accounts that differ in degree, and moving belief in proportion to evidence. The direction of its errors depends on the setting. In artificial puzzles, where a first decomposition seemed to fit, it was confidently wrong. Reading realistic experiments, it was too cautious.
+
+## How the question changed
+
+This pilot did not follow a straight line to its conclusion. Each study changed what I thought was worth asking, and several paths were dropped. The record below is chronological. The "declare" commits and the Analysis log hold the details.
+
+1. **Studies 1-2: Claude as experimenter on toy learners.** I started with a model-identification environment: Claude designs experiments to tell a part-based learner from a similarity-based one. The known-answer checks kept overturning my premises: the first task space had no confound, and random designs were already near ceiling. Once fixed, Claude designed decisive experiments almost every time. The one interesting failure was case 4 (committing when the hypotheses could not be told apart), and even that rested on a disputable answer key.
+2. **A stock-take: why did this feel like a "bummer"?** My conviction is about *learners*: compositional structure should make learning faster and robust when a part changes. But the environment made Claude the *scientist*, and the learners were formulas. The question never reached Claude. I considered an ideal-observer redesign and dropped it. After reading Elmoznino et al. (2026) I tried one more learner (Study 2, which factors a rule only when reuse justifies it). It again showed strong design and weaker inference, still about toy learners.
+3. **Study 3: Claude as the learner.** I moved to asking when a learner should rely on parts vs. overall similarity, anchored in the rules-vs-memory debate. Claude composed like an ideal learner once it knew what kinds of parts existed. Its limits appeared one level up, in discovering that structure. I considered making this the main question.
+4. **Study 4: the preregistered test of that idea.** The label-format effect from the small pilots did not replicate. The supported findings were narrower: Claude rarely looks for cross-component structure unprompted, often picks the wrong kind, and its confidence does not track the evidence. I also had to ask whether results on an artificial grammar matter for anything outside it, and I did not have a good answer.
+5. **Study 5: a task scientists actually do, in my field.** I chose to test Claude as a reader of C-PRO-style experiments, and set the format from how the field reports them: RT and accuracy (not the trials-to-criterion measure we had been using), practice curves, shared-rule and rule-type breakdowns, intrusions, and repetition x lag. I also argued that speed under time pressure is separate from the ability to compose. Claude read the qualitative signatures like an expert, did not fall into the shared-rules trap I expected, and was weak only on distinctions of degree.
+6. **Where that left me.** Confidence calibration, which several studies measured, was never my scientific question: nobody will use Claude's stated confidence as a green light. Re-reading what the fellowship asks (environments that push Claude on the hardest, most judgment-heavy problems in a field), I concluded that most of this pilot sits beside the problem I would actually propose. Interpreting a clean behavioural results table turned out to be within Claude's reach. The harder and more contested problem in my field is inferring **representational geometry from neural data**, where analyses rest on many assumptions and experts disagree. That is the direction of my application. It came from this process and from what I know of the field, not as a conclusion the studies prove.
+
+**Paths not taken (or deferred):**
+- deeper rule trees (dropped twice: they diluted the confound);
+- an ideal-observer redesign of Studies 1-2;
+- a separate dose-response study on the artificial grammar (folded into Study 5's evidence levels);
+- the unspeeded, complex-rule regime;
+- Claude as a C-PRO participant in a fast, no-reasoning mode;
+- a test of whether changing one part propagates to every task containing it;
+- hand-validation of the Study 4 grader (skipped by decision).
 
 ## How the work was done
 
