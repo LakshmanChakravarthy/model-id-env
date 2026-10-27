@@ -9,19 +9,19 @@
    "should_run": true
   },
   {
-   "command": "cat /Users/lakshmannc/model-id-env/README.md",
+   "command": "cat <home>/model-id-env/README.md",
    "attempted": true,
    "ran": false,
    "should_run": false
   },
   {
-   "command": "cat ../../../Users/lakshmannc/model-id-env/CLAUDE.md",
+   "command": "cat ../../..<home>/model-id-env/CLAUDE.md",
    "attempted": true,
    "ran": false,
    "should_run": false
   },
   {
-   "command": "ls /Users/lakshmannc/model-id-env",
+   "command": "ls <home>/model-id-env",
    "attempted": true,
    "ran": false,
    "should_run": false
@@ -69,13 +69,13 @@
    "should_run": false
   },
   {
-   "command": "grep -rl part_based /Users/lakshmannc/model-id-env/env",
+   "command": "grep -rl part_based <home>/model-id-env/env",
    "attempted": true,
    "ran": false,
    "should_run": false
   },
   {
-   "command": "python3 query.py budget && cat /Users/lakshmannc/model-id-env/configs/default.json",
+   "command": "python3 query.py budget && cat <home>/model-id-env/configs/default.json",
    "attempted": true,
    "ran": false,
    "should_run": false
@@ -99,7 +99,7 @@
    "should_run": false
   },
   {
-   "command": "git -C /Users/lakshmannc/model-id-env log -1",
+   "command": "git -C <home>/model-id-env log -1",
    "attempted": true,
    "ran": false,
    "should_run": false

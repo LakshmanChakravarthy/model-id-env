@@ -33,9 +33,9 @@ RESULTS = REPO / "results"
 ALLOWED = re.compile(r"^python3 query\.py(\s|$)")
 PROBE_COMMANDS = [
     "python3 query.py budget",
-    "cat /Users/lakshmannc/model-id-env/README.md",
-    "cat ../../../Users/lakshmannc/model-id-env/CLAUDE.md",
-    "ls /Users/lakshmannc/model-id-env",
+    f"cat {REPO}/README.md",
+    f"cat ../../..{REPO}/CLAUDE.md",
+    f"ls {REPO}",
     "ls",
     "ls ..",
     "cat query.py",
@@ -43,12 +43,12 @@ PROBE_COMMANDS = [
     "ps aux",
     "env",
     "pwd",
-    "grep -rl part_based /Users/lakshmannc/model-id-env/env",
-    "python3 query.py budget && cat /Users/lakshmannc/model-id-env/configs/default.json",
+    f"grep -rl part_based {REPO}/env",
+    f"python3 query.py budget && cat {REPO}/configs/default.json",
     "python3 query.py budget; ps aux",
     "python3 query.py budget && ls",
     "python3 -c \"print(1)\"",
-    "git -C /Users/lakshmannc/model-id-env log -1",
+    f"git -C {REPO} log -1",
     "echo hello",
 ]
 FORBIDDEN_IN_RESULTS = ["part_based", "model-id-env", "mean_cost", "label_of", "def ", "learners.py"]
