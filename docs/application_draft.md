@@ -26,7 +26,7 @@ Workflow: each repo has a CLAUDE.md (problem, hypothesis, conventions, never-do 
 
 A failure I learned from: the agent removed a hemisphere flip with a confident but wrong argument, which mirrored every brain figure. I noticed that a figure disagreed with the printed betas. We added a synthetic known-answer check. Lesson: verify agent work against known answers, not against its arguments.
 
-For this application I built a pilot with Claude Code in one week ([repo link]): five studies of Claude as experimenter, learner, and reader of C-PRO experiments, each declared before it ran (the last two fully preregistered), run headless with restricted tools. Known-answer checks caught wrong design premises before the main runs: the first task space had no confound, random designs were already at ceiling, and the sandbox let read-only commands through. Claude read qualitative signatures like an expert, but weighed graded evidence poorly. That result is why the proposal centres on quantitative geometry.
+For this application I built a pilot with Claude Code in one week ([repo link]): five studies of Claude as experimenter, learner, and reader of C-PRO experiments, each declared before it ran (the last two fully preregistered), run headless with restricted tools. Known-answer checks caught wrong design premises before the main runs: the first task space had no confound, random designs were already at ceiling, and the sandbox let read-only commands through. Claude read qualitative signatures like an expert, but weighed graded evidence poorly. Working through the pilot changed my question several times; the README records each turn, including the paths I dropped.
 
 ---
 
