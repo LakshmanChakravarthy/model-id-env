@@ -191,7 +191,7 @@ Every check failed at least once before passing, and each failure changed the de
 | 5 | Study 2: the scripted curriculum separates all four learner variants by stage | Pass (200/200) |
 | 6 | Study 2: scripted >= 0.90 correct, and random <= scripted - 0.20 | Pass (0.94 vs. 0.70, budget 60) |
 
-## Reproduce
+## Studies 1-2: reproduce
 
 Requires Python 3 with numpy, scipy, matplotlib, and pandas, and Claude Code >= 2.1.280 for `claude-opus-5-5`.
 
@@ -214,7 +214,7 @@ python harness/inference_control.py             # study 2 inference-only control
 python analysis/summarize_study2.py && python analysis/figures_study2.py
 ```
 
-## Next steps
+## Next steps (as written after Study 2)
 
 - **Study 2 inference:** test whether giving Claude a calculator (code execution inside the sandbox) or the exact likelihoods closes the inference gap. Also, whether an explicit instruction to combine all the evidence changes the "single decisive contrast" habit.
 - **Learners with their own decomposition** (for example, negation or the TRUE/FALSE button as parts), following Elmoznino et al.'s open question about intrinsic decompositions.
@@ -229,16 +229,17 @@ python analysis/summarize_study2.py && python analysis/figures_study2.py
 ## Repo structure
 
 ```
-env/            tasks.py, learners.py, environment.py, server.py, scoring.py, config.py, ideal.py (study 2)
-harness/        run_claude.py, query.py (copied into each sandbox), prompt.md, prompt_case4.md, prompt_study2.md,
-                prompt_check3.md, baselines.py, baselines_study2.py, comprehension_control.py, inference_control.py
-analysis/       check1_dissociation.py, check2_baselines.py, check4_case4.py, check5_6_study2.py,
-                summarize.py, summarize_study2.py, figures.py, figures_study2.py
+env/            tasks.py, learners.py, environment.py, server.py, scoring.py, config.py, ideal.py (study 2),
+                cpro.py (study 5: C-PRO generative model and ideal reader)
+harness/        run_claude.py, query.py (copied into each sandbox), prompt*.md, baselines.py, baselines_study2.py,
+                comprehension_control.py, inference_control.py (studies 1-2); study3_probe.py, study3b.py ... study3e.py
+                (study 3); study4.py, run_study4.py (study 4); study5.py, run_study5.py (study 5)
+analysis/       check*.py, summarize*.py, figures*.py, study4_analysis.py, study5_analysis.py
 configs/        default.json (all parameters and seeds)
-tests/          32 tests
-results/        one JSON per run (config, query log, verdict, scores, audit, baselines on the same instance),
-                transcripts/, checks/, figures/, summary.json, comprehension_control.json
-docs/           transcripts.md
+tests/          50 tests
+results/        per-run records and transcripts (studies 1-2), study3*.json, study4/, study5/, checks/, figures/
+docs/           transcripts.md, study4_preregistration.md, study5_preregistration.md, study5_sample_reports.md,
+                application_draft.md
 ```
 
 ## Current status
@@ -509,7 +510,7 @@ Irregular worlds: R 0.54.
 3. **Its confidence is insensitive to the evidence:** about 0.6 whether the regularity is strongly supported, weakly supported, absent, or wrong. This is under-trust where the evidence is strong, and a failure to separate real from spurious structure.
 4. **The label-format account from 3e is not supported for categorical regularities.** Format matters for ordinal ones: digits invite them, which helps when they are real.
 
-## Study 5 (centerpiece): Claude interprets cognitive experiments on compositional task learning (design phase declared 2026-10-23)
+## Study 5: Claude interprets cognitive experiments on compositional task learning (design phase declared 2026-10-23)
 
 **Why.** Studies 1-4 used artificial grammars to identify failure signatures (alternative neglect, confidence that does not track evidence, selecting the wrong kind of structure) and a fix ("consider alternatives"). The user (a cognitive scientist) asked whether these matter outside artificial tasks. The answer chosen: make the centerpiece a task scientists actually do, in the user's field. Claude reads results sections of simulated C-PRO-style experiments (RT and accuracy; practice curves; test phase with practiced vs. novel tasks) and must judge what they show about **compositional vs. conjunctive representations**. Ground truth is exact, because simulated participants have known mechanisms. Decisions with the user (2026-10-23):
 - RT and accuracy only (no trials to criterion);
