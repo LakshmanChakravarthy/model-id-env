@@ -266,7 +266,7 @@ docs/           transcripts.md, study4_preregistration.md, study5_preregistratio
 
 **Completed** (2026-10-21 to 2026-10-27): Studies 1-5, the figures, the transcripts, the README synthesis, the application draft (`docs/application_draft.md`), and a scrub of the local username from the probe commands and recorded outputs.
 
-**Pending:** make the repository public and add its link to the application (deadline 2026-10-28).
+**Pending:** none. The repository is public at https://github.com/LakshmanChakravarthy/model-id-env (2026-10-28), and its link is in the application draft.
 
 ## Study 3: Claude as the learner (declared 2026-10-22)
 
